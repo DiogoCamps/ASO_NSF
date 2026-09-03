@@ -3,171 +3,166 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Automação de ASO</title>
+<title>Dashboard ASO</title>
+<!-- Fontes e Ícones -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+<!-- Chart.js para o gráfico -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
   :root {
-    --bg: #f5f5f6;
-    --paper: #ffffff;
-    --text-primary: rgba(0, 0, 0, 0.87);
-    --text-secondary: rgba(0, 0, 0, 0.6);
-    --divider: rgba(0, 0, 0, 0.12);
+    --bg: #F8FAFC;
+    --surface: #FFFFFF;
+    --text-main: #0F172A;
+    --text-muted: #64748B;
+    --border: #E2E8F0;
     
-    /* Cores Padrão MUI */
-    --primary: #1976d2;
-    --primary-hover: #1565c0;
-    --primary-light: rgba(25, 118, 210, 0.04);
+    --primary: #4F46E5;
+    --primary-hover: #4338CA;
     
-    --error: #d32f2f;
-    --error-hover: #c62828;
-    --error-light: rgba(211, 47, 47, 0.04);
+    --danger: #EF4444;
+    --danger-bg: #FEF2F2;
+    --warning: #F59E0B;
+    --warning-bg: #FFFBEB;
+    --success: #10B981;
+    --success-bg: #F0FDF4;
+    --neutral: #94A3B8;
     
-    --warning: #ed6c02;
-    --success: #2e7d32;
-    --default: #9e9e9e;
-    
-    --radius: 4px;
-    
-    /* MUI Elevations (Sombras) */
-    --shadow-1: 0px 2px 1px -1px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12);
-    --shadow-2: 0px 3px 1px -2px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 1px 5px 0px rgba(0,0,0,0.12);
-    --shadow-24: 0px 11px 15px -7px rgba(0,0,0,0.2), 0px 24px 38px 3px rgba(0,0,0,0.14), 0px 9px 46px 8px rgba(0,0,0,0.12);
+    --radius: 12px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+    --shadow-lg: 0 10px 25px -3px rgba(0,0,0,0.05);
   }
   
   * { box-sizing: border-box; }
   
   body {
     margin: 0; 
-    font-family: 'Roboto', Helvetica, Arial, sans-serif;
+    font-family: 'Inter', sans-serif;
     background: var(--bg); 
-    color: var(--text-primary); 
-    font-size: 0.875rem; /* 14px */
+    color: var(--text-main); 
+    font-size: 14px;
     -webkit-font-smoothing: antialiased;
   }
   
   main { max-width: 900px; margin: 0 auto; padding: 32px 20px 60px; }
   .oculto { display: none !important; }
 
-  /* App Bar Simulado */
+  /* Header */
   header { 
     display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; 
-    margin-bottom: 24px; padding-bottom: 16px;
-    border-bottom: 1px solid var(--divider);
+    margin-bottom: 32px;
   }
-  h1 { font-size: 1.5rem; font-weight: 500; margin: 0; color: var(--text-primary); letter-spacing: 0; }
-  h1 span { color: var(--text-secondary); font-size: 1.25rem; font-weight: 400; }
+  h1 { font-size: 24px; font-weight: 700; margin: 0; color: var(--text-main); letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px;}
+  h1 span { color: var(--text-muted); font-size: 16px; font-weight: 400; }
+  
+  /* Botões */
   .acoes-topo { display: flex; gap: 8px; }
-
-  /* MUI Buttons (Outlined & Contained) */
   button {
-    font-family: 'Roboto', Helvetica, Arial, sans-serif;
-    font-size: 0.875rem; font-weight: 500; letter-spacing: 0.02857em; text-transform: uppercase;
-    height: 36px; padding: 6px 16px; border-radius: var(--radius); cursor: pointer;
-    background: transparent; color: var(--primary); border: 1px solid rgba(25, 118, 210, 0.5);
-    transition: background-color 250ms, box-shadow 250ms, border-color 250ms, color 250ms;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px; font-weight: 600; 
+    height: 38px; padding: 0 16px; border-radius: 8px; cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    background: var(--surface); color: var(--text-main); border: 1px solid var(--border);
+    transition: all 0.2s; box-shadow: var(--shadow-sm);
   }
-  button:hover { background: var(--primary-light); border-color: var(--primary); }
-  button:disabled { color: rgba(0, 0, 0, 0.26); border-color: rgba(0, 0, 0, 0.12); cursor: default; }
+  button .material-symbols-outlined { font-size: 18px; }
+  button:hover { background: #F1F5F9; border-color: #CBD5E1; }
+  button:disabled { opacity: 0.5; cursor: default; }
   
-  button.primario { background: var(--primary); color: #fff; border: 0; box-shadow: var(--shadow-2); }
-  button.primario:hover { background: var(--primary-hover); box-shadow: var(--shadow-1); border: 0; }
-  
-  button.perigo { color: var(--error); border-color: rgba(211, 47, 47, 0.5); }
-  button.perigo:hover { background: var(--error-light); border-color: var(--error); }
+  button.primario { background: var(--primary); color: #fff; border: none; }
+  button.primario:hover { background: var(--primary-hover); }
+  button.perigo { color: var(--danger); border-color: #FCA5A5; background: var(--danger-bg); box-shadow: none;}
+  button.perigo:hover { background: #FEE2E2; }
 
-  /* MUI Outlined Inputs */
+  /* Inputs */
   input[type=text], input[type=date], input[type=number], textarea {
-    width: 100%; font-family: 'Roboto', Helvetica, Arial, sans-serif; font-size: 1rem; padding: 12.5px 14px;
-    border: 1px solid rgba(0, 0, 0, 0.23); border-radius: var(--radius); background: var(--paper); color: var(--text-primary);
-    transition: border-color 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms;
+    width: 100%; font-family: 'Inter', sans-serif; font-size: 14px; padding: 10px 14px;
+    border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text-main);
+    transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
   }
-  input:hover, textarea:hover { border-color: var(--text-primary); }
-  input:focus, textarea:focus { outline: none; border-color: var(--primary); border-width: 2px; padding: 11.5px 13px; }
-  
-  label.rotulo { font-size: 0.75rem; color: var(--text-secondary); margin: 0 0 4px 4px; display: block; font-weight: 400; }
+  input:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+  label.rotulo { font-size: 12px; font-weight: 600; color: var(--text-muted); display: block; margin: 0 0 6px 4px; }
   .campo { margin-bottom: 20px; }
 
-  /* MUI Cards */
-  .painel { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 24px 0; }
+  /* Cards Resumo */
+  .painel { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 24px 0 32px; }
   .bloco { 
-    background: var(--paper); padding: 16px; text-align: center; border-radius: var(--radius); 
-    box-shadow: var(--shadow-1); cursor: pointer; transition: box-shadow 300ms;
-    border: 1px solid transparent; 
+    background: var(--surface); padding: 20px 16px; text-align: center; border-radius: var(--radius); 
+    box-shadow: var(--shadow-md); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid var(--border);
   }
-  .bloco:hover { box-shadow: var(--shadow-2); }
-  .bloco .numero { font-size: 2.125rem; font-weight: 400; line-height: 1.235; letter-spacing: 0.00735em; margin-bottom: 4px; }
-  .bloco .rotulo-bloco { font-size: 0.75rem; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08333em; }
+  .bloco:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+  .bloco .numero { font-size: 32px; font-weight: 700; letter-spacing: -1px; margin-bottom: 4px; }
+  .bloco .rotulo-bloco { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
   
-  .bloco.vencido .numero { color: var(--error); }
+  .bloco.vencido .numero { color: var(--danger); }
   .bloco.atencao .numero { color: var(--warning); }
   .bloco.em-dia .numero { color: var(--success); }
-  .bloco.pendente .numero { color: var(--default); }
+  .bloco.pendente .numero { color: var(--neutral); }
 
-  .painel-grafico { background: var(--paper); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow-1); }
-  .painel-grafico h2 { font-size: 1rem; font-weight: 500; margin: 0 0 24px; color: var(--text-primary); }
-  .barra-linha { display: grid; grid-template-columns: 140px 1fr 30px; align-items: center; gap: 16px; margin-bottom: 12px; font-size: 0.875rem; }
-  .barra-linha:last-child { margin-bottom: 0; }
-  .barra-rotulo { color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .barra-trilho { background: rgba(0, 0, 0, 0.04); border-radius: 2px; height: 10px; overflow: hidden; }
-  .barra-preenchida { background: var(--warning); height: 100%; border-radius: 2px; }
-  .barra-valor { text-align: right; color: var(--text-secondary); }
+  /* Gráfico Chart.js */
+  .painel-grafico { background: var(--surface); border-radius: var(--radius); padding: 24px; margin-bottom: 32px; box-shadow: var(--shadow-md); border: 1px solid var(--border); }
+  .painel-grafico h2 { font-size: 15px; font-weight: 600; margin: 0 0 20px; color: var(--text-main); display: flex; align-items: center; gap: 8px;}
+  .grafico-container { position: relative; height: 250px; width: 100%; }
 
   /* Busca e Listas */
-  #busca { margin-bottom: 24px; font-size: 1rem; padding: 14px; box-shadow: var(--shadow-1); border: 0; }
-  #busca:focus { border: 0; outline: 2px solid var(--primary); padding: 14px; }
+  #busca { margin-bottom: 24px; font-size: 15px; padding: 14px 16px; box-shadow: var(--shadow-sm); }
   
   .secao { margin-top: 32px; }
   .titulo-secao { 
-    font-size: 0.875rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.02857em; 
-    padding-bottom: 8px; margin-bottom: 16px; display: flex; justify-content: space-between; 
-    border-bottom: 1px solid var(--divider); color: var(--text-secondary); 
+    font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; 
+    padding-bottom: 8px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 2px solid var(--border); color: var(--text-muted); 
   }
-  .contagem-secao { background: var(--divider); padding: 2px 8px; border-radius: 16px; font-size: 0.75rem; color: var(--text-primary); }
-  .secao-vazia { font-size: 0.875rem; color: var(--text-secondary); padding: 16px; text-align: center; }
+  .contagem-secao { background: var(--border); padding: 2px 10px; border-radius: 20px; font-size: 12px; color: var(--text-main); }
 
   .linha { 
-    background: var(--paper); display: flex; align-items: center; justify-content: space-between; 
-    padding: 16px; border-radius: var(--radius); margin-bottom: 8px; cursor: pointer; 
-    box-shadow: var(--shadow-1); border-left: 4px solid transparent; transition: box-shadow 300ms, background-color 300ms; 
+    background: var(--surface); display: flex; align-items: center; justify-content: space-between; 
+    padding: 16px 20px; border-radius: var(--radius); margin-bottom: 12px; cursor: pointer; 
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border); border-left: 5px solid transparent; 
+    transition: transform 0.1s, box-shadow 0.2s; 
   }
-  .linha:hover { box-shadow: var(--shadow-2); background: rgba(0, 0, 0, 0.02); }
-  .linha.vencido { border-left-color: var(--error); } .linha.vencido .prazo { color: var(--error); }
-  .linha.atencao { border-left-color: var(--warning); } .linha.atencao .prazo { color: var(--warning); }
+  .linha:hover { transform: translateX(4px); box-shadow: var(--shadow-md); }
+  .linha.vencido { border-left-color: var(--danger); background: var(--danger-bg); } .linha.vencido .prazo { color: var(--danger); }
+  .linha.atencao { border-left-color: var(--warning); background: var(--warning-bg); } .linha.atencao .prazo { color: var(--warning); }
   .linha.em-dia { border-left-color: var(--success); } .linha.em-dia .prazo { color: var(--success); }
-  .linha.pendente { border-left-color: var(--default); } .linha.pendente .prazo { color: var(--default); }
+  .linha.pendente { border-left-color: var(--neutral); } .linha.pendente .prazo { color: var(--neutral); }
   
-  .linha .nome { font-size: 1rem; font-weight: 400; margin-bottom: 4px; color: var(--text-primary); }
-  .linha .setor { font-size: 0.875rem; color: var(--text-secondary); }
-  .linha .prazo { font-size: 0.875rem; font-weight: 500; text-align: right; }
-  .vazio, .carregando { color: var(--text-secondary); font-size: 1rem; padding: 40px 20px; text-align: center; }
+  .linha .nome { font-size: 15px; font-weight: 600; margin-bottom: 4px; color: var(--text-main); }
+  .linha .setor { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 4px;}
+  .linha .setor .material-symbols-outlined { font-size: 14px; }
+  .linha .prazo { font-size: 14px; font-weight: 600; text-align: right; background: #fff; padding: 4px 10px; border-radius: 6px; box-shadow: var(--shadow-sm);}
+  
+  .vazio, .carregando { color: var(--text-muted); font-size: 14px; padding: 40px 20px; text-align: center; }
 
-  /* MUI Dialog (Modais) */
+  /* Modais */
   #overlay-exame, #overlay-sync, #overlay-manual, #overlay-inativos { 
-    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); 
+    position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
     display: flex; align-items: center; justify-content: center; z-index: 1300; padding: 20px; 
   }
   .modal { 
-    background: var(--paper); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 440px; 
-    box-shadow: var(--shadow-24); 
+    background: var(--surface); border-radius: 16px; padding: 32px; width: 100%; max-width: 440px; 
+    box-shadow: var(--shadow-lg); border: 1px solid var(--border);
   }
-  .modal h3 { font-size: 1.25rem; font-weight: 500; margin: 0 0 16px; color: var(--text-primary); }
-  .modal p.sub { font-size: 0.875rem; color: var(--text-secondary); margin: 0 0 24px; line-height: 1.43; }
-  .modal .rodape { display: flex; justify-content: flex-end; gap: 8px; margin-top: 32px; }
+  .modal h3 { font-size: 20px; font-weight: 700; margin: 0 0 8px; color: var(--text-main); }
+  .modal p.sub { font-size: 14px; color: var(--text-muted); margin: 0 0 24px; line-height: 1.5; }
+  .modal .rodape { display: flex; justify-content: flex-end; gap: 12px; margin-top: 32px; }
 
-  /* MUI Snackbar (Toast) */
-  #toast-container { position: fixed; bottom: 24px; left: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 1400; max-width: 90%; }
+  /* Toast */
+  #toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 1400; }
   .toast { 
-    background: #323232; color: #fff; padding: 14px 16px; border-radius: var(--radius); 
-    font-size: 0.875rem; font-weight: 400; box-shadow: var(--shadow-2); display: flex; align-items: center;
+    background: var(--text-main); color: #fff; padding: 14px 20px; border-radius: 8px; 
+    font-size: 14px; font-weight: 500; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 8px;
   }
-  .toast.erro { background: var(--error); }
+  .toast.erro { background: var(--danger); }
 
   @media (max-width: 600px) {
     .painel { grid-template-columns: repeat(2, 1fr); gap: 16px; }
     header { flex-direction: column; align-items: flex-start; }
-    .acoes-topo { width: 100%; flex-wrap: wrap; }
-    .acoes-topo button { flex: 1 1 calc(50% - 4px); }
+    .acoes-topo { width: 100%; overflow-x: auto; padding-bottom: 8px;}
   }
 </style>
 </head>
@@ -176,33 +171,35 @@
 
 <main>
   <header>
-    <h1>ASO <span>· registro de validade</span></h1>
+    <h1><span class="material-symbols-outlined" style="color: var(--primary); font-size: 28px;">health_and_safety</span> ASO <span>· Dashboard de Validade</span></h1>
     <div class="acoes-topo">
-      <button onclick="carregarAtivos()">Atualizar</button>
-      <button onclick="abrirCadastroManual()">+ Adicionar</button>
-      <button onclick="abrirSincronizacao()">Adicionar em lote</button>
-      <button onclick="abrirInativos()">Inativos</button>
+      <button onclick="carregarAtivos()"><span class="material-symbols-outlined">refresh</span> Atualizar</button>
+      <button onclick="abrirCadastroManual()" class="primario"><span class="material-symbols-outlined">person_add</span> Adicionar</button>
+      <button onclick="abrirSincronizacao()"><span class="material-symbols-outlined">upload_file</span> Lote</button>
+      <button onclick="abrirInativos()"><span class="material-symbols-outlined">history</span> Inativos</button>
     </div>
   </header>
 
   <div id="resumo" class="painel"></div>
 
   <div class="painel-grafico">
-    <h2>Pendências por setor</h2>
-    <div id="grafico-setores"></div>
+    <h2><span class="material-symbols-outlined">bar_chart</span> Pendências por setor</h2>
+    <div class="grafico-container">
+      <canvas id="graficoSetores"></canvas>
+    </div>
   </div>
 
-  <input type="text" id="busca" placeholder="Buscar por nome ou setor" oninput="aplicarFiltros()">
-  <div id="lista" class="lista"><p class="carregando">Carregando…</p></div>
+  <input type="text" id="busca" placeholder="🔍 Buscar colaborador ou setor..." oninput="aplicarFiltros()">
+  <div id="lista" class="lista"><p class="carregando">Carregando dados...</p></div>
 </main>
 
-<!-- Modal: editar exame de uma pessoa -->
+<!-- Modal: Editar -->
 <div id="overlay-exame" class="oculto">
   <div class="modal">
     <h3 id="titulo-exame"></h3>
     <p class="sub" id="setor-exame"></p>
     <div class="campo">
-      <label class="rotulo">Data do último exame</label>
+      <label class="rotulo">Data do exame</label>
       <input type="date" id="campo-data-exame">
     </div>
     <div class="campo">
@@ -210,20 +207,20 @@
       <input type="number" id="campo-validade" min="1" max="36">
     </div>
     <div class="rodape">
-      <button class="perigo" id="btn-excluir-colaborador" onclick="excluirColaboradorAtual()" style="margin-right:auto;">Excluir colaborador</button>
+      <button class="perigo" id="btn-excluir-colaborador" onclick="excluirColaboradorAtual()" style="margin-right:auto;">Excluir</button>
       <button onclick="fecharExame()">Cancelar</button>
       <button class="primario" id="btn-salvar-exame" onclick="salvarExameAtual()">Salvar</button>
     </div>
   </div>
 </div>
 
-<!-- Modal: cadastrar colaborador manualmente (sem código) -->
+<!-- Modal: Manual -->
 <div id="overlay-manual" class="oculto">
   <div class="modal">
-    <h3>Adicionar colaborador</h3>
-    <p class="sub">Pra quem ainda não apareceu no export da folha. Data e validade são opcionais — pode preencher depois.</p>
+    <h3>Novo Colaborador</h3>
+    <p class="sub">Adicione alguém que não está na planilha base.</p>
     <div class="campo">
-      <label class="rotulo">Nome</label>
+      <label class="rotulo">Nome completo</label>
       <input type="text" id="manual-nome">
     </div>
     <div class="campo">
@@ -231,11 +228,11 @@
       <input type="text" id="manual-setor">
     </div>
     <div class="campo">
-      <label class="rotulo">Data do último exame (opcional)</label>
+      <label class="rotulo">Data do exame (Opcional)</label>
       <input type="date" id="manual-data-exame">
     </div>
     <div class="campo">
-      <label class="rotulo">Validade em meses (opcional)</label>
+      <label class="rotulo">Validade em meses</label>
       <input type="number" id="manual-validade" min="1" max="36">
     </div>
     <div class="rodape">
@@ -245,25 +242,25 @@
   </div>
 </div>
 
-<!-- Modal: adicionar em lote -->
+<!-- Modal: Lote -->
 <div id="overlay-sync" class="oculto">
   <div class="modal">
-    <h3>Adicionar em lote</h3>
-    <p class="sub">Cole aqui Código, Nome e Setor de quem você quer adicionar (pode ser o export da folha, ou só uma parte). Isso só adiciona quem é novo e atualiza nome/setor de quem já existe — nunca remove ninguém. Pra remover alguém, exclua a pessoa direto na tela principal. Uma pessoa por linha, campos separados por tab.</p>
-    <textarea id="campo-sync" rows="10" placeholder="965&#9;BIANCA NATALLY APARECIDA SILVA&#9;JURIDICO"></textarea>
+    <h3>Importar em Lote</h3>
+    <p class="sub">Cole: Código [TAB] Nome [TAB] Setor. Um por linha.</p>
+    <textarea id="campo-sync" rows="8" placeholder="965&#9;João Silva&#9;Jurídico"></textarea>
     <div class="rodape">
       <button onclick="fecharSincronizacao()">Cancelar</button>
-      <button class="primario" id="btn-processar-sync" onclick="processarLote()">Adicionar</button>
+      <button class="primario" id="btn-processar-sync" onclick="processarLote()">Importar</button>
     </div>
   </div>
 </div>
 
-<!-- Modal: ver e restaurar inativos -->
+<!-- Modal: Inativos -->
 <div id="overlay-inativos" class="oculto">
   <div class="modal">
-    <h3>Inativos</h3>
-    <p class="sub">Quem saiu da empresa (ou foi removido por engano). Nada aqui é apagado de verdade — só clicar em restaurar.</p>
-    <div id="lista-inativos" style="max-height:320px; overflow-y:auto;"></div>
+    <h3>Histórico de Inativos</h3>
+    <p class="sub">Colaboradores removidos do sistema.</p>
+    <div id="lista-inativos" style="max-height:320px; overflow-y:auto; margin-bottom: 20px;"></div>
     <div class="rodape">
       <button onclick="fecharInativos()">Fechar</button>
     </div>
@@ -271,10 +268,11 @@
 </div>
 
 <script>
-  // A URL do seu Web App já configurada
+  // Link do seu Web App
   const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyIG3_Ae2Xpu8eUhx40Z6U7wsz8d1YC30nACQxqPmjh92bZtKM3YNuzzb89Yh2u6SJBQ/exec';
 
   let itens = [];
+  let chartInstancia = null; // Variável para controlar o Chart.js
 
   async function chamarAPI(action, extra) {
     const corpo = Object.assign({ action: action }, extra || {});
@@ -289,7 +287,7 @@
       if (dados.erro) throw new Error(dados.erro);
       return dados;
     } catch (erro) {
-      mostrarToast('Algo deu errado (' + action + '): ' + erro.message, 'erro');
+      mostrarToast(erro.message, 'erro');
       throw erro;
     }
   }
@@ -298,16 +296,18 @@
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
     toast.className = 'toast' + (tipo === 'erro' ? ' erro' : '');
-    toast.textContent = mensagem;
+    const icon = tipo === 'erro' ? 'error' : 'check_circle';
+    toast.innerHTML = `<span class="material-symbols-outlined">${icon}</span> ${mensagem}`;
     container.appendChild(toast);
-    setTimeout(function () {
+    setTimeout(() => {
       toast.style.opacity = '0';
-      setTimeout(function () { toast.remove(); }, 200);
-    }, 3500);
+      toast.style.transition = 'opacity 0.3s';
+      setTimeout(() => toast.remove(), 300);
+    }, 4000);
   }
 
   async function carregarAtivos() {
-    document.getElementById('lista').innerHTML = '<p class="carregando">Carregando…</p>';
+    document.getElementById('lista').innerHTML = '<p class="carregando">Sincronizando dados...</p>';
     const dados = await chamarAPI('obterAtivos', {});
     itens = dados.itens;
     renderizarResumo();
@@ -319,59 +319,94 @@
     const contagem = {};
     itens.forEach(function (item) {
       if (item.status === 'EM DIA') return;
-      const setor = item.setor || '(sem setor)';
+      const setor = item.setor || 'Sem Setor';
       contagem[setor] = (contagem[setor] || 0) + 1;
     });
     return contagem;
   }
 
+  // NOVA FUNÇÃO DO GRÁFICO (Chart.js)
   function renderizarGraficoSetores() {
     const contagem = contarPendenciasPorSetor();
-    const setores = Object.keys(contagem).sort(function (a, b) { return contagem[b] - contagem[a]; });
-    const container = document.getElementById('grafico-setores');
+    const setores = Object.keys(contagem).sort((a, b) => contagem[b] - contagem[a]).slice(0, 7); // Top 7 setores
+    const valores = setores.map(s => contagem[s]);
+    
+    const ctx = document.getElementById('graficoSetores');
+    
+    // Destrói o gráfico antigo se existir para evitar sobreposição
+    if (chartInstancia) {
+      chartInstancia.destroy();
+    }
+
     if (setores.length === 0) {
-      container.innerHTML = '<p class="secao-vazia">Nenhuma pendência por setor.</p>';
+      ctx.style.display = 'none';
+      ctx.parentElement.innerHTML += '<p class="vazio" style="padding:10px;">Tudo limpo! Nenhuma pendência registrada.</p>';
       return;
     }
-    const maiorValor = contagem[setores[0]];
-    container.innerHTML = '';
-    setores.slice(0, 10).forEach(function (setor) {
-      const pct = Math.max(6, Math.round((contagem[setor] / maiorValor) * 100));
-      const linha = document.createElement('div');
-      linha.className = 'barra-linha';
-      linha.innerHTML =
-        '<div class="barra-rotulo">' + setor + '</div>' +
-        '<div class="barra-trilho"><div class="barra-preenchida" style="width:' + pct + '%"></div></div>' +
-        '<div class="barra-valor">' + contagem[setor] + '</div>';
-      container.appendChild(linha);
+
+    ctx.style.display = 'block';
+    
+    // Configura o visual do Chart.js
+    chartInstancia = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: setores,
+        datasets: [{
+          label: 'Pendências',
+          data: valores,
+          backgroundColor: '#F59E0B',
+          borderRadius: 6,
+          barThickness: 24
+        }]
+      },
+      options: {
+        indexAxis: 'y', // Transforma em barras horizontais
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#0F172A',
+            padding: 12,
+            titleFont: { family: 'Inter', size: 14 },
+            bodyFont: { family: 'Inter', size: 14 },
+            displayColors: false
+          }
+        },
+        scales: {
+          x: { 
+            grid: { color: '#F1F5F9' },
+            ticks: { stepSize: 1, font: { family: 'Inter' } },
+            border: { display: false }
+          },
+          y: { 
+            grid: { display: false },
+            ticks: { font: { family: 'Inter', weight: '500' }, color: '#475569' },
+            border: { display: false }
+          }
+        }
+      }
     });
   }
 
   const GRUPOS_STATUS = [
     { chave: 'VENCIDO', rotulo: 'Vencidos', classe: 'vencido' },
-    { chave: 'ATENÇÃO', rotulo: 'Atenção · 30 dias', classe: 'atencao' },
+    { chave: 'ATENÇÃO', rotulo: 'Atenção 30d', classe: 'atencao' },
     { chave: 'EM DIA', rotulo: 'Em dia', classe: 'em-dia' },
     { chave: 'PENDENTE', rotulo: 'Sem exame', classe: 'pendente' }
   ];
 
-  function contarPorStatus(lista) {
-    const contagem = { VENCIDO: 0, 'ATENÇÃO': 0, 'EM DIA': 0, PENDENTE: 0 };
-    lista.forEach(function (item) {
-      const chave = item.status || 'PENDENTE';
-      contagem[chave] = (contagem[chave] || 0) + 1;
-    });
-    return contagem;
-  }
-
   function renderizarResumo() {
-    const contagem = contarPorStatus(itens);
+    const contagem = { VENCIDO: 0, 'ATENÇÃO': 0, 'EM DIA': 0, PENDENTE: 0 };
+    itens.forEach(item => { contagem[item.status || 'PENDENTE'] = (contagem[item.status || 'PENDENTE'] || 0) + 1; });
+    
     const container = document.getElementById('resumo');
     container.innerHTML = '';
-    GRUPOS_STATUS.forEach(function (c) {
+    GRUPOS_STATUS.forEach(c => {
       const bloco = document.createElement('div');
       bloco.className = 'bloco ' + c.classe;
-      bloco.innerHTML = '<div class="numero">' + String(contagem[c.chave]).padStart(2, '0') + '</div><div class="rotulo-bloco">' + c.rotulo + '</div>';
-      bloco.onclick = function () {
+      bloco.innerHTML = `<div class="numero">${String(contagem[c.chave]).padStart(2, '0')}</div><div class="rotulo-bloco">${c.rotulo}</div>`;
+      bloco.onclick = () => {
         const secao = document.getElementById('secao-' + c.classe);
         if (secao) secao.scrollIntoView({ behavior: 'smooth', block: 'start' });
       };
@@ -383,18 +418,16 @@
     let lista = itens;
     const termo = document.getElementById('busca').value.trim().toLowerCase();
     if (termo) {
-      lista = lista.filter(function (item) {
-        return item.nome.toLowerCase().includes(termo) || item.setor.toLowerCase().includes(termo);
-      });
+      lista = lista.filter(item => item.nome.toLowerCase().includes(termo) || item.setor.toLowerCase().includes(termo));
     }
     renderizarSecoes(lista);
   }
 
   function textoDias(item) {
-    if (item.diasRestantes === null || item.diasRestantes === '') return 'sem data';
-    if (item.diasRestantes < 0) return '−' + Math.abs(item.diasRestantes) + 'd';
-    if (item.diasRestantes === 0) return 'hoje';
-    return '+' + item.diasRestantes + 'd';
+    if (item.diasRestantes === null || item.diasRestantes === '') return 'Sem data';
+    if (item.diasRestantes < 0) return Math.abs(item.diasRestantes) + ' dias atrasado';
+    if (item.diasRestantes === 0) return 'Vence hoje';
+    return item.diasRestantes + ' dias restantes';
   }
 
   function renderizarSecoes(lista) {
@@ -402,109 +435,95 @@
     container.innerHTML = '';
 
     if (itens.length === 0) {
-      container.innerHTML = '<p class="vazio">Nada registrado ainda. Adicione um colaborador pra começar.</p>';
+      container.innerHTML = '<p class="vazio">Banco de dados vazio.</p>';
       return;
     }
 
     const porStatus = { VENCIDO: [], 'ATENÇÃO': [], 'EM DIA': [], PENDENTE: [] };
-    lista.forEach(function (item) {
-      porStatus[item.status || 'PENDENTE'].push(item);
-    });
-    Object.keys(porStatus).forEach(function (chave) {
-      porStatus[chave].sort(function (a, b) {
+    lista.forEach(item => porStatus[item.status || 'PENDENTE'].push(item));
+    
+    Object.keys(porStatus).forEach(chave => {
+      porStatus[chave].sort((a, b) => {
         const da = (a.diasRestantes === null || a.diasRestantes === '') ? Infinity : a.diasRestantes;
         const db = (b.diasRestantes === null || b.diasRestantes === '') ? Infinity : b.diasRestantes;
         return da - db;
       });
     });
 
-    const termoAtivo = document.getElementById('busca').value.trim();
     let algumResultado = false;
 
-    GRUPOS_STATUS.forEach(function (g) {
+    GRUPOS_STATUS.forEach(g => {
       const pessoas = porStatus[g.chave];
       if (pessoas.length > 0) algumResultado = true;
 
       const secao = document.createElement('div');
       secao.className = 'secao';
       secao.id = 'secao-' + g.classe;
-      secao.innerHTML = '<div class="titulo-secao ' + g.classe + '"><span>' + g.rotulo + '</span><span class="contagem-secao">' + pessoas.length + '</span></div>';
+      secao.innerHTML = `<div class="titulo-secao"><span>${g.rotulo}</span><span class="contagem-secao">${pessoas.length}</span></div>`;
 
       if (pessoas.length === 0) {
-        secao.innerHTML += '<p class="secao-vazia">Ninguém aqui.</p>';
+        secao.innerHTML += '<p class="vazio" style="padding: 10px;">Nenhum registro nesta categoria.</p>';
       } else {
-        pessoas.forEach(function (item) {
+        pessoas.forEach(item => {
           const linha = document.createElement('div');
           linha.className = 'linha ' + g.classe;
-          linha.onclick = function () { abrirExame(item); };
-          linha.innerHTML =
-            '<div><div class="nome">' + item.nome + '</div><div class="setor">' + item.setor + '</div></div>' +
-            '<div class="prazo">' + textoDias(item) + '</div>';
+          linha.onclick = () => abrirExame(item);
+          linha.innerHTML = `
+            <div>
+              <div class="nome">${item.nome}</div>
+              <div class="setor"><span class="material-symbols-outlined">work</span> ${item.setor}</div>
+            </div>
+            <div class="prazo">${textoDias(item)}</div>
+          `;
           secao.appendChild(linha);
         });
       }
       container.appendChild(secao);
     });
 
-    if (!algumResultado && termoAtivo) {
-      container.innerHTML = '<p class="vazio">Nenhum resultado com essa busca.</p>';
-    }
+    if (!algumResultado) container.innerHTML = '<p class="vazio">Nenhum resultado encontrado.</p>';
   }
 
   let itemEmEdicao = null;
-
+  
   function abrirExame(item) {
     itemEmEdicao = item;
     document.getElementById('titulo-exame').textContent = item.nome;
-    document.getElementById('setor-exame').textContent = item.setor;
+    document.getElementById('setor-exame').innerHTML = `<span class="material-symbols-outlined" style="font-size:14px; vertical-align:middle;">work</span> ${item.setor}`;
     document.getElementById('campo-data-exame').value = item.dataExame ? new Date(item.dataExame).toISOString().slice(0, 10) : '';
     document.getElementById('campo-validade').value = item.validadeMeses || '';
-    const botaoExcluir = document.getElementById('btn-excluir-colaborador');
-    botaoExcluir.textContent = 'Excluir colaborador';
-    botaoExcluir.dataset.confirmando = '';
+    const btn = document.getElementById('btn-excluir-colaborador');
+    btn.textContent = 'Excluir';
+    btn.dataset.confirmando = '';
     document.getElementById('overlay-exame').classList.remove('oculto');
   }
 
-  function fecharExame() {
-    document.getElementById('overlay-exame').classList.add('oculto');
-  }
+  function fecharExame() { document.getElementById('overlay-exame').classList.add('oculto'); }
 
   async function excluirColaboradorAtual() {
-    const botao = document.getElementById('btn-excluir-colaborador');
-    if (!botao.dataset.confirmando) {
-      botao.dataset.confirmando = '1';
-      botao.textContent = 'Clique de novo pra confirmar';
+    const btn = document.getElementById('btn-excluir-colaborador');
+    if (!btn.dataset.confirmando) {
+      btn.dataset.confirmando = '1';
+      btn.textContent = 'Confirmar exclusão?';
       return;
     }
-    botao.disabled = true;
-    botao.textContent = 'Excluindo…';
+    btn.disabled = true; btn.textContent = 'Removendo...';
     try {
       await chamarAPI('excluirColaborador', { codigo: itemEmEdicao.codigo });
-      fecharExame();
-      mostrarToast(itemEmEdicao.nome + ' movido(a) para Inativos.');
-      await carregarAtivos();
-    } finally {
-      botao.disabled = false;
-    }
+      fecharExame(); mostrarToast('Colaborador inativado.'); await carregarAtivos();
+    } finally { btn.disabled = false; }
   }
 
   async function salvarExameAtual() {
     const data = document.getElementById('campo-data-exame').value;
-    const validade = document.getElementById('campo-validade').value;
-    if (!data || !validade) { mostrarToast('Preencha data e validade.', 'erro'); return; }
-
-    const botao = document.getElementById('btn-salvar-exame');
-    botao.disabled = true;
-    botao.textContent = 'Salvando…';
+    const val = document.getElementById('campo-validade').value;
+    if (!data || !val) return mostrarToast('Preencha data e validade.', 'erro');
+    const btn = document.getElementById('btn-salvar-exame');
+    btn.disabled = true; btn.textContent = 'Salvando...';
     try {
-      await chamarAPI('salvarExame', { codigo: itemEmEdicao.codigo, dataExame: data, validadeMeses: Number(validade) });
-      fecharExame();
-      mostrarToast('Exame salvo.');
-      await carregarAtivos();
-    } finally {
-      botao.disabled = false;
-      botao.textContent = 'Salvar';
-    }
+      await chamarAPI('salvarExame', { codigo: itemEmEdicao.codigo, dataExame: data, validadeMeses: Number(val) });
+      fecharExame(); mostrarToast('Dados atualizados.'); await carregarAtivos();
+    } finally { btn.disabled = false; btn.textContent = 'Salvar'; }
   }
 
   function abrirCadastroManual() {
@@ -514,105 +533,70 @@
     document.getElementById('manual-validade').value = '';
     document.getElementById('overlay-manual').classList.remove('oculto');
   }
-
-  function fecharCadastroManual() {
-    document.getElementById('overlay-manual').classList.add('oculto');
-  }
+  function fecharCadastroManual() { document.getElementById('overlay-manual').classList.add('oculto'); }
 
   async function salvarCadastroManual() {
     const nome = document.getElementById('manual-nome').value.trim();
     const setor = document.getElementById('manual-setor').value.trim();
-    if (!nome || !setor) { mostrarToast('Preencha nome e setor.', 'erro'); return; }
+    if (!nome || !setor) return mostrarToast('Nome e setor obrigatórios.', 'erro');
+    
     const dataExame = document.getElementById('manual-data-exame').value;
     const validade = document.getElementById('manual-validade').value;
-
-    const botao = document.getElementById('btn-cadastro-manual');
-    botao.disabled = true;
-    botao.textContent = 'Adicionando…';
+    const btn = document.getElementById('btn-cadastro-manual');
+    btn.disabled = true; btn.textContent = 'Processando...';
     try {
-      await chamarAPI('adicionarColaboradorManual', {
-        nome: nome, setor: setor,
-        dataExame: dataExame || null, validadeMeses: validade ? Number(validade) : null
-      });
-      fecharCadastroManual();
-      mostrarToast(nome + ' adicionado(a).');
-      await carregarAtivos();
-    } finally {
-      botao.disabled = false;
-      botao.textContent = 'Adicionar';
-    }
+      await chamarAPI('adicionarColaboradorManual', { nome, setor, dataExame: dataExame || null, validadeMeses: validade ? Number(validade) : null });
+      fecharCadastroManual(); mostrarToast('Colaborador adicionado.'); await carregarAtivos();
+    } finally { btn.disabled = false; btn.textContent = 'Adicionar'; }
   }
 
-  function abrirSincronizacao() {
-    document.getElementById('campo-sync').value = '';
-    document.getElementById('overlay-sync').classList.remove('oculto');
-  }
-
-  function fecharSincronizacao() {
-    document.getElementById('overlay-sync').classList.add('oculto');
-  }
-
-  function linhasDoTextoDeSincronizacao() {
-    const texto = document.getElementById('campo-sync').value.trim();
-    return texto.split('\n').map(function (linha) {
-      const partes = linha.includes('\t') ? linha.split('\t')
-        : linha.includes(',') ? linha.split(',')
-        : linha.split(/\s{2,}/);
-      return { codigo: (partes[0] || '').trim(), nome: (partes[1] || '').trim(), setor: (partes[2] || '').trim() };
-    }).filter(function (l) { return l.codigo; });
-  }
+  function abrirSincronizacao() { document.getElementById('campo-sync').value = ''; document.getElementById('overlay-sync').classList.remove('oculto'); }
+  function fecharSincronizacao() { document.getElementById('overlay-sync').classList.add('oculto'); }
 
   async function processarLote() {
-    const linhas = linhasDoTextoDeSincronizacao();
-    if (linhas.length === 0) { mostrarToast('Nenhuma linha válida encontrada — confira se cada linha tem código, nome e setor.', 'erro'); return; }
-
-    const botao = document.getElementById('btn-processar-sync');
-    botao.disabled = true;
-    botao.textContent = 'Adicionando…';
+    const texto = document.getElementById('campo-sync').value.trim();
+    const linhas = texto.split('\n').map(l => {
+      const p = l.includes('\t') ? l.split('\t') : l.split(/\s{2,}/);
+      return { codigo: (p[0]||'').trim(), nome: (p[1]||'').trim(), setor: (p[2]||'').trim() };
+    }).filter(l => l.codigo);
+    
+    if (linhas.length === 0) return mostrarToast('Formato inválido.', 'erro');
+    
+    const btn = document.getElementById('btn-processar-sync');
+    btn.disabled = true; btn.textContent = 'Importando...';
     try {
-      const resultado = await chamarAPI('adicionarEmLote', { linhas: linhas });
-      fecharSincronizacao();
-      mostrarToast(resultado.adicionados + ' adicionado(s), ' + resultado.atualizados + ' atualizado(s).');
-      await carregarAtivos();
-    } finally {
-      botao.disabled = false;
-      botao.textContent = 'Adicionar';
-    }
+      const res = await chamarAPI('adicionarEmLote', { linhas });
+      fecharSincronizacao(); mostrarToast(`${res.adicionados} novos, ${res.atualizados} atualizados.`); await carregarAtivos();
+    } finally { btn.disabled = false; btn.textContent = 'Importar'; }
   }
 
   async function abrirInativos() {
     document.getElementById('overlay-inativos').classList.remove('oculto');
     const lista = document.getElementById('lista-inativos');
-    lista.innerHTML = '<p class="carregando">Carregando…</p>';
+    lista.innerHTML = '<p class="carregando">Buscando histórico...</p>';
     const dados = await chamarAPI('obterInativos', {});
-    lista.innerHTML = '';
-    if (dados.itens.length === 0) {
-      lista.innerHTML = '<p class="vazio">Nenhum inativo.</p>';
-      return;
-    }
-    dados.itens.forEach(function (item) {
-      const linha = document.createElement('div');
-      linha.className = 'linha';
-      linha.style.cursor = 'default';
-      const data = item.dataSaida ? new Date(item.dataSaida).toLocaleDateString('pt-BR') : '';
-      linha.innerHTML =
-        '<div><div class="nome">' + item.nome + '</div><div class="setor">' + item.setor + ' — saiu em ' + data + '</div></div>' +
-        '<span style="color:var(--primary); cursor:pointer; font-size:12px; font-weight:500;" onclick="restaurarInativo(' + item.linha + ')">RESTAURAR</span>';
-      lista.appendChild(linha);
-    });
+    
+    if (dados.itens.length === 0) { lista.innerHTML = '<p class="vazio">Nenhum inativo encontrado.</p>'; return; }
+    
+    lista.innerHTML = dados.itens.map(item => {
+      const data = item.dataSaida ? new Date(item.dataSaida).toLocaleDateString('pt-BR') : 'Data desconhecida';
+      return `
+        <div class="linha" style="cursor:default; margin-bottom: 8px; padding: 12px;">
+          <div><div class="nome">${item.nome}</div><div class="setor">Removido em: ${data}</div></div>
+          <button class="primario" style="height:28px; font-size:11px;" onclick="restaurarInativo(${item.linha})">Restaurar</button>
+        </div>
+      `;
+    }).join('');
   }
-
-  function fecharInativos() {
-    document.getElementById('overlay-inativos').classList.add('oculto');
-  }
+  function fecharInativos() { document.getElementById('overlay-inativos').classList.add('oculto'); }
 
   async function restaurarInativo(linha) {
-    await chamarAPI('restaurarDeInativos', { linha: linha });
-    mostrarToast('Restaurado.');
-    await abrirInativos();
-    await carregarAtivos();
+    await chamarAPI('restaurarDeInativos', { linha });
+    mostrarToast('Colaborador restaurado com sucesso.');
+    await abrirInativos(); await carregarAtivos();
   }
 
+  // Inicializa o app
   carregarAtivos();
 </script>
 </body>
