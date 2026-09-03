@@ -476,19 +476,6 @@
     finally { btn.disabled = false; btn.textContent = 'Criar registro'; }
   }
 
-  function abrirSincronizacao() { document.getElementById('campo-sync').value = ''; document.getElementById('overlay-sync').classList.remove('oculto'); }
-  function fecharSincronizacao() { document.getElementById('overlay-sync').classList.add('oculto'); }
-
-  async function processarLote() {
-    const linhas = document.getElementById('campo-sync').value.trim().split('\n').map(l => {
-      const p = l.includes('\t') ? l.split('\t') : l.split(/\s{2,}/); return { codigo: (p[0]||'').trim(), nome: (p[1]||'').trim(), setor: (p[2]||'').trim() };
-    }).filter(l => l.codigo);
-    if (!linhas.length) return mostrarToast('Formato inválido.', 'erro');
-    const btn = document.getElementById('btn-processar-sync'); btn.disabled = true; btn.textContent = 'Importando...';
-    try { const res = await chamarAPI('adicionarEmLote', { linhas }); fecharSincronizacao(); mostrarToast(`${res.adicionados} importados.`); await carregarAtivos(); } 
-    finally { btn.disabled = false; btn.textContent = 'Iniciar importação'; }
-  }
-
   async function abrirInativos() {
     document.getElementById('overlay-inativos').classList.remove('oculto');
     const lista = document.getElementById('lista-inativos'); lista.innerHTML = '<p class="carregando">Carregando...</p>';
@@ -497,7 +484,7 @@
     lista.innerHTML = dados.itens.map(item => `
       <div class="linha" style="cursor:default; padding: 12px; border:1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px;">
         <div class="linha-info"><span class="nome">${item.nome}</span><span class="setor">Desligado</span></div>
-        <button onclick="restaurarInativo(${item.linha})"><i data-lucide="refresh-ccw"></i></button>
+        <button onclick="restaurarInativo(${item.linha})">restaurar</button>
       </div>`).join('');
     lucide.createIcons({root: lista});
   }
