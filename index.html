@@ -5,123 +5,169 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Automação de ASO</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --paper: #F2EFE6;
-    --paper-raised: #FBF9F2;
-    --ink: #24211C;
-    --ink-soft: #6B6558;
-    --ink-faint: #A8A196;
-    --steel: #3A4750;
-    --steel-line: #C9C2B4;
-    --caution: #B5790A;
-    --caution-bg: #F3E1B8;
-    --danger: #A13327;
-    --danger-bg: #EFD4CC;
-    --clear: #3F6B4E;
-    --clear-bg: #DCE6DC;
-    --radius: 3px;
+    --bg: #f5f5f6;
+    --paper: #ffffff;
+    --text-primary: rgba(0, 0, 0, 0.87);
+    --text-secondary: rgba(0, 0, 0, 0.6);
+    --divider: rgba(0, 0, 0, 0.12);
+    
+    /* Cores Padrão MUI */
+    --primary: #1976d2;
+    --primary-hover: #1565c0;
+    --primary-light: rgba(25, 118, 210, 0.04);
+    
+    --error: #d32f2f;
+    --error-hover: #c62828;
+    --error-light: rgba(211, 47, 47, 0.04);
+    
+    --warning: #ed6c02;
+    --success: #2e7d32;
+    --default: #9e9e9e;
+    
+    --radius: 4px;
+    
+    /* MUI Elevations (Sombras) */
+    --shadow-1: 0px 2px 1px -1px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12);
+    --shadow-2: 0px 3px 1px -2px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 1px 5px 0px rgba(0,0,0,0.12);
+    --shadow-24: 0px 11px 15px -7px rgba(0,0,0,0.2), 0px 24px 38px 3px rgba(0,0,0,0.14), 0px 9px 46px 8px rgba(0,0,0,0.12);
   }
+  
   * { box-sizing: border-box; }
+  
   body {
-    margin: 0; font-family: 'IBM Plex Sans', -apple-system, sans-serif;
-    background: var(--paper); color: var(--ink); font-size: 14px;
+    margin: 0; 
+    font-family: 'Roboto', Helvetica, Arial, sans-serif;
+    background: var(--bg); 
+    color: var(--text-primary); 
+    font-size: 0.875rem; /* 14px */
+    -webkit-font-smoothing: antialiased;
   }
-  .num { font-family: 'IBM Plex Mono', monospace; }
-  main { max-width: 780px; margin: 0 auto; padding: 32px 20px 60px; }
+  
+  main { max-width: 900px; margin: 0 auto; padding: 32px 20px 60px; }
   .oculto { display: none !important; }
 
-  header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; flex-wrap: wrap; gap: 10px; border-bottom: 2px solid var(--ink); padding-bottom: 12px; }
-  h1 { font-size: 19px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
-  h1 span { color: var(--ink-soft); font-weight: 500; }
+  /* App Bar Simulado */
+  header { 
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; 
+    margin-bottom: 24px; padding-bottom: 16px;
+    border-bottom: 1px solid var(--divider);
+  }
+  h1 { font-size: 1.5rem; font-weight: 500; margin: 0; color: var(--text-primary); letter-spacing: 0; }
+  h1 span { color: var(--text-secondary); font-size: 1.25rem; font-weight: 400; }
   .acoes-topo { display: flex; gap: 8px; }
 
+  /* MUI Buttons (Outlined & Contained) */
   button {
-    font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 500; height: 32px; padding: 0 13px;
-    background: var(--paper-raised); border: 1px solid var(--steel); border-radius: var(--radius); cursor: pointer; color: var(--ink);
+    font-family: 'Roboto', Helvetica, Arial, sans-serif;
+    font-size: 0.875rem; font-weight: 500; letter-spacing: 0.02857em; text-transform: uppercase;
+    height: 36px; padding: 6px 16px; border-radius: var(--radius); cursor: pointer;
+    background: transparent; color: var(--primary); border: 1px solid rgba(25, 118, 210, 0.5);
+    transition: background-color 250ms, box-shadow 250ms, border-color 250ms, color 250ms;
   }
-  button:hover { background: #fff; }
-  button:disabled { opacity: 0.5; cursor: default; }
-  button.primario { background: var(--steel); color: var(--paper-raised); border-color: var(--steel); }
-  button.perigo { color: var(--danger); border-color: var(--danger); background: transparent; }
+  button:hover { background: var(--primary-light); border-color: var(--primary); }
+  button:disabled { color: rgba(0, 0, 0, 0.26); border-color: rgba(0, 0, 0, 0.12); cursor: default; }
+  
+  button.primario { background: var(--primary); color: #fff; border: 0; box-shadow: var(--shadow-2); }
+  button.primario:hover { background: var(--primary-hover); box-shadow: var(--shadow-1); border: 0; }
+  
+  button.perigo { color: var(--error); border-color: rgba(211, 47, 47, 0.5); }
+  button.perigo:hover { background: var(--error-light); border-color: var(--error); }
 
+  /* MUI Outlined Inputs */
   input[type=text], input[type=date], input[type=number], textarea {
-    width: 100%; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; padding: 8px 10px;
-    border: 1px solid var(--steel-line); border-radius: var(--radius); background: var(--paper-raised); color: var(--ink);
+    width: 100%; font-family: 'Roboto', Helvetica, Arial, sans-serif; font-size: 1rem; padding: 12.5px 14px;
+    border: 1px solid rgba(0, 0, 0, 0.23); border-radius: var(--radius); background: var(--paper); color: var(--text-primary);
+    transition: border-color 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms;
   }
-  input:focus, textarea:focus, button:focus { outline: 2px solid var(--steel); outline-offset: 1px; }
-  label.rotulo { font-size: 11px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; display: block; margin: 0 0 6px; }
-  .campo { margin-bottom: 12px; }
+  input:hover, textarea:hover { border-color: var(--text-primary); }
+  input:focus, textarea:focus { outline: none; border-color: var(--primary); border-width: 2px; padding: 11.5px 13px; }
+  
+  label.rotulo { font-size: 0.75rem; color: var(--text-secondary); margin: 0 0 4px 4px; display: block; font-weight: 400; }
+  .campo { margin-bottom: 20px; }
 
-  .painel { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--ink); margin: 18px 0; background: var(--paper-raised); }
+  /* MUI Cards */
+  .painel { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 24px 0; }
+  .bloco { 
+    background: var(--paper); padding: 16px; text-align: center; border-radius: var(--radius); 
+    box-shadow: var(--shadow-1); cursor: pointer; transition: box-shadow 300ms;
+    border: 1px solid transparent; 
+  }
+  .bloco:hover { box-shadow: var(--shadow-2); }
+  .bloco .numero { font-size: 2.125rem; font-weight: 400; line-height: 1.235; letter-spacing: 0.00735em; margin-bottom: 4px; }
+  .bloco .rotulo-bloco { font-size: 0.75rem; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08333em; }
+  
+  .bloco.vencido .numero { color: var(--error); }
+  .bloco.atencao .numero { color: var(--warning); }
+  .bloco.em-dia .numero { color: var(--success); }
+  .bloco.pendente .numero { color: var(--default); }
 
-  .painel-grafico { background: var(--paper-raised); border: 1px solid var(--steel-line); padding: 16px; margin-bottom: 18px; }
-  .painel-grafico h2 { font-size: 12px; font-weight: 700; margin: 0 0 14px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink-soft); }
-  .barra-linha { display: grid; grid-template-columns: 130px 1fr 28px; align-items: center; gap: 10px; margin-bottom: 9px; font-size: 12px; }
+  .painel-grafico { background: var(--paper); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow-1); }
+  .painel-grafico h2 { font-size: 1rem; font-weight: 500; margin: 0 0 24px; color: var(--text-primary); }
+  .barra-linha { display: grid; grid-template-columns: 140px 1fr 30px; align-items: center; gap: 16px; margin-bottom: 12px; font-size: 0.875rem; }
   .barra-linha:last-child { margin-bottom: 0; }
-  .barra-rotulo { color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .barra-trilho { background: var(--paper); border: 1px solid var(--steel-line); height: 14px; border-radius: 2px; overflow: hidden; }
-  .barra-preenchida { background: var(--caution); height: 100%; }
-  .barra-valor { font-family: 'IBM Plex Mono', monospace; text-align: right; color: var(--ink-soft); }
-  .bloco { padding: 14px 12px; text-align: center; cursor: pointer; border-right: 1px solid var(--steel-line); position: relative; }
-  .bloco:last-child { border-right: none; }
-  .bloco .numero { font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 600; line-height: 1; }
-  .bloco .rotulo-bloco { font-size: 11px; color: var(--ink-soft); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.03em; }
-  .bloco.vencido .numero { color: var(--danger); }
-  .bloco.atencao .numero { color: var(--caution); }
-  .bloco.em-dia .numero { color: var(--clear); }
-  .bloco.pendente .numero { color: var(--ink-faint); }
-  .bloco.ativo { background: var(--ink); }
-  .bloco.ativo .numero, .bloco.ativo .rotulo-bloco { color: var(--paper); }
+  .barra-rotulo { color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .barra-trilho { background: rgba(0, 0, 0, 0.04); border-radius: 2px; height: 10px; overflow: hidden; }
+  .barra-preenchida { background: var(--warning); height: 100%; border-radius: 2px; }
+  .barra-valor { text-align: right; color: var(--text-secondary); }
 
-  .lista { margin-top: 4px; }
-  .secao { margin-top: 22px; }
-  .secao:first-child { margin-top: 8px; }
-  .titulo-secao {
-    font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;
-    padding: 0 2px 6px; border-bottom: 2px solid currentColor; margin-bottom: 0;
-    display: flex; justify-content: space-between; align-items: baseline;
+  /* Busca e Listas */
+  #busca { margin-bottom: 24px; font-size: 1rem; padding: 14px; box-shadow: var(--shadow-1); border: 0; }
+  #busca:focus { border: 0; outline: 2px solid var(--primary); padding: 14px; }
+  
+  .secao { margin-top: 32px; }
+  .titulo-secao { 
+    font-size: 0.875rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.02857em; 
+    padding-bottom: 8px; margin-bottom: 16px; display: flex; justify-content: space-between; 
+    border-bottom: 1px solid var(--divider); color: var(--text-secondary); 
   }
-  .titulo-secao.vencido { color: var(--danger); }
-  .titulo-secao.atencao { color: var(--caution); }
-  .titulo-secao.em-dia { color: var(--clear); }
-  .titulo-secao.pendente { color: var(--ink-faint); }
-  .contagem-secao { font-family: 'IBM Plex Mono', monospace; font-size: 12px; }
-  .secao-vazia { font-size: 12px; color: var(--ink-faint); padding: 10px 2px; margin: 0; }
-  .linha {
-    display: flex; align-items: center; justify-content: space-between; padding: 11px 12px 11px 14px;
-    border-bottom: 1px solid var(--steel-line); cursor: pointer; gap: 10px; border-left: 4px solid transparent;
+  .contagem-secao { background: var(--divider); padding: 2px 8px; border-radius: 16px; font-size: 0.75rem; color: var(--text-primary); }
+  .secao-vazia { font-size: 0.875rem; color: var(--text-secondary); padding: 16px; text-align: center; }
+
+  .linha { 
+    background: var(--paper); display: flex; align-items: center; justify-content: space-between; 
+    padding: 16px; border-radius: var(--radius); margin-bottom: 8px; cursor: pointer; 
+    box-shadow: var(--shadow-1); border-left: 4px solid transparent; transition: box-shadow 300ms, background-color 300ms; 
   }
-  .linha:hover { background: var(--paper-raised); }
-  .linha.vencido { border-left-color: var(--danger); }
-  .linha.atencao { border-left-color: var(--caution); }
-  .linha.em-dia { border-left-color: var(--clear); }
-  .linha.pendente { border-left-color: var(--ink-faint); }
-  .linha .nome { font-size: 13px; font-weight: 600; }
-  .linha .setor { font-size: 12px; color: var(--ink-soft); margin-top: 1px; }
-  .linha .prazo { font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 500; text-align: right; flex-shrink: 0; }
-  .linha.vencido .prazo { color: var(--danger); }
-  .linha.atencao .prazo { color: var(--caution); }
-  .linha.em-dia .prazo { color: var(--clear); }
-  .linha.pendente .prazo { color: var(--ink-faint); }
-  .vazio, .carregando { color: var(--ink-soft); font-size: 13px; padding: 24px 4px; text-align: center; }
+  .linha:hover { box-shadow: var(--shadow-2); background: rgba(0, 0, 0, 0.02); }
+  .linha.vencido { border-left-color: var(--error); } .linha.vencido .prazo { color: var(--error); }
+  .linha.atencao { border-left-color: var(--warning); } .linha.atencao .prazo { color: var(--warning); }
+  .linha.em-dia { border-left-color: var(--success); } .linha.em-dia .prazo { color: var(--success); }
+  .linha.pendente { border-left-color: var(--default); } .linha.pendente .prazo { color: var(--default); }
+  
+  .linha .nome { font-size: 1rem; font-weight: 400; margin-bottom: 4px; color: var(--text-primary); }
+  .linha .setor { font-size: 0.875rem; color: var(--text-secondary); }
+  .linha .prazo { font-size: 0.875rem; font-weight: 500; text-align: right; }
+  .vazio, .carregando { color: var(--text-secondary); font-size: 1rem; padding: 40px 20px; text-align: center; }
 
-  #overlay-exame, #overlay-sync, #overlay-manual, #overlay-inativos {
-    position: fixed; inset: 0; background: rgba(36,33,28,0.55); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 20px;
+  /* MUI Dialog (Modais) */
+  #overlay-exame, #overlay-sync, #overlay-manual, #overlay-inativos { 
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); 
+    display: flex; align-items: center; justify-content: center; z-index: 1300; padding: 20px; 
   }
-  .modal { background: var(--paper-raised); border: 1px solid var(--ink); border-radius: var(--radius); padding: 22px; width: 100%; max-width: 400px; }
-  .modal h3 { font-size: 15px; font-weight: 700; margin: 0 0 4px; }
-  .modal p.sub { font-size: 12px; color: var(--ink-soft); margin: 0 0 16px; line-height: 1.5; }
-  .modal .rodape { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+  .modal { 
+    background: var(--paper); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 440px; 
+    box-shadow: var(--shadow-24); 
+  }
+  .modal h3 { font-size: 1.25rem; font-weight: 500; margin: 0 0 16px; color: var(--text-primary); }
+  .modal p.sub { font-size: 0.875rem; color: var(--text-secondary); margin: 0 0 24px; line-height: 1.43; }
+  .modal .rodape { display: flex; justify-content: flex-end; gap: 8px; margin-top: 32px; }
 
-  #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 100; max-width: 90%; align-items: center; }
-  .toast { background: var(--ink); color: var(--paper); padding: 9px 15px; border-radius: var(--radius); font-size: 13px; box-shadow: 0 4px 16px rgba(0,0,0,0.25); }
-  .toast.erro { background: var(--danger); }
+  /* MUI Snackbar (Toast) */
+  #toast-container { position: fixed; bottom: 24px; left: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 1400; max-width: 90%; }
+  .toast { 
+    background: #323232; color: #fff; padding: 14px 16px; border-radius: var(--radius); 
+    font-size: 0.875rem; font-weight: 400; box-shadow: var(--shadow-2); display: flex; align-items: center;
+  }
+  .toast.erro { background: var(--error); }
 
-  @media (max-width: 480px) {
-    .painel { grid-template-columns: repeat(2, 1fr); }
-    .bloco:nth-child(2) { border-right: none; }
+  @media (max-width: 600px) {
+    .painel { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    header { flex-direction: column; align-items: flex-start; }
+    .acoes-topo { width: 100%; flex-wrap: wrap; }
+    .acoes-topo button { flex: 1 1 calc(50% - 4px); }
   }
 </style>
 </head>
@@ -201,7 +247,7 @@
 
 <!-- Modal: adicionar em lote -->
 <div id="overlay-sync" class="oculto">
-  <div class="modal" style="max-width:480px;">
+  <div class="modal">
     <h3>Adicionar em lote</h3>
     <p class="sub">Cole aqui Código, Nome e Setor de quem você quer adicionar (pode ser o export da folha, ou só uma parte). Isso só adiciona quem é novo e atualiza nome/setor de quem já existe — nunca remove ninguém. Pra remover alguém, exclua a pessoa direto na tela principal. Uma pessoa por linha, campos separados por tab.</p>
     <textarea id="campo-sync" rows="10" placeholder="965&#9;BIANCA NATALLY APARECIDA SILVA&#9;JURIDICO"></textarea>
@@ -214,7 +260,7 @@
 
 <!-- Modal: ver e restaurar inativos -->
 <div id="overlay-inativos" class="oculto">
-  <div class="modal" style="max-width:480px;">
+  <div class="modal">
     <h3>Inativos</h3>
     <p class="sub">Quem saiu da empresa (ou foi removido por engano). Nada aqui é apagado de verdade — só clicar em restaurar.</p>
     <div id="lista-inativos" style="max-height:320px; overflow-y:auto;"></div>
@@ -225,7 +271,7 @@
 </div>
 
 <script>
-  // Atenção: Substitua o texto abaixo pela URL do seu Web App no Apps Script
+  // A URL do seu Web App já configurada
   const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyIG3_Ae2Xpu8eUhx40Z6U7wsz8d1YC30nACQxqPmjh92bZtKM3YNuzzb89Yh2u6SJBQ/exec';
 
   let itens = [];
@@ -235,7 +281,7 @@
     try {
       const resposta = await fetch(APPS_SCRIPT_URL, {
         method: 'POST',
-        redirect: 'follow', // <-- ESSA É A LINHA NOVA ADICIONADA PARA O GOOGLE FUNCIONAR
+        redirect: 'follow',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(corpo)
       });
@@ -269,8 +315,6 @@
     aplicarFiltros();
   }
 
-  // Conta só pendências (vencido/atenção/sem exame) por setor — "em dia" não
-  // entra, já que o objetivo é mostrar onde focar, não o total de gente.
   function contarPendenciasPorSetor() {
     const contagem = {};
     itens.forEach(function (item) {
@@ -319,8 +363,6 @@
     return contagem;
   }
 
-  // Os blocos agora só levam até a seção correspondente — o dashboard já
-  // mostra tudo organizado, não precisa "filtrar" escondendo o resto.
   function renderizarResumo() {
     const contagem = contarPorStatus(itens);
     const container = document.getElementById('resumo');
@@ -348,13 +390,6 @@
     renderizarSecoes(lista);
   }
 
-  function classeStatus(status) {
-    if (status === 'VENCIDO') return 'vencido';
-    if (status === 'ATENÇÃO') return 'atencao';
-    if (status === 'EM DIA') return 'em-dia';
-    return 'pendente';
-  }
-
   function textoDias(item) {
     if (item.diasRestantes === null || item.diasRestantes === '') return 'sem data';
     if (item.diasRestantes < 0) return '−' + Math.abs(item.diasRestantes) + 'd';
@@ -362,8 +397,6 @@
     return '+' + item.diasRestantes + 'd';
   }
 
-  // Dashboard de verdade: uma seção por status, cada uma com os nomes dentro
-  // dela — em vez de uma lista só, misturada, ordenada por urgência.
   function renderizarSecoes(lista) {
     const container = document.getElementById('lista');
     container.innerHTML = '';
@@ -564,7 +597,7 @@
       const data = item.dataSaida ? new Date(item.dataSaida).toLocaleDateString('pt-BR') : '';
       linha.innerHTML =
         '<div><div class="nome">' + item.nome + '</div><div class="setor">' + item.setor + ' — saiu em ' + data + '</div></div>' +
-        '<span style="color:var(--steel); cursor:pointer; font-size:12px; font-weight:500;" onclick="restaurarInativo(' + item.linha + ')">restaurar</span>';
+        '<span style="color:var(--primary); cursor:pointer; font-size:12px; font-weight:500;" onclick="restaurarInativo(' + item.linha + ')">RESTAURAR</span>';
       lista.appendChild(linha);
     });
   }
