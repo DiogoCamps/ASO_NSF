@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Automação de ASO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F2EFE6;
+    --paper-raised: #FBF9F2;
+    --ink: #24211C;
+    --ink-soft: #6B6558;
+    --ink-faint: #A8A196;
+    --steel: #3A4750;
+    --steel-line: #C9C2B4;
+    --caution: #B5790A;
+    --caution-bg: #F3E1B8;
+    --danger: #A13327;
+    --danger-bg: #EFD4CC;
+    --clear: #3F6B4E;
+    --clear-bg: #DCE6DC;
+    --radius: 3px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+    background: var(--paper); color: var(--ink); font-size: 14px;
+  }
+  .num { font-family: 'IBM Plex Mono', monospace; }
+  main { max-width: 780px; margin: 0 auto; padding: 32px 20px 60px; }
+  .oculto { display: none !important; }
+
+  header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; flex-wrap: wrap; gap: 10px; border-bottom: 2px solid var(--ink); padding-bottom: 12px; }
+  h1 { font-size: 19px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+  h1 span { color: var(--ink-soft); font-weight: 500; }
+  .acoes-topo { display: flex; gap: 8px; }
+
+  button {
+    font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 500; height: 32px; padding: 0 13px;
+    background: var(--paper-raised); border: 1px solid var(--steel); border-radius: var(--radius); cursor: pointer; color: var(--ink);
+  }
+  button:hover { background: #fff; }
+  button:disabled { opacity: 0.5; cursor: default; }
+  button.primario { background: var(--steel); color: var(--paper-raised); border-color: var(--steel); }
+  button.perigo { color: var(--danger); border-color: var(--danger); background: transparent; }
+
+  input[type=text], input[type=date], input[type=number], textarea {
+    width: 100%; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; padding: 8px 10px;
+    border: 1px solid var(--steel-line); border-radius: var(--radius); background: var(--paper-raised); color: var(--ink);
+  }
+  input:focus, textarea:focus, button:focus { outline: 2px solid var(--steel); outline-offset: 1px; }
+  label.rotulo { font-size: 11px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; display: block; margin: 0 0 6px; }
+  .campo { margin-bottom: 12px; }
+
+  .painel { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--ink); margin: 18px 0; background: var(--paper-raised); }
+
+  .painel-grafico { background: var(--paper-raised); border: 1px solid var(--steel-line); padding: 16px; margin-bottom: 18px; }
+  .painel-grafico h2 { font-size: 12px; font-weight: 700; margin: 0 0 14px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink-soft); }
+  .barra-linha { display: grid; grid-template-columns: 130px 1fr 28px; align-items: center; gap: 10px; margin-bottom: 9px; font-size: 12px; }
+  .barra-linha:last-child { margin-bottom: 0; }
+  .barra-rotulo { color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .barra-trilho { background: var(--paper); border: 1px solid var(--steel-line); height: 14px; border-radius: 2px; overflow: hidden; }
+  .barra-preenchida { background: var(--caution); height: 100%; }
+  .barra-valor { font-family: 'IBM Plex Mono', monospace; text-align: right; color: var(--ink-soft); }
+  .bloco { padding: 14px 12px; text-align: center; cursor: pointer; border-right: 1px solid var(--steel-line); position: relative; }
+  .bloco:last-child { border-right: none; }
+  .bloco .numero { font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 600; line-height: 1; }
+  .bloco .rotulo-bloco { font-size: 11px; color: var(--ink-soft); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .bloco.vencido .numero { color: var(--danger); }
+  .bloco.atencao .numero { color: var(--caution); }
+  .bloco.em-dia .numero { color: var(--clear); }
+  .bloco.pendente .numero { color: var(--ink-faint); }
+  .bloco.ativo { background: var(--ink); }
+  .bloco.ativo .numero, .bloco.ativo .rotulo-bloco { color: var(--paper); }
+
+  .lista { margin-top: 4px; }
+  .secao { margin-top: 22px; }
+  .secao:first-child { margin-top: 8px; }
+  .titulo-secao {
+    font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;
+    padding: 0 2px 6px; border-bottom: 2px solid currentColor; margin-bottom: 0;
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .titulo-secao.vencido { color: var(--danger); }
+  .titulo-secao.atencao { color: var(--caution); }
+  .titulo-secao.em-dia { color: var(--clear); }
+  .titulo-secao.pendente { color: var(--ink-faint); }
+  .contagem-secao { font-family: 'IBM Plex Mono', monospace; font-size: 12px; }
+  .secao-vazia { font-size: 12px; color: var(--ink-faint); padding: 10px 2px; margin: 0; }
+  .linha {
+    display: flex; align-items: center; justify-content: space-between; padding: 11px 12px 11px 14px;
+    border-bottom: 1px solid var(--steel-line); cursor: pointer; gap: 10px; border-left: 4px solid transparent;
+  }
+  .linha:hover { background: var(--paper-raised); }
+  .linha.vencido { border-left-color: var(--danger); }
+  .linha.atencao { border-left-color: var(--caution); }
+  .linha.em-dia { border-left-color: var(--clear); }
+  .linha.pendente { border-left-color: var(--ink-faint); }
+  .linha .nome { font-size: 13px; font-weight: 600; }
+  .linha .setor { font-size: 12px; color: var(--ink-soft); margin-top: 1px; }
+  .linha .prazo { font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 500; text-align: right; flex-shrink: 0; }
+  .linha.vencido .prazo { color: var(--danger); }
+  .linha.atencao .prazo { color: var(--caution); }
+  .linha.em-dia .prazo { color: var(--clear); }
+  .linha.pendente .prazo { color: var(--ink-faint); }
+  .vazio, .carregando { color: var(--ink-soft); font-size: 13px; padding: 24px 4px; text-align: center; }
+
+  #overlay-exame, #overlay-sync, #overlay-manual, #overlay-inativos {
+    position: fixed; inset: 0; background: rgba(36,33,28,0.55); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 20px;
+  }
+  .modal { background: var(--paper-raised); border: 1px solid var(--ink); border-radius: var(--radius); padding: 22px; width: 100%; max-width: 400px; }
+  .modal h3 { font-size: 15px; font-weight: 700; margin: 0 0 4px; }
+  .modal p.sub { font-size: 12px; color: var(--ink-soft); margin: 0 0 16px; line-height: 1.5; }
+  .modal .rodape { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+
+  #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 100; max-width: 90%; align-items: center; }
+  .toast { background: var(--ink); color: var(--paper); padding: 9px 15px; border-radius: var(--radius); font-size: 13px; box-shadow: 0 4px 16px rgba(0,0,0,0.25); }
+  .toast.erro { background: var(--danger); }
+
+  @media (max-width: 480px) {
+    .painel { grid-template-columns: repeat(2, 1fr); }
+    .bloco:nth-child(2) { border-right: none; }
+  }
+</style>
+</head>
+<body>
+<div id="toast-container"></div>
+
+<main>
+  <header>
+    <h1>ASO <span>· registro de validade</span></h1>
+    <div class="acoes-topo">
+      <button onclick="carregarAtivos()">Atualizar</button>
+      <button onclick="abrirCadastroManual()">+ Adicionar</button>
+      <button onclick="abrirSincronizacao()">Adicionar em lote</button>
+      <button onclick="abrirInativos()">Inativos</button>
+    </div>
+  </header>
+
+  <div id="resumo" class="painel"></div>
+
+  <div class="painel-grafico">
+    <h2>Pendências por setor</h2>
+    <div id="grafico-setores"></div>
+  </div>
+
+  <input type="text" id="busca" placeholder="Buscar por nome ou setor" oninput="aplicarFiltros()">
+  <div id="lista" class="lista"><p class="carregando">Carregando…</p></div>
+</main>
+
+<!-- Modal: editar exame de uma pessoa -->
+<div id="overlay-exame" class="oculto">
+  <div class="modal">
+    <h3 id="titulo-exame"></h3>
+    <p class="sub" id="setor-exame"></p>
+    <div class="campo">
+      <label class="rotulo">Data do último exame</label>
+      <input type="date" id="campo-data-exame">
+    </div>
+    <div class="campo">
+      <label class="rotulo">Validade (meses)</label>
+      <input type="number" id="campo-validade" min="1" max="36">
+    </div>
+    <div class="rodape">
+      <button class="perigo" id="btn-excluir-colaborador" onclick="excluirColaboradorAtual()" style="margin-right:auto;">Excluir colaborador</button>
+      <button onclick="fecharExame()">Cancelar</button>
+      <button class="primario" id="btn-salvar-exame" onclick="salvarExameAtual()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: cadastrar colaborador manualmente (sem código) -->
+<div id="overlay-manual" class="oculto">
+  <div class="modal">
+    <h3>Adicionar colaborador</h3>
+    <p class="sub">Pra quem ainda não apareceu no export da folha. Data e validade são opcionais — pode preencher depois.</p>
+    <div class="campo">
+      <label class="rotulo">Nome</label>
+      <input type="text" id="manual-nome">
+    </div>
+    <div class="campo">
+      <label class="rotulo">Setor</label>
+      <input type="text" id="manual-setor">
+    </div>
+    <div class="campo">
+      <label class="rotulo">Data do último exame (opcional)</label>
+      <input type="date" id="manual-data-exame">
+    </div>
+    <div class="campo">
+      <label class="rotulo">Validade em meses (opcional)</label>
+      <input type="number" id="manual-validade" min="1" max="36">
+    </div>
+    <div class="rodape">
+      <button onclick="fecharCadastroManual()">Cancelar</button>
+      <button class="primario" id="btn-cadastro-manual" onclick="salvarCadastroManual()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: adicionar em lote -->
+<div id="overlay-sync" class="oculto">
+  <div class="modal" style="max-width:480px;">
+    <h3>Adicionar em lote</h3>
+    <p class="sub">Cole aqui Código, Nome e Setor de quem você quer adicionar (pode ser o export da folha, ou só uma parte). Isso só adiciona quem é novo e atualiza nome/setor de quem já existe — nunca remove ninguém. Pra remover alguém, exclua a pessoa direto na tela principal. Uma pessoa por linha, campos separados por tab.</p>
+    <textarea id="campo-sync" rows="10" placeholder="965&#9;BIANCA NATALLY APARECIDA SILVA&#9;JURIDICO"></textarea>
+    <div class="rodape">
+      <button onclick="fecharSincronizacao()">Cancelar</button>
+      <button class="primario" id="btn-processar-sync" onclick="processarLote()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: ver e restaurar inativos -->
+<div id="overlay-inativos" class="oculto">
+  <div class="modal" style="max-width:480px;">
+    <h3>Inativos</h3>
+    <p class="sub">Quem saiu da empresa (ou foi removido por engano). Nada aqui é apagado de verdade — só clicar em restaurar.</p>
+    <div id="lista-inativos" style="max-height:320px; overflow-y:auto;"></div>
+    <div class="rodape">
+      <button onclick="fecharInativos()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const APPS_SCRIPT_URL = 'COLE_AQUI_A_URL_DO_WEB_APP/exec';
+
+  let itens = [];
+
+  async function chamarAPI(action, extra) {
+    const corpo = Object.assign({ action: action }, extra || {});
+    try {
+      const resposta = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(corpo)
+      });
+      const dados = await resposta.json();
+      if (dados.erro) throw new Error(dados.erro);
+      return dados;
+    } catch (erro) {
+      mostrarToast('Algo deu errado (' + action + '): ' + erro.message, 'erro');
+      throw erro;
+    }
+  }
+
+  function mostrarToast(mensagem, tipo) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast' + (tipo === 'erro' ? ' erro' : '');
+    toast.textContent = mensagem;
+    container.appendChild(toast);
+    setTimeout(function () {
+      toast.style.opacity = '0';
+      setTimeout(function () { toast.remove(); }, 200);
+    }, 3500);
+  }
+
+  async function carregarAtivos() {
+    document.getElementById('lista').innerHTML = '<p class="carregando">Carregando…</p>';
+    const dados = await chamarAPI('obterAtivos', {});
+    itens = dados.itens;
+    renderizarResumo();
+    renderizarGraficoSetores();
+    aplicarFiltros();
+  }
+
+  // Conta só pendências (vencido/atenção/sem exame) por setor — "em dia" não
+  // entra, já que o objetivo é mostrar onde focar, não o total de gente.
+  function contarPendenciasPorSetor() {
+    const contagem = {};
+    itens.forEach(function (item) {
+      if (item.status === 'EM DIA') return;
+      const setor = item.setor || '(sem setor)';
+      contagem[setor] = (contagem[setor] || 0) + 1;
+    });
+    return contagem;
+  }
+
+  function renderizarGraficoSetores() {
+    const contagem = contarPendenciasPorSetor();
+    const setores = Object.keys(contagem).sort(function (a, b) { return contagem[b] - contagem[a]; });
+    const container = document.getElementById('grafico-setores');
+    if (setores.length === 0) {
+      container.innerHTML = '<p class="secao-vazia">Nenhuma pendência por setor.</p>';
+      return;
+    }
+    const maiorValor = contagem[setores[0]];
+    container.innerHTML = '';
+    setores.slice(0, 10).forEach(function (setor) {
+      const pct = Math.max(6, Math.round((contagem[setor] / maiorValor) * 100));
+      const linha = document.createElement('div');
+      linha.className = 'barra-linha';
+      linha.innerHTML =
+        '<div class="barra-rotulo">' + setor + '</div>' +
+        '<div class="barra-trilho"><div class="barra-preenchida" style="width:' + pct + '%"></div></div>' +
+        '<div class="barra-valor">' + contagem[setor] + '</div>';
+      container.appendChild(linha);
+    });
+  }
+
+  const GRUPOS_STATUS = [
+    { chave: 'VENCIDO', rotulo: 'Vencidos', classe: 'vencido' },
+    { chave: 'ATENÇÃO', rotulo: 'Atenção · 30 dias', classe: 'atencao' },
+    { chave: 'EM DIA', rotulo: 'Em dia', classe: 'em-dia' },
+    { chave: 'PENDENTE', rotulo: 'Sem exame', classe: 'pendente' }
+  ];
+
+  function contarPorStatus(lista) {
+    const contagem = { VENCIDO: 0, 'ATENÇÃO': 0, 'EM DIA': 0, PENDENTE: 0 };
+    lista.forEach(function (item) {
+      const chave = item.status || 'PENDENTE';
+      contagem[chave] = (contagem[chave] || 0) + 1;
+    });
+    return contagem;
+  }
+
+  // Os blocos agora só levam até a seção correspondente — o dashboard já
+  // mostra tudo organizado, não precisa "filtrar" escondendo o resto.
+  function renderizarResumo() {
+    const contagem = contarPorStatus(itens);
+    const container = document.getElementById('resumo');
+    container.innerHTML = '';
+    GRUPOS_STATUS.forEach(function (c) {
+      const bloco = document.createElement('div');
+      bloco.className = 'bloco ' + c.classe;
+      bloco.innerHTML = '<div class="numero">' + String(contagem[c.chave]).padStart(2, '0') + '</div><div class="rotulo-bloco">' + c.rotulo + '</div>';
+      bloco.onclick = function () {
+        const secao = document.getElementById('secao-' + c.classe);
+        if (secao) secao.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+      container.appendChild(bloco);
+    });
+  }
+
+  function aplicarFiltros() {
+    let lista = itens;
+    const termo = document.getElementById('busca').value.trim().toLowerCase();
+    if (termo) {
+      lista = lista.filter(function (item) {
+        return item.nome.toLowerCase().includes(termo) || item.setor.toLowerCase().includes(termo);
+      });
+    }
+    renderizarSecoes(lista);
+  }
+
+  function classeStatus(status) {
+    if (status === 'VENCIDO') return 'vencido';
+    if (status === 'ATENÇÃO') return 'atencao';
+    if (status === 'EM DIA') return 'em-dia';
+    return 'pendente';
+  }
+
+  function textoDias(item) {
+    if (item.diasRestantes === null || item.diasRestantes === '') return 'sem data';
+    if (item.diasRestantes < 0) return '−' + Math.abs(item.diasRestantes) + 'd';
+    if (item.diasRestantes === 0) return 'hoje';
+    return '+' + item.diasRestantes + 'd';
+  }
+
+  // Dashboard de verdade: uma seção por status, cada uma com os nomes dentro
+  // dela — em vez de uma lista só, misturada, ordenada por urgência.
+  function renderizarSecoes(lista) {
+    const container = document.getElementById('lista');
+    container.innerHTML = '';
+
+    if (itens.length === 0) {
+      container.innerHTML = '<p class="vazio">Nada registrado ainda. Adicione um colaborador pra começar.</p>';
+      return;
+    }
+
+    const porStatus = { VENCIDO: [], 'ATENÇÃO': [], 'EM DIA': [], PENDENTE: [] };
+    lista.forEach(function (item) {
+      porStatus[item.status || 'PENDENTE'].push(item);
+    });
+    Object.keys(porStatus).forEach(function (chave) {
+      porStatus[chave].sort(function (a, b) {
+        const da = (a.diasRestantes === null || a.diasRestantes === '') ? Infinity : a.diasRestantes;
+        const db = (b.diasRestantes === null || b.diasRestantes === '') ? Infinity : b.diasRestantes;
+        return da - db;
+      });
+    });
+
+    const termoAtivo = document.getElementById('busca').value.trim();
+    let algumResultado = false;
+
+    GRUPOS_STATUS.forEach(function (g) {
+      const pessoas = porStatus[g.chave];
+      if (pessoas.length > 0) algumResultado = true;
+
+      const secao = document.createElement('div');
+      secao.className = 'secao';
+      secao.id = 'secao-' + g.classe;
+      secao.innerHTML = '<div class="titulo-secao ' + g.classe + '"><span>' + g.rotulo + '</span><span class="contagem-secao">' + pessoas.length + '</span></div>';
+
+      if (pessoas.length === 0) {
+        secao.innerHTML += '<p class="secao-vazia">Ninguém aqui.</p>';
+      } else {
+        pessoas.forEach(function (item) {
+          const linha = document.createElement('div');
+          linha.className = 'linha ' + g.classe;
+          linha.onclick = function () { abrirExame(item); };
+          linha.innerHTML =
+            '<div><div class="nome">' + item.nome + '</div><div class="setor">' + item.setor + '</div></div>' +
+            '<div class="prazo">' + textoDias(item) + '</div>';
+          secao.appendChild(linha);
+        });
+      }
+      container.appendChild(secao);
+    });
+
+    if (!algumResultado && termoAtivo) {
+      container.innerHTML = '<p class="vazio">Nenhum resultado com essa busca.</p>';
+    }
+  }
+
+  let itemEmEdicao = null;
+
+  function abrirExame(item) {
+    itemEmEdicao = item;
+    document.getElementById('titulo-exame').textContent = item.nome;
+    document.getElementById('setor-exame').textContent = item.setor;
+    document.getElementById('campo-data-exame').value = item.dataExame ? new Date(item.dataExame).toISOString().slice(0, 10) : '';
+    document.getElementById('campo-validade').value = item.validadeMeses || '';
+    const botaoExcluir = document.getElementById('btn-excluir-colaborador');
+    botaoExcluir.textContent = 'Excluir colaborador';
+    botaoExcluir.dataset.confirmando = '';
+    document.getElementById('overlay-exame').classList.remove('oculto');
+  }
+
+  function fecharExame() {
+    document.getElementById('overlay-exame').classList.add('oculto');
+  }
+
+  async function excluirColaboradorAtual() {
+    const botao = document.getElementById('btn-excluir-colaborador');
+    if (!botao.dataset.confirmando) {
+      botao.dataset.confirmando = '1';
+      botao.textContent = 'Clique de novo pra confirmar';
+      return;
+    }
+    botao.disabled = true;
+    botao.textContent = 'Excluindo…';
+    try {
+      await chamarAPI('excluirColaborador', { codigo: itemEmEdicao.codigo });
+      fecharExame();
+      mostrarToast(itemEmEdicao.nome + ' movido(a) para Inativos.');
+      await carregarAtivos();
+    } finally {
+      botao.disabled = false;
+    }
+  }
+
+  async function salvarExameAtual() {
+    const data = document.getElementById('campo-data-exame').value;
+    const validade = document.getElementById('campo-validade').value;
+    if (!data || !validade) { mostrarToast('Preencha data e validade.', 'erro'); return; }
+
+    const botao = document.getElementById('btn-salvar-exame');
+    botao.disabled = true;
+    botao.textContent = 'Salvando…';
+    try {
+      await chamarAPI('salvarExame', { codigo: itemEmEdicao.codigo, dataExame: data, validadeMeses: Number(validade) });
+      fecharExame();
+      mostrarToast('Exame salvo.');
+      await carregarAtivos();
+    } finally {
+      botao.disabled = false;
+      botao.textContent = 'Salvar';
+    }
+  }
+
+  function abrirCadastroManual() {
+    document.getElementById('manual-nome').value = '';
+    document.getElementById('manual-setor').value = '';
+    document.getElementById('manual-data-exame').value = '';
+    document.getElementById('manual-validade').value = '';
+    document.getElementById('overlay-manual').classList.remove('oculto');
+  }
+
+  function fecharCadastroManual() {
+    document.getElementById('overlay-manual').classList.add('oculto');
+  }
+
+  async function salvarCadastroManual() {
+    const nome = document.getElementById('manual-nome').value.trim();
+    const setor = document.getElementById('manual-setor').value.trim();
+    if (!nome || !setor) { mostrarToast('Preencha nome e setor.', 'erro'); return; }
+    const dataExame = document.getElementById('manual-data-exame').value;
+    const validade = document.getElementById('manual-validade').value;
+
+    const botao = document.getElementById('btn-cadastro-manual');
+    botao.disabled = true;
+    botao.textContent = 'Adicionando…';
+    try {
+      await chamarAPI('adicionarColaboradorManual', {
+        nome: nome, setor: setor,
+        dataExame: dataExame || null, validadeMeses: validade ? Number(validade) : null
+      });
+      fecharCadastroManual();
+      mostrarToast(nome + ' adicionado(a).');
+      await carregarAtivos();
+    } finally {
+      botao.disabled = false;
+      botao.textContent = 'Adicionar';
+    }
+  }
+
+  function abrirSincronizacao() {
+    document.getElementById('campo-sync').value = '';
+    document.getElementById('overlay-sync').classList.remove('oculto');
+  }
+
+  function fecharSincronizacao() {
+    document.getElementById('overlay-sync').classList.add('oculto');
+  }
+
+  function linhasDoTextoDeSincronizacao() {
+    const texto = document.getElementById('campo-sync').value.trim();
+    return texto.split('\n').map(function (linha) {
+      const partes = linha.includes('\t') ? linha.split('\t')
+        : linha.includes(',') ? linha.split(',')
+        : linha.split(/\s{2,}/);
+      return { codigo: (partes[0] || '').trim(), nome: (partes[1] || '').trim(), setor: (partes[2] || '').trim() };
+    }).filter(function (l) { return l.codigo; });
+  }
+
+  async function processarLote() {
+    const linhas = linhasDoTextoDeSincronizacao();
+    if (linhas.length === 0) { mostrarToast('Nenhuma linha válida encontrada — confira se cada linha tem código, nome e setor.', 'erro'); return; }
+
+    const botao = document.getElementById('btn-processar-sync');
+    botao.disabled = true;
+    botao.textContent = 'Adicionando…';
+    try {
+      const resultado = await chamarAPI('adicionarEmLote', { linhas: linhas });
+      fecharSincronizacao();
+      mostrarToast(resultado.adicionados + ' adicionado(s), ' + resultado.atualizados + ' atualizado(s).');
+      await carregarAtivos();
+    } finally {
+      botao.disabled = false;
+      botao.textContent = 'Adicionar';
+    }
+  }
+
+  async function abrirInativos() {
+    document.getElementById('overlay-inativos').classList.remove('oculto');
+    const lista = document.getElementById('lista-inativos');
+    lista.innerHTML = '<p class="carregando">Carregando…</p>';
+    const dados = await chamarAPI('obterInativos', {});
+    lista.innerHTML = '';
+    if (dados.itens.length === 0) {
+      lista.innerHTML = '<p class="vazio">Nenhum inativo.</p>';
+      return;
+    }
+    dados.itens.forEach(function (item) {
+      const linha = document.createElement('div');
+      linha.className = 'linha';
+      linha.style.cursor = 'default';
+      const data = item.dataSaida ? new Date(item.dataSaida).toLocaleDateString('pt-BR') : '';
+      linha.innerHTML =
+        '<div><div class="nome">' + item.nome + '</div><div class="setor">' + item.setor + ' — saiu em ' + data + '</div></div>' +
+        '<span style="color:var(--steel); cursor:pointer; font-size:12px; font-weight:500;" onclick="restaurarInativo(' + item.linha + ')">restaurar</span>';
+      lista.appendChild(linha);
+    });
+  }
+
+  function fecharInativos() {
+    document.getElementById('overlay-inativos').classList.add('oculto');
+  }
+
+  async function restaurarInativo(linha) {
+    await chamarAPI('restaurarDeInativos', { linha: linha });
+    mostrarToast('Restaurado.');
+    await abrirInativos();
+    await carregarAtivos();
+  }
+
+  carregarAtivos();
+</script>
+</body>
+</html>
