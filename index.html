@@ -4,165 +4,142 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dashboard ASO</title>
-<!-- Fontes e Ícones -->
+<!-- Fonte oficial do Lovable/Shadcn -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
-<!-- Chart.js para o gráfico -->
+<!-- Lucide Icons (Padrão do Lovable) -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
   :root {
-    --bg: #F8FAFC;
-    --surface: #FFFFFF;
-    --text-main: #0F172A;
-    --text-muted: #64748B;
-    --border: #E2E8F0;
-    
-    --primary: #4F46E5;
-    --primary-hover: #4338CA;
-    
-    --danger: #EF4444;
-    --danger-bg: #FEF2F2;
-    --warning: #F59E0B;
-    --warning-bg: #FFFBEB;
-    --success: #10B981;
-    --success-bg: #F0FDF4;
-    --neutral: #94A3B8;
-    
-    --radius: 12px;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
-    --shadow-lg: 0 10px 25px -3px rgba(0,0,0,0.05);
+    --background: #f4f4f5; /* zinc-100 */
+    --foreground: #09090b; /* zinc-950 */
+    --muted: #71717a; /* zinc-500 */
+    --border: #e4e4e7; /* zinc-200 */
+    --card: #ffffff;
+    --primary: #18181b; /* zinc-900 */
+    --primary-foreground: #fafafa; /* zinc-50 */
+    --destructive: #ef4444; 
+    --radius: 0.5rem;
   }
   
   * { box-sizing: border-box; }
   
   body {
     margin: 0; 
-    font-family: 'Inter', sans-serif;
-    background: var(--bg); 
-    color: var(--text-main); 
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--background); 
+    color: var(--foreground); 
     font-size: 14px;
     -webkit-font-smoothing: antialiased;
   }
   
-  main { max-width: 900px; margin: 0 auto; padding: 32px 20px 60px; }
+  main { max-width: 1024px; margin: 0 auto; padding: 40px 24px 80px; }
   .oculto { display: none !important; }
 
-  /* Header */
+  /* Header (Estilo Shadcn) */
   header { 
-    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; 
+    display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 16px; 
     margin-bottom: 32px;
   }
-  h1 { font-size: 24px; font-weight: 700; margin: 0; color: var(--text-main); letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px;}
-  h1 span { color: var(--text-muted); font-size: 16px; font-weight: 400; }
+  .header-titles { display: flex; flex-direction: column; gap: 4px; }
+  h1 { font-size: 1.875rem; font-weight: 700; margin: 0; letter-spacing: -0.025em; color: var(--foreground); }
+  p.subtitle { color: var(--muted); font-size: 0.875rem; margin: 0; }
   
   /* Botões */
   .acoes-topo { display: flex; gap: 8px; }
   button {
-    font-family: 'Inter', sans-serif;
-    font-size: 13px; font-weight: 600; 
-    height: 38px; padding: 0 16px; border-radius: 8px; cursor: pointer;
-    display: flex; align-items: center; gap: 6px;
-    background: var(--surface); color: var(--text-main); border: 1px solid var(--border);
-    transition: all 0.2s; box-shadow: var(--shadow-sm);
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+    white-space: nowrap; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 500;
+    height: 2.25rem; padding: 0 1rem; cursor: pointer; transition: background-color 0.15s;
+    background-color: var(--card); color: var(--foreground); border: 1px solid var(--border);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); font-family: 'Inter', sans-serif;
   }
-  button .material-symbols-outlined { font-size: 18px; }
-  button:hover { background: #F1F5F9; border-color: #CBD5E1; }
-  button:disabled { opacity: 0.5; cursor: default; }
+  button svg { width: 16px; height: 16px; }
+  button:hover { background-color: var(--background); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
   
-  button.primario { background: var(--primary); color: #fff; border: none; }
-  button.primario:hover { background: var(--primary-hover); }
-  button.perigo { color: var(--danger); border-color: #FCA5A5; background: var(--danger-bg); box-shadow: none;}
-  button.perigo:hover { background: #FEE2E2; }
+  button.primario { background-color: var(--primary); color: var(--primary-foreground); border: none; }
+  button.primario:hover { background-color: #27272a; }
+  button.perigo { background-color: var(--destructive); color: var(--primary-foreground); border: none; }
+  button.perigo:hover { background-color: #dc2626; }
 
-  /* Inputs */
+  /* Inputs Shadcn */
   input[type=text], input[type=date], input[type=number], textarea {
-    width: 100%; font-family: 'Inter', sans-serif; font-size: 14px; padding: 10px 14px;
-    border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text-main);
-    transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+    display: flex; width: 100%; height: 2.25rem; border-radius: 0.375rem;
+    border: 1px solid var(--border); background-color: transparent; padding: 0.5rem 0.75rem;
+    font-size: 0.875rem; color: var(--foreground); font-family: 'Inter', sans-serif;
+    transition: border-color 0.2s, box-shadow 0.2s; background-color: var(--card);
   }
-  input:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
-  label.rotulo { font-size: 12px; font-weight: 600; color: var(--text-muted); display: block; margin: 0 0 6px 4px; }
-  .campo { margin-bottom: 20px; }
+  input:focus, textarea:focus { outline: none; border-color: var(--foreground); box-shadow: 0 0 0 1px var(--foreground); }
+  input::placeholder { color: #a1a1aa; }
+  label.rotulo { font-size: 0.875rem; font-weight: 500; color: var(--foreground); display: block; margin: 0 0 8px 0; }
+  .campo { margin-bottom: 16px; }
 
-  /* Cards Resumo */
-  .painel { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 24px 0 32px; }
+  /* Cards de Resumo */
+  .painel { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
   .bloco { 
-    background: var(--surface); padding: 20px 16px; text-align: center; border-radius: var(--radius); 
-    box-shadow: var(--shadow-md); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
-    border: 1px solid var(--border);
+    background-color: var(--card); border: 1px solid var(--border); border-radius: var(--radius); 
+    padding: 24px; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); cursor: pointer; transition: border-color 0.2s;
   }
-  .bloco:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
-  .bloco .numero { font-size: 32px; font-weight: 700; letter-spacing: -1px; margin-bottom: 4px; }
-  .bloco .rotulo-bloco { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-  
-  .bloco.vencido .numero { color: var(--danger); }
-  .bloco.atencao .numero { color: var(--warning); }
-  .bloco.em-dia .numero { color: var(--success); }
-  .bloco.pendente .numero { color: var(--neutral); }
+  .bloco:hover { border-color: #a1a1aa; }
+  .bloco-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .bloco-title { font-size: 0.875rem; font-weight: 500; color: var(--muted); }
+  .bloco-icon { color: #a1a1aa; width: 16px; height: 16px; }
+  .bloco .numero { font-size: 2rem; font-weight: 700; color: var(--foreground); letter-spacing: -0.025em; }
 
-  /* Gráfico Chart.js */
-  .painel-grafico { background: var(--surface); border-radius: var(--radius); padding: 24px; margin-bottom: 32px; box-shadow: var(--shadow-md); border: 1px solid var(--border); }
-  .painel-grafico h2 { font-size: 15px; font-weight: 600; margin: 0 0 20px; color: var(--text-main); display: flex; align-items: center; gap: 8px;}
+  /* Gráfico */
+  .painel-grafico { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 32px; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+  .painel-grafico h2 { font-size: 1rem; font-weight: 600; margin: 0 0 24px; color: var(--foreground); letter-spacing: -0.025em; }
   .grafico-container { position: relative; height: 250px; width: 100%; }
 
-  /* Busca e Listas */
-  #busca { margin-bottom: 24px; font-size: 15px; padding: 14px 16px; box-shadow: var(--shadow-sm); }
+  /* Busca e Layout de Listas */
+  .busca-container { position: relative; margin-bottom: 32px; }
+  .busca-container svg { position: absolute; left: 12px; top: 10px; width: 16px; height: 16px; color: var(--muted); }
+  #busca { height: 38px; padding-left: 36px; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
   
   .secao { margin-top: 32px; }
-  .titulo-secao { 
-    font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; 
-    padding-bottom: 8px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;
-    border-bottom: 2px solid var(--border); color: var(--text-muted); 
-  }
-  .contagem-secao { background: var(--border); padding: 2px 10px; border-radius: 20px; font-size: 12px; color: var(--text-main); }
-
-  .linha { 
-    background: var(--surface); display: flex; align-items: center; justify-content: space-between; 
-    padding: 16px 20px; border-radius: var(--radius); margin-bottom: 12px; cursor: pointer; 
-    box-shadow: var(--shadow-sm); border: 1px solid var(--border); border-left: 5px solid transparent; 
-    transition: transform 0.1s, box-shadow 0.2s; 
-  }
-  .linha:hover { transform: translateX(4px); box-shadow: var(--shadow-md); }
-  .linha.vencido { border-left-color: var(--danger); background: var(--danger-bg); } .linha.vencido .prazo { color: var(--danger); }
-  .linha.atencao { border-left-color: var(--warning); background: var(--warning-bg); } .linha.atencao .prazo { color: var(--warning); }
-  .linha.em-dia { border-left-color: var(--success); } .linha.em-dia .prazo { color: var(--success); }
-  .linha.pendente { border-left-color: var(--neutral); } .linha.pendente .prazo { color: var(--neutral); }
+  .titulo-secao { font-size: 1.125rem; font-weight: 600; color: var(--foreground); margin-bottom: 16px; letter-spacing: -0.025em; display: flex; align-items: center; gap: 8px; }
+  .contagem-secao { font-size: 0.75rem; background: var(--border); color: var(--foreground); padding: 2px 8px; border-radius: 999px; font-weight: 500; }
   
-  .linha .nome { font-size: 15px; font-weight: 600; margin-bottom: 4px; color: var(--text-main); }
-  .linha .setor { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 4px;}
-  .linha .setor .material-symbols-outlined { font-size: 14px; }
-  .linha .prazo { font-size: 14px; font-weight: 600; text-align: right; background: #fff; padding: 4px 10px; border-radius: 6px; box-shadow: var(--shadow-sm);}
+  .card-lista { background-color: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); overflow: hidden; }
+  .linha { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); transition: background-color 0.2s; cursor: pointer; }
+  .linha:last-child { border-bottom: none; }
+  .linha:hover { background-color: var(--background); }
   
-  .vazio, .carregando { color: var(--text-muted); font-size: 14px; padding: 40px 20px; text-align: center; }
+  .linha-info { display: flex; flex-direction: column; gap: 4px; }
+  .linha .nome { font-size: 0.875rem; font-weight: 500; color: var(--foreground); }
+  .linha .setor { font-size: 0.875rem; color: var(--muted); display: flex; align-items: center; gap: 4px; }
+  .linha .setor svg { width: 14px; height: 14px; }
 
-  /* Modais */
-  #overlay-exame, #overlay-sync, #overlay-manual, #overlay-inativos { 
-    position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
-    display: flex; align-items: center; justify-content: center; z-index: 1300; padding: 20px; 
-  }
-  .modal { 
-    background: var(--surface); border-radius: 16px; padding: 32px; width: 100%; max-width: 440px; 
-    box-shadow: var(--shadow-lg); border: 1px solid var(--border);
-  }
-  .modal h3 { font-size: 20px; font-weight: 700; margin: 0 0 8px; color: var(--text-main); }
-  .modal p.sub { font-size: 14px; color: var(--text-muted); margin: 0 0 24px; line-height: 1.5; }
-  .modal .rodape { display: flex; justify-content: flex-end; gap: 12px; margin-top: 32px; }
+  /* Badges (Pills) Lovable Style */
+  .badge { display: inline-flex; align-items: center; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; padding: 2px 10px; white-space: nowrap; }
+  .badge.vencido { background-color: #fee2e2; color: #991b1b; }
+  .badge.atencao { background-color: #fef3c7; color: #92400e; }
+  .badge.em-dia { background-color: #dcfce7; color: #166534; }
+  .badge.pendente { background-color: var(--background); color: var(--foreground); }
+  
+  .vazio, .carregando { color: var(--muted); font-size: 0.875rem; padding: 48px 20px; text-align: center; }
 
-  /* Toast */
-  #toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 1400; }
-  .toast { 
-    background: var(--text-main); color: #fff; padding: 14px 20px; border-radius: 8px; 
-    font-size: 14px; font-weight: 500; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 8px;
-  }
-  .toast.erro { background: var(--danger); }
+  /* Modais (Dialogs) */
+  .overlay { position: fixed; inset: 0; background: rgba(9, 9, 11, 0.8); backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+  .modal { background: var(--card); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 425px; border: 1px solid var(--border); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+  .modal h3 { font-size: 1.125rem; font-weight: 600; margin: 0 0 4px; color: var(--foreground); letter-spacing: -0.025em;}
+  .modal p.sub { font-size: 0.875rem; color: var(--muted); margin: 0 0 24px; }
+  .modal .rodape { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; }
 
-  @media (max-width: 600px) {
-    .painel { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  /* Toasts */
+  #toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 100; }
+  .toast { background: var(--card); color: var(--foreground); padding: 16px; border-radius: var(--radius); font-size: 0.875rem; font-weight: 500; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .toast.erro { border-left: 4px solid var(--destructive); }
+  .toast:not(.erro) { border-left: 4px solid #166534; }
+
+  @media (max-width: 768px) {
+    .painel { grid-template-columns: repeat(2, 1fr); }
     header { flex-direction: column; align-items: flex-start; }
-    .acoes-topo { width: 100%; overflow-x: auto; padding-bottom: 8px;}
+    .acoes-topo { width: 100%; overflow-x: auto; padding-bottom: 4px; }
   }
 </style>
 </head>
@@ -171,30 +148,37 @@
 
 <main>
   <header>
-    <h1><span class="material-symbols-outlined" style="color: var(--primary); font-size: 28px;">health_and_safety</span> ASO <span>· Dashboard de Validade</span></h1>
+    <div class="header-titles">
+      <h1>Dashboard ASO</h1>
+      <p class="subtitle">Gerenciamento e controle de exames ocupacionais</p>
+    </div>
     <div class="acoes-topo">
-      <button onclick="carregarAtivos()"><span class="material-symbols-outlined">refresh</span> Atualizar</button>
-      <button onclick="abrirCadastroManual()" class="primario"><span class="material-symbols-outlined">person_add</span> Adicionar</button>
-      <button onclick="abrirSincronizacao()"><span class="material-symbols-outlined">upload_file</span> Lote</button>
-      <button onclick="abrirInativos()"><span class="material-symbols-outlined">history</span> Inativos</button>
+      <button onclick="carregarAtivos()"><i data-lucide="refresh-cw"></i> Atualizar</button>
+      <button onclick="abrirSincronizacao()"><i data-lucide="file-up"></i> Lote</button>
+      <button onclick="abrirInativos()"><i data-lucide="archive"></i> Inativos</button>
+      <button onclick="abrirCadastroManual()" class="primario"><i data-lucide="plus"></i> Novo Cadastro</button>
     </div>
   </header>
 
   <div id="resumo" class="painel"></div>
 
   <div class="painel-grafico">
-    <h2><span class="material-symbols-outlined">bar_chart</span> Pendências por setor</h2>
+    <h2>Visão por Setores</h2>
     <div class="grafico-container">
       <canvas id="graficoSetores"></canvas>
     </div>
   </div>
 
-  <input type="text" id="busca" placeholder="🔍 Buscar colaborador ou setor..." oninput="aplicarFiltros()">
-  <div id="lista" class="lista"><p class="carregando">Carregando dados...</p></div>
+  <div class="busca-container">
+    <i data-lucide="search"></i>
+    <input type="text" id="busca" placeholder="Buscar colaborador ou setor..." oninput="aplicarFiltros()">
+  </div>
+  
+  <div id="lista" class="lista"><p class="carregando">Carregando informações...</p></div>
 </main>
 
-<!-- Modal: Editar -->
-<div id="overlay-exame" class="oculto">
+<!-- Modais -->
+<div id="overlay-exame" class="overlay oculto">
   <div class="modal">
     <h3 id="titulo-exame"></h3>
     <p class="sub" id="setor-exame"></p>
@@ -209,23 +193,22 @@
     <div class="rodape">
       <button class="perigo" id="btn-excluir-colaborador" onclick="excluirColaboradorAtual()" style="margin-right:auto;">Excluir</button>
       <button onclick="fecharExame()">Cancelar</button>
-      <button class="primario" id="btn-salvar-exame" onclick="salvarExameAtual()">Salvar</button>
+      <button class="primario" id="btn-salvar-exame" onclick="salvarExameAtual()">Salvar alterações</button>
     </div>
   </div>
 </div>
 
-<!-- Modal: Manual -->
-<div id="overlay-manual" class="oculto">
+<div id="overlay-manual" class="overlay oculto">
   <div class="modal">
     <h3>Novo Colaborador</h3>
-    <p class="sub">Adicione alguém que não está na planilha base.</p>
+    <p class="sub">Adicione um colaborador manualmente ao sistema.</p>
     <div class="campo">
       <label class="rotulo">Nome completo</label>
-      <input type="text" id="manual-nome">
+      <input type="text" id="manual-nome" placeholder="Ex: João da Silva">
     </div>
     <div class="campo">
       <label class="rotulo">Setor</label>
-      <input type="text" id="manual-setor">
+      <input type="text" id="manual-setor" placeholder="Ex: Financeiro">
     </div>
     <div class="campo">
       <label class="rotulo">Data do exame (Opcional)</label>
@@ -233,34 +216,32 @@
     </div>
     <div class="campo">
       <label class="rotulo">Validade em meses</label>
-      <input type="number" id="manual-validade" min="1" max="36">
+      <input type="number" id="manual-validade" min="1" max="36" placeholder="Ex: 12">
     </div>
     <div class="rodape">
       <button onclick="fecharCadastroManual()">Cancelar</button>
-      <button class="primario" id="btn-cadastro-manual" onclick="salvarCadastroManual()">Adicionar</button>
+      <button class="primario" id="btn-cadastro-manual" onclick="salvarCadastroManual()">Criar registro</button>
     </div>
   </div>
 </div>
 
-<!-- Modal: Lote -->
-<div id="overlay-sync" class="oculto">
+<div id="overlay-sync" class="overlay oculto">
   <div class="modal">
-    <h3>Importar em Lote</h3>
-    <p class="sub">Cole: Código [TAB] Nome [TAB] Setor. Um por linha.</p>
-    <textarea id="campo-sync" rows="8" placeholder="965&#9;João Silva&#9;Jurídico"></textarea>
+    <h3>Importar Dados</h3>
+    <p class="sub">Cole os dados copiados da planilha (Código, Nome, Setor).</p>
+    <textarea id="campo-sync" rows="6" placeholder="965&#9;João Silva&#9;Jurídico"></textarea>
     <div class="rodape">
       <button onclick="fecharSincronizacao()">Cancelar</button>
-      <button class="primario" id="btn-processar-sync" onclick="processarLote()">Importar</button>
+      <button class="primario" id="btn-processar-sync" onclick="processarLote()">Iniciar importação</button>
     </div>
   </div>
 </div>
 
-<!-- Modal: Inativos -->
-<div id="overlay-inativos" class="oculto">
+<div id="overlay-inativos" class="overlay oculto">
   <div class="modal">
-    <h3>Histórico de Inativos</h3>
-    <p class="sub">Colaboradores removidos do sistema.</p>
-    <div id="lista-inativos" style="max-height:320px; overflow-y:auto; margin-bottom: 20px;"></div>
+    <h3>Colaboradores Inativos</h3>
+    <p class="sub">Histórico de pessoas removidas da base principal.</p>
+    <div id="lista-inativos" style="max-height:300px; overflow-y:auto; margin-bottom: 16px;"></div>
     <div class="rodape">
       <button onclick="fecharInativos()">Fechar</button>
     </div>
@@ -268,11 +249,14 @@
 </div>
 
 <script>
+  // Ícones do Lucide
+  lucide.createIcons();
+
   // Link do seu Web App
   const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyIG3_Ae2Xpu8eUhx40Z6U7wsz8d1YC30nACQxqPmjh92bZtKM3YNuzzb89Yh2u6SJBQ/exec';
 
   let itens = [];
-  let chartInstancia = null; // Variável para controlar o Chart.js
+  let chartInstancia = null;
 
   async function chamarAPI(action, extra) {
     const corpo = Object.assign({ action: action }, extra || {});
@@ -296,9 +280,11 @@
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
     toast.className = 'toast' + (tipo === 'erro' ? ' erro' : '');
-    const icon = tipo === 'erro' ? 'error' : 'check_circle';
-    toast.innerHTML = `<span class="material-symbols-outlined">${icon}</span> ${mensagem}`;
+    const icone = tipo === 'erro' ? '<i data-lucide="alert-circle" style="color:var(--destructive)"></i>' : '<i data-lucide="check-circle" style="color:#166534"></i>';
+    toast.innerHTML = `${icone} <span>${mensagem}</span>`;
     container.appendChild(toast);
+    lucide.createIcons({root: toast});
+    
     setTimeout(() => {
       toast.style.opacity = '0';
       toast.style.transition = 'opacity 0.3s';
@@ -315,6 +301,33 @@
     aplicarFiltros();
   }
 
+  const GRUPOS_STATUS = [
+    { chave: 'VENCIDO', rotulo: 'Vencidos', icone: 'alert-triangle' },
+    { chave: 'ATENÇÃO', rotulo: 'Atenção 30d', icone: 'clock' },
+    { chave: 'EM DIA', rotulo: 'Regulares', icone: 'check-circle-2' },
+    { chave: 'PENDENTE', rotulo: 'Sem Exame', icone: 'help-circle' }
+  ];
+
+  function renderizarResumo() {
+    const contagem = { VENCIDO: 0, 'ATENÇÃO': 0, 'EM DIA': 0, PENDENTE: 0 };
+    itens.forEach(item => { contagem[item.status || 'PENDENTE'] = (contagem[item.status || 'PENDENTE'] || 0) + 1; });
+    
+    const container = document.getElementById('resumo');
+    container.innerHTML = '';
+    GRUPOS_STATUS.forEach(c => {
+      container.innerHTML += `
+        <div class="bloco" onclick="document.getElementById('secao-${c.chave}').scrollIntoView({ behavior: 'smooth' })">
+          <div class="bloco-header">
+            <span class="bloco-title">${c.rotulo}</span>
+            <i data-lucide="${c.icone}" class="bloco-icon"></i>
+          </div>
+          <div class="numero">${contagem[c.chave]}</div>
+        </div>
+      `;
+    });
+    lucide.createIcons({root: container});
+  }
+
   function contarPendenciasPorSetor() {
     const contagem = {};
     itens.forEach(function (item) {
@@ -325,176 +338,110 @@
     return contagem;
   }
 
-  // NOVA FUNÇÃO DO GRÁFICO (Chart.js)
   function renderizarGraficoSetores() {
     const contagem = contarPendenciasPorSetor();
-    const setores = Object.keys(contagem).sort((a, b) => contagem[b] - contagem[a]).slice(0, 7); // Top 7 setores
+    const setores = Object.keys(contagem).sort((a, b) => contagem[b] - contagem[a]).slice(0, 6);
     const valores = setores.map(s => contagem[s]);
     
     const ctx = document.getElementById('graficoSetores');
-    
-    // Destrói o gráfico antigo se existir para evitar sobreposição
-    if (chartInstancia) {
-      chartInstancia.destroy();
-    }
+    if (chartInstancia) chartInstancia.destroy();
 
     if (setores.length === 0) {
       ctx.style.display = 'none';
-      ctx.parentElement.innerHTML += '<p class="vazio" style="padding:10px;">Tudo limpo! Nenhuma pendência registrada.</p>';
+      ctx.parentElement.innerHTML += '<p class="vazio" style="padding:10px;">Sem pendências ativas.</p>';
       return;
     }
 
     ctx.style.display = 'block';
     
-    // Configura o visual do Chart.js
     chartInstancia = new Chart(ctx, {
       type: 'bar',
       data: {
         labels: setores,
         datasets: [{
-          label: 'Pendências',
           data: valores,
-          backgroundColor: '#F59E0B',
-          borderRadius: 6,
-          barThickness: 24
+          backgroundColor: '#18181b', // Cor preta padrão Shadcn
+          borderRadius: 4,
+          barThickness: 32
         }]
       },
       options: {
-        indexAxis: 'y', // Transforma em barras horizontais
+        indexAxis: 'y',
         responsive: true,
         maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: '#0F172A',
-            padding: 12,
-            titleFont: { family: 'Inter', size: 14 },
-            bodyFont: { family: 'Inter', size: 14 },
-            displayColors: false
-          }
-        },
+        plugins: { legend: { display: false }, tooltip: { backgroundColor: '#18181b', padding: 12, cornerRadius: 8, displayColors: false } },
         scales: {
-          x: { 
-            grid: { color: '#F1F5F9' },
-            ticks: { stepSize: 1, font: { family: 'Inter' } },
-            border: { display: false }
-          },
-          y: { 
-            grid: { display: false },
-            ticks: { font: { family: 'Inter', weight: '500' }, color: '#475569' },
-            border: { display: false }
-          }
+          x: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter' } } },
+          y: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', weight: '500' }, color: '#71717a' } }
         }
       }
-    });
-  }
-
-  const GRUPOS_STATUS = [
-    { chave: 'VENCIDO', rotulo: 'Vencidos', classe: 'vencido' },
-    { chave: 'ATENÇÃO', rotulo: 'Atenção 30d', classe: 'atencao' },
-    { chave: 'EM DIA', rotulo: 'Em dia', classe: 'em-dia' },
-    { chave: 'PENDENTE', rotulo: 'Sem exame', classe: 'pendente' }
-  ];
-
-  function renderizarResumo() {
-    const contagem = { VENCIDO: 0, 'ATENÇÃO': 0, 'EM DIA': 0, PENDENTE: 0 };
-    itens.forEach(item => { contagem[item.status || 'PENDENTE'] = (contagem[item.status || 'PENDENTE'] || 0) + 1; });
-    
-    const container = document.getElementById('resumo');
-    container.innerHTML = '';
-    GRUPOS_STATUS.forEach(c => {
-      const bloco = document.createElement('div');
-      bloco.className = 'bloco ' + c.classe;
-      bloco.innerHTML = `<div class="numero">${String(contagem[c.chave]).padStart(2, '0')}</div><div class="rotulo-bloco">${c.rotulo}</div>`;
-      bloco.onclick = () => {
-        const secao = document.getElementById('secao-' + c.classe);
-        if (secao) secao.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      };
-      container.appendChild(bloco);
     });
   }
 
   function aplicarFiltros() {
     let lista = itens;
     const termo = document.getElementById('busca').value.trim().toLowerCase();
-    if (termo) {
-      lista = lista.filter(item => item.nome.toLowerCase().includes(termo) || item.setor.toLowerCase().includes(termo));
-    }
+    if (termo) lista = lista.filter(item => item.nome.toLowerCase().includes(termo) || item.setor.toLowerCase().includes(termo));
     renderizarSecoes(lista);
   }
 
-  function textoDias(item) {
-    if (item.diasRestantes === null || item.diasRestantes === '') return 'Sem data';
-    if (item.diasRestantes < 0) return Math.abs(item.diasRestantes) + ' dias atrasado';
-    if (item.diasRestantes === 0) return 'Vence hoje';
-    return item.diasRestantes + ' dias restantes';
+  function renderizarBadge(item) {
+    const status = item.status || 'PENDENTE';
+    let classe = 'pendente', texto = 'Sem Data';
+    if(status === 'VENCIDO') { classe = 'vencido'; texto = 'Vencido'; }
+    if(status === 'ATENÇÃO') { classe = 'atencao'; texto = 'Vence em ' + item.diasRestantes + 'd'; }
+    if(status === 'EM DIA') { classe = 'em-dia'; texto = 'Regular (' + item.diasRestantes + 'd)'; }
+    return `<span class="badge ${classe}">${texto}</span>`;
   }
 
   function renderizarSecoes(lista) {
     const container = document.getElementById('lista');
     container.innerHTML = '';
-
-    if (itens.length === 0) {
-      container.innerHTML = '<p class="vazio">Banco de dados vazio.</p>';
-      return;
-    }
+    if (itens.length === 0) return container.innerHTML = '<p class="vazio">Nenhum dado encontrado.</p>';
 
     const porStatus = { VENCIDO: [], 'ATENÇÃO': [], 'EM DIA': [], PENDENTE: [] };
     lista.forEach(item => porStatus[item.status || 'PENDENTE'].push(item));
-    
-    Object.keys(porStatus).forEach(chave => {
-      porStatus[chave].sort((a, b) => {
-        const da = (a.diasRestantes === null || a.diasRestantes === '') ? Infinity : a.diasRestantes;
-        const db = (b.diasRestantes === null || b.diasRestantes === '') ? Infinity : b.diasRestantes;
-        return da - db;
-      });
-    });
+    Object.keys(porStatus).forEach(k => porStatus[k].sort((a, b) => (a.diasRestantes || Infinity) - (b.diasRestantes || Infinity)));
 
-    let algumResultado = false;
+    let vazio = true;
 
     GRUPOS_STATUS.forEach(g => {
       const pessoas = porStatus[g.chave];
-      if (pessoas.length > 0) algumResultado = true;
+      if (pessoas.length === 0) return;
+      vazio = false;
 
-      const secao = document.createElement('div');
-      secao.className = 'secao';
-      secao.id = 'secao-' + g.classe;
-      secao.innerHTML = `<div class="titulo-secao"><span>${g.rotulo}</span><span class="contagem-secao">${pessoas.length}</span></div>`;
+      const htmlLinhas = pessoas.map(item => `
+        <div class="linha" onclick='abrirExame(${JSON.stringify(item)})'>
+          <div class="linha-info">
+            <span class="nome">${item.nome}</span>
+            <span class="setor"><i data-lucide="briefcase"></i> ${item.setor}</span>
+          </div>
+          ${renderizarBadge(item)}
+        </div>
+      `).join('');
 
-      if (pessoas.length === 0) {
-        secao.innerHTML += '<p class="vazio" style="padding: 10px;">Nenhum registro nesta categoria.</p>';
-      } else {
-        pessoas.forEach(item => {
-          const linha = document.createElement('div');
-          linha.className = 'linha ' + g.classe;
-          linha.onclick = () => abrirExame(item);
-          linha.innerHTML = `
-            <div>
-              <div class="nome">${item.nome}</div>
-              <div class="setor"><span class="material-symbols-outlined">work</span> ${item.setor}</div>
-            </div>
-            <div class="prazo">${textoDias(item)}</div>
-          `;
-          secao.appendChild(linha);
-        });
-      }
-      container.appendChild(secao);
+      container.innerHTML += `
+        <div class="secao" id="secao-${g.chave}">
+          <div class="titulo-secao">${g.rotulo} <span class="contagem-secao">${pessoas.length}</span></div>
+          <div class="card-lista">${htmlLinhas}</div>
+        </div>
+      `;
     });
 
-    if (!algumResultado) container.innerHTML = '<p class="vazio">Nenhum resultado encontrado.</p>';
+    if (vazio) container.innerHTML = '<p class="vazio">Nenhum resultado encontrado.</p>';
+    lucide.createIcons({root: container});
   }
 
   let itemEmEdicao = null;
   
-  function abrirExame(item) {
+  window.abrirExame = function(item) {
     itemEmEdicao = item;
     document.getElementById('titulo-exame').textContent = item.nome;
-    document.getElementById('setor-exame').innerHTML = `<span class="material-symbols-outlined" style="font-size:14px; vertical-align:middle;">work</span> ${item.setor}`;
+    document.getElementById('setor-exame').textContent = item.setor;
     document.getElementById('campo-data-exame').value = item.dataExame ? new Date(item.dataExame).toISOString().slice(0, 10) : '';
     document.getElementById('campo-validade').value = item.validadeMeses || '';
     const btn = document.getElementById('btn-excluir-colaborador');
-    btn.textContent = 'Excluir';
-    btn.dataset.confirmando = '';
+    btn.textContent = 'Excluir'; btn.dataset.confirmando = '';
     document.getElementById('overlay-exame').classList.remove('oculto');
   }
 
@@ -502,101 +449,63 @@
 
   async function excluirColaboradorAtual() {
     const btn = document.getElementById('btn-excluir-colaborador');
-    if (!btn.dataset.confirmando) {
-      btn.dataset.confirmando = '1';
-      btn.textContent = 'Confirmar exclusão?';
-      return;
-    }
+    if (!btn.dataset.confirmando) { btn.dataset.confirmando = '1'; return btn.textContent = 'Confirmar exclusão?'; }
     btn.disabled = true; btn.textContent = 'Removendo...';
-    try {
-      await chamarAPI('excluirColaborador', { codigo: itemEmEdicao.codigo });
-      fecharExame(); mostrarToast('Colaborador inativado.'); await carregarAtivos();
-    } finally { btn.disabled = false; }
+    try { await chamarAPI('excluirColaborador', { codigo: itemEmEdicao.codigo }); fecharExame(); mostrarToast('Removido com sucesso.'); await carregarAtivos(); } 
+    finally { btn.disabled = false; }
   }
 
   async function salvarExameAtual() {
     const data = document.getElementById('campo-data-exame').value;
     const val = document.getElementById('campo-validade').value;
-    if (!data || !val) return mostrarToast('Preencha data e validade.', 'erro');
+    if (!data || !val) return mostrarToast('Preencha os campos.', 'erro');
     const btn = document.getElementById('btn-salvar-exame');
     btn.disabled = true; btn.textContent = 'Salvando...';
-    try {
-      await chamarAPI('salvarExame', { codigo: itemEmEdicao.codigo, dataExame: data, validadeMeses: Number(val) });
-      fecharExame(); mostrarToast('Dados atualizados.'); await carregarAtivos();
-    } finally { btn.disabled = false; btn.textContent = 'Salvar'; }
+    try { await chamarAPI('salvarExame', { codigo: itemEmEdicao.codigo, dataExame: data, validadeMeses: Number(val) }); fecharExame(); mostrarToast('Salvo com sucesso.'); await carregarAtivos(); } 
+    finally { btn.disabled = false; btn.textContent = 'Salvar alterações'; }
   }
 
-  function abrirCadastroManual() {
-    document.getElementById('manual-nome').value = '';
-    document.getElementById('manual-setor').value = '';
-    document.getElementById('manual-data-exame').value = '';
-    document.getElementById('manual-validade').value = '';
-    document.getElementById('overlay-manual').classList.remove('oculto');
-  }
+  function abrirCadastroManual() { document.getElementById('manual-nome').value = ''; document.getElementById('manual-setor').value = ''; document.getElementById('manual-data-exame').value = ''; document.getElementById('manual-validade').value = ''; document.getElementById('overlay-manual').classList.remove('oculto'); }
   function fecharCadastroManual() { document.getElementById('overlay-manual').classList.add('oculto'); }
 
   async function salvarCadastroManual() {
-    const nome = document.getElementById('manual-nome').value.trim();
-    const setor = document.getElementById('manual-setor').value.trim();
-    if (!nome || !setor) return mostrarToast('Nome e setor obrigatórios.', 'erro');
-    
-    const dataExame = document.getElementById('manual-data-exame').value;
-    const validade = document.getElementById('manual-validade').value;
+    const nome = document.getElementById('manual-nome').value.trim(), setor = document.getElementById('manual-setor').value.trim();
+    if (!nome || !setor) return mostrarToast('Campos obrigatórios.', 'erro');
     const btn = document.getElementById('btn-cadastro-manual');
     btn.disabled = true; btn.textContent = 'Processando...';
-    try {
-      await chamarAPI('adicionarColaboradorManual', { nome, setor, dataExame: dataExame || null, validadeMeses: validade ? Number(validade) : null });
-      fecharCadastroManual(); mostrarToast('Colaborador adicionado.'); await carregarAtivos();
-    } finally { btn.disabled = false; btn.textContent = 'Adicionar'; }
+    try { await chamarAPI('adicionarColaboradorManual', { nome, setor, dataExame: document.getElementById('manual-data-exame').value || null, validadeMeses: document.getElementById('manual-validade').value ? Number(document.getElementById('manual-validade').value) : null }); fecharCadastroManual(); mostrarToast('Adicionado.'); await carregarAtivos(); } 
+    finally { btn.disabled = false; btn.textContent = 'Criar registro'; }
   }
 
   function abrirSincronizacao() { document.getElementById('campo-sync').value = ''; document.getElementById('overlay-sync').classList.remove('oculto'); }
   function fecharSincronizacao() { document.getElementById('overlay-sync').classList.add('oculto'); }
 
   async function processarLote() {
-    const texto = document.getElementById('campo-sync').value.trim();
-    const linhas = texto.split('\n').map(l => {
-      const p = l.includes('\t') ? l.split('\t') : l.split(/\s{2,}/);
-      return { codigo: (p[0]||'').trim(), nome: (p[1]||'').trim(), setor: (p[2]||'').trim() };
+    const linhas = document.getElementById('campo-sync').value.trim().split('\n').map(l => {
+      const p = l.includes('\t') ? l.split('\t') : l.split(/\s{2,}/); return { codigo: (p[0]||'').trim(), nome: (p[1]||'').trim(), setor: (p[2]||'').trim() };
     }).filter(l => l.codigo);
-    
-    if (linhas.length === 0) return mostrarToast('Formato inválido.', 'erro');
-    
-    const btn = document.getElementById('btn-processar-sync');
-    btn.disabled = true; btn.textContent = 'Importando...';
-    try {
-      const res = await chamarAPI('adicionarEmLote', { linhas });
-      fecharSincronizacao(); mostrarToast(`${res.adicionados} novos, ${res.atualizados} atualizados.`); await carregarAtivos();
-    } finally { btn.disabled = false; btn.textContent = 'Importar'; }
+    if (!linhas.length) return mostrarToast('Formato inválido.', 'erro');
+    const btn = document.getElementById('btn-processar-sync'); btn.disabled = true; btn.textContent = 'Importando...';
+    try { const res = await chamarAPI('adicionarEmLote', { linhas }); fecharSincronizacao(); mostrarToast(`${res.adicionados} importados.`); await carregarAtivos(); } 
+    finally { btn.disabled = false; btn.textContent = 'Iniciar importação'; }
   }
 
   async function abrirInativos() {
     document.getElementById('overlay-inativos').classList.remove('oculto');
-    const lista = document.getElementById('lista-inativos');
-    lista.innerHTML = '<p class="carregando">Buscando histórico...</p>';
+    const lista = document.getElementById('lista-inativos'); lista.innerHTML = '<p class="carregando">Carregando...</p>';
     const dados = await chamarAPI('obterInativos', {});
-    
-    if (dados.itens.length === 0) { lista.innerHTML = '<p class="vazio">Nenhum inativo encontrado.</p>'; return; }
-    
-    lista.innerHTML = dados.itens.map(item => {
-      const data = item.dataSaida ? new Date(item.dataSaida).toLocaleDateString('pt-BR') : 'Data desconhecida';
-      return `
-        <div class="linha" style="cursor:default; margin-bottom: 8px; padding: 12px;">
-          <div><div class="nome">${item.nome}</div><div class="setor">Removido em: ${data}</div></div>
-          <button class="primario" style="height:28px; font-size:11px;" onclick="restaurarInativo(${item.linha})">Restaurar</button>
-        </div>
-      `;
-    }).join('');
+    if (!dados.itens.length) return lista.innerHTML = '<p class="vazio">Nada aqui.</p>';
+    lista.innerHTML = dados.itens.map(item => `
+      <div class="linha" style="cursor:default; padding: 12px; border:1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px;">
+        <div class="linha-info"><span class="nome">${item.nome}</span><span class="setor">Desligado</span></div>
+        <button onclick="restaurarInativo(${item.linha})"><i data-lucide="refresh-ccw"></i></button>
+      </div>`).join('');
+    lucide.createIcons({root: lista});
   }
   function fecharInativos() { document.getElementById('overlay-inativos').classList.add('oculto'); }
 
-  async function restaurarInativo(linha) {
-    await chamarAPI('restaurarDeInativos', { linha });
-    mostrarToast('Colaborador restaurado com sucesso.');
-    await abrirInativos(); await carregarAtivos();
-  }
+  async function restaurarInativo(linha) { await chamarAPI('restaurarDeInativos', { linha }); mostrarToast('Restaurado.'); await abrirInativos(); await carregarAtivos(); }
 
-  // Inicializa o app
   carregarAtivos();
 </script>
 </body>
