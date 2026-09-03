@@ -225,6 +225,7 @@
 </div>
 
 <script>
+  // Atenção: Substitua o texto abaixo pela URL do seu Web App no Apps Script
   const APPS_SCRIPT_URL = 'COLE_AQUI_A_URL_DO_WEB_APP/exec';
 
   let itens = [];
@@ -234,6 +235,7 @@
     try {
       const resposta = await fetch(APPS_SCRIPT_URL, {
         method: 'POST',
+        redirect: 'follow', // <-- ESSA É A LINHA NOVA ADICIONADA PARA O GOOGLE FUNCIONAR
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(corpo)
       });
