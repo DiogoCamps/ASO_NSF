@@ -3,266 +3,296 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dashboard ASO</title>
-<!-- Fonte oficial do Lovable/Shadcn -->
+<title>ASO — Registro de Validade</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<!-- Lucide Icons (Padrão do Lovable) -->
-<script src="https://unpkg.com/lucide@latest"></script>
-<!-- Chart.js -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
   :root {
-    --background: #f4f4f5; /* zinc-100 */
-    --foreground: #09090b; /* zinc-950 */
-    --muted: #71717a; /* zinc-500 */
-    --border: #e4e4e7; /* zinc-200 */
-    --card: #ffffff;
-    --primary: #18181b; /* zinc-900 */
-    --primary-foreground: #fafafa; /* zinc-50 */
-    --destructive: #ef4444; 
-    --radius: 0.5rem;
+    --bg: #F6F6F8; --card: #FFFFFF; --border: #EDEDF0;
+    --ink: #16161A; --ink-soft: #6E6E78; --ink-faint: #A6A6B0;
+    --danger: #DC3545; --danger-bg: #FDEBEC;
+    --caution: #C8860A; --caution-bg: #FCF3DE;
+    --clear: #1E9E5A; --clear-bg: #E5F7ED;
+    --pendente: #8B8B96; --pendente-bg: #F0F0F3;
+    --shadow: 0 1px 2px rgba(20,20,30,0.04), 0 4px 14px rgba(20,20,30,0.05);
   }
-  
   * { box-sizing: border-box; }
-  
-  body {
-    margin: 0; 
-    font-family: 'Inter', -apple-system, sans-serif;
-    background: var(--background); 
-    color: var(--foreground); 
-    font-size: 14px;
-    -webkit-font-smoothing: antialiased;
-  }
-  
-  main { max-width: 1024px; margin: 0 auto; padding: 40px 24px 80px; }
+  body { margin: 0; font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; -webkit-font-smoothing: antialiased; }
+  main { max-width: 860px; margin: 0 auto; padding: 36px 24px 70px; }
   .oculto { display: none !important; }
 
-  /* Header (Estilo Shadcn) */
-  header { 
-    display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 16px; 
-    margin-bottom: 32px;
-  }
-  .header-titles { display: flex; flex-direction: column; gap: 4px; }
-  h1 { font-size: 1.875rem; font-weight: 700; margin: 0; letter-spacing: -0.025em; color: var(--foreground); }
-  p.subtitle { color: var(--muted); font-size: 0.875rem; margin: 0; }
-  
-  /* Botões */
-  .acoes-topo { display: flex; gap: 8px; }
+  header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 26px; flex-wrap: wrap; gap: 14px; }
+  .header-voltar { display: flex; align-items: center; gap: 10px; }
+  h1 { font-size: 22px; font-weight: 800; margin: 0 0 3px; letter-spacing: -0.02em; }
+  h2.titulo-tela { font-size: 20px; font-weight: 800; margin: 0; letter-spacing: -0.02em; }
+  p.subtitle { color: var(--ink-soft); font-size: 13px; margin: 0; }
+  .acoes-topo { display: flex; gap: 8px; flex-wrap: wrap; }
+
   button {
-    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
-    white-space: nowrap; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 500;
-    height: 2.25rem; padding: 0 1rem; cursor: pointer; transition: background-color 0.15s;
-    background-color: var(--card); color: var(--foreground); border: 1px solid var(--border);
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); font-family: 'Inter', sans-serif;
+    font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; height: 34px; padding: 0 14px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 9px; cursor: pointer; color: var(--ink);
+    box-shadow: var(--shadow);
   }
-  button svg { width: 16px; height: 16px; }
-  button:hover { background-color: var(--background); }
-  button:disabled { opacity: 0.5; cursor: not-allowed; }
-  
-  button.primario { background-color: var(--primary); color: var(--primary-foreground); border: none; }
-  button.primario:hover { background-color: #27272a; }
-  button.perigo { background-color: var(--destructive); color: var(--primary-foreground); border: none; }
-  button.perigo:hover { background-color: #dc2626; }
+  button:hover { background: #FAFAFB; }
+  button:disabled { opacity: 0.5; cursor: default; }
+  button.primario { background: var(--ink); color: #fff; border-color: var(--ink); }
+  button.perigo { color: var(--danger); border-color: var(--danger-bg); background: var(--danger-bg); }
+  button.icone-voltar { width: 34px; padding: 0; font-size: 16px; }
 
-  /* Inputs Shadcn */
-  input[type=text], input[type=date], input[type=number], textarea {
-    display: flex; width: 100%; height: 2.25rem; border-radius: 0.375rem;
-    border: 1px solid var(--border); background-color: transparent; padding: 0.5rem 0.75rem;
-    font-size: 0.875rem; color: var(--foreground); font-family: 'Inter', sans-serif;
-    transition: border-color 0.2s, box-shadow 0.2s; background-color: var(--card);
+  input[type=text], input[type=date], input[type=number], input[type=password], select {
+    width: 100%; font-family: 'Inter', sans-serif; font-size: 13px; padding: 9px 12px;
+    border: 1px solid var(--border); border-radius: 9px; background: var(--card); color: var(--ink);
   }
-  input:focus, textarea:focus { outline: none; border-color: var(--foreground); box-shadow: 0 0 0 1px var(--foreground); }
-  input::placeholder { color: #a1a1aa; }
-  label.rotulo { font-size: 0.875rem; font-weight: 500; color: var(--foreground); display: block; margin: 0 0 8px 0; }
-  .campo { margin-bottom: 16px; }
+  input:focus, select:focus, button:focus { outline: 2px solid var(--ink); outline-offset: 1px; }
+  label.rotulo { font-size: 12px; font-weight: 500; color: var(--ink-soft); display: block; margin: 0 0 6px; }
+  .campo { margin-bottom: 14px; }
+  .nota { font-size: 11px; color: var(--ink-faint); margin: -8px 0 14px; line-height: 1.4; }
 
-  /* Cards de Resumo */
-  .painel { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
-  .bloco { 
-    background-color: var(--card); border: 1px solid var(--border); border-radius: var(--radius); 
-    padding: 24px; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); cursor: pointer; transition: border-color 0.2s;
-  }
-  .bloco:hover { border-color: #a1a1aa; }
-  .bloco-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .bloco-title { font-size: 0.875rem; font-weight: 500; color: var(--muted); }
-  .bloco-icon { color: #a1a1aa; width: 16px; height: 16px; }
-  .bloco .numero { font-size: 2rem; font-weight: 700; color: var(--foreground); letter-spacing: -0.025em; }
+  .cartao { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; box-shadow: var(--shadow); margin-bottom: 18px; }
 
-  /* Gráfico */
-  .painel-grafico { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 32px; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
-  .painel-grafico h2 { font-size: 1rem; font-weight: 600; margin: 0 0 24px; color: var(--foreground); letter-spacing: -0.025em; }
-  .grafico-container { position: relative; height: 250px; width: 100%; }
+  #tela-senha main { max-width: 340px; padding-top: 90px; }
+  #tela-senha .cartao { text-align: center; }
+  #tela-senha h1 { font-size: 18px; margin-bottom: 4px; }
 
-  /* Busca e Layout de Listas */
-  .busca-container { position: relative; margin-bottom: 32px; }
-  .busca-container svg { position: absolute; left: 12px; top: 10px; width: 16px; height: 16px; color: var(--muted); }
-  #busca { height: 38px; padding-left: 36px; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
-  
-  .secao { margin-top: 32px; }
-  .titulo-secao { font-size: 1.125rem; font-weight: 600; color: var(--foreground); margin-bottom: 16px; letter-spacing: -0.025em; display: flex; align-items: center; gap: 8px; }
-  .contagem-secao { font-size: 0.75rem; background: var(--border); color: var(--foreground); padding: 2px 8px; border-radius: 999px; font-weight: 500; }
-  
-  .card-lista { background-color: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); overflow: hidden; }
-  .linha { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); transition: background-color 0.2s; cursor: pointer; }
+  .painel { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 22px; }
+  .bloco { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; cursor: pointer; box-shadow: var(--shadow); }
+  .bloco-topo { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .bloco-rotulo { font-size: 12px; font-weight: 500; color: var(--ink-soft); }
+  .bloco-icone { width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+  .bloco.vencido .bloco-icone { background: var(--danger-bg); color: var(--danger); }
+  .bloco.atencao .bloco-icone { background: var(--caution-bg); color: var(--caution); }
+  .bloco.em-dia .bloco-icone { background: var(--clear-bg); color: var(--clear); }
+  .bloco.pendente .bloco-icone { background: var(--pendente-bg); color: var(--pendente); }
+  .bloco .numero { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+
+  .painel-grafico { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 22px; box-shadow: var(--shadow); }
+  .painel-grafico h2 { font-size: 14px; font-weight: 700; margin: 0 0 16px; }
+  .grafico-container { position: relative; height: 220px; width: 100%; }
+
+  .secao { margin-top: 24px; }
+  .secao:first-child { margin-top: 6px; }
+  .titulo-secao { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .titulo-secao span.rotulo { font-size: 14px; font-weight: 700; }
+  .contagem-secao { font-size: 11px; font-weight: 600; background: var(--border); color: var(--ink-soft); padding: 2px 9px; border-radius: 999px; }
+  .secao-vazia { font-size: 12px; color: var(--ink-faint); padding: 10px 4px; margin: 0; }
+
+  .card-lista { background: var(--card); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
+  .linha { display: flex; align-items: center; gap: 12px; padding: 13px 16px; border-bottom: 1px solid var(--border); cursor: pointer; }
   .linha:last-child { border-bottom: none; }
-  .linha:hover { background-color: var(--background); }
-  
-  .linha-info { display: flex; flex-direction: column; gap: 4px; }
-  .linha .nome { font-size: 0.875rem; font-weight: 500; color: var(--foreground); }
-  .linha .setor { font-size: 0.875rem; color: var(--muted); display: flex; align-items: center; gap: 4px; }
-  .linha .setor svg { width: 14px; height: 14px; }
+  .linha:hover { background: #FAFAFB; }
 
-  /* Badges (Pills) Lovable Style */
-  .badge { display: inline-flex; align-items: center; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; padding: 2px 10px; white-space: nowrap; }
-  .badge.vencido { background-color: #fee2e2; color: #991b1b; }
-  .badge.atencao { background-color: #fef3c7; color: #92400e; }
-  .badge.em-dia { background-color: #dcfce7; color: #166534; }
-  .badge.pendente { background-color: var(--background); color: var(--foreground); }
-  
-  .vazio, .carregando { color: var(--muted); font-size: 0.875rem; padding: 48px 20px; text-align: center; }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; }
+  .avatar.vencido { background: var(--danger); }
+  .avatar.atencao { background: var(--caution); }
+  .avatar.em-dia { background: var(--clear); }
+  .avatar.pendente { background: var(--pendente); }
 
-  /* Modais (Dialogs) */
-  .overlay { position: fixed; inset: 0; background: rgba(9, 9, 11, 0.8); backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
-  .modal { background: var(--card); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 425px; border: 1px solid var(--border); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-  .modal h3 { font-size: 1.125rem; font-weight: 600; margin: 0 0 4px; color: var(--foreground); letter-spacing: -0.025em;}
-  .modal p.sub { font-size: 0.875rem; color: var(--muted); margin: 0 0 24px; }
-  .modal .rodape { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; }
+  .linha-info { flex: 1; min-width: 0; }
+  .linha .nome { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .linha .setor { font-size: 12px; color: var(--ink-soft); margin-top: 1px; }
+  .linha .prazo { font-size: 12px; font-weight: 600; flex-shrink: 0; }
+  .linha.vencido .prazo { color: var(--danger); }
+  .linha.atencao .prazo { color: var(--caution); }
+  .linha.em-dia .prazo { color: var(--clear); }
+  .linha.pendente .prazo { color: var(--ink-faint); }
 
-  /* Toasts */
-  #toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 100; }
-  .toast { background: var(--card); color: var(--foreground); padding: 16px; border-radius: var(--radius); font-size: 0.875rem; font-weight: 500; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
-  .toast.erro { border-left: 4px solid var(--destructive); }
-  .toast:not(.erro) { border-left: 4px solid #166534; }
+  .linha-historico { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  .linha-historico:last-child { border-bottom: none; }
+  .linha-historico .tipo { font-size: 13px; font-weight: 600; }
+  .linha-historico .detalhe { font-size: 12px; color: var(--ink-soft); margin-top: 1px; }
+  .linha-historico .acoes { display: flex; gap: 6px; }
+  .linha-historico .acoes span { font-size: 11px; color: var(--ink-soft); cursor: pointer; font-weight: 600; }
+  .linha-historico .acoes span.excluir { color: var(--danger); }
 
-  @media (max-width: 768px) {
-    .painel { grid-template-columns: repeat(2, 1fr); }
-    header { flex-direction: column; align-items: flex-start; }
-    .acoes-topo { width: 100%; overflow-x: auto; padding-bottom: 4px; }
-  }
+  .vazio, .carregando { color: var(--ink-soft); font-size: 13px; padding: 30px 4px; text-align: center; }
+
+  .overlay { position: fixed; inset: 0; background: rgba(20,20,26,0.5); backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+  .modal { background: var(--card); border-radius: 16px; padding: 24px; width: 100%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+  .modal h3 { font-size: 16px; font-weight: 700; margin: 0 0 4px; }
+  .modal p.sub { font-size: 12px; color: var(--ink-soft); margin: 0 0 18px; line-height: 1.5; }
+  .modal .rodape { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+
+  #toast-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 100; }
+  .toast { background: var(--card); color: var(--ink); padding: 12px 16px; border-radius: 10px; font-size: 13px; font-weight: 500; box-shadow: 0 10px 24px rgba(0,0,0,0.15); border-left: 3px solid var(--clear); }
+  .toast.erro { border-left-color: var(--danger); }
+
+  @media (max-width: 480px) { .painel { grid-template-columns: repeat(2, 1fr); } }
 </style>
 </head>
 <body>
 <div id="toast-container"></div>
 
-<main>
-  <header>
-    <div class="header-titles">
-      <h1>Dashboard ASO</h1>
-      <p class="subtitle">Gerenciamento e controle de exames ocupacionais</p>
+<div id="tela-senha">
+  <main>
+    <div class="cartao">
+      <h1>ASO</h1>
+      <p class="subtitle" style="margin-bottom:18px;">Digite a senha pra continuar</p>
+      <div class="campo" style="text-align:left;">
+        <input type="password" id="campo-senha" placeholder="Senha" onkeydown="if(event.key==='Enter') entrarComSenha()">
+      </div>
+      <button class="primario" style="width:100%;" onclick="entrarComSenha()">Entrar</button>
     </div>
-    <div class="acoes-topo">
-      <button onclick="carregarAtivos()"><i data-lucide="refresh-cw"></i> Atualizar</button>
-      <button onclick="abrirInativos()"><i data-lucide="archive"></i> Inativos</button>
-      <button onclick="abrirCadastroManual()" class="primario"><i data-lucide="plus"></i> Novo Cadastro</button>
-    </div>
-  </header>
+  </main>
+</div>
 
-  <div id="resumo" class="painel"></div>
+<div id="tela-principal" class="oculto">
+  <main>
+    <header>
+      <div>
+        <h1>Registro de ASO</h1>
+        <p class="subtitle" id="subtitulo">Carregando situação atual…</p>
+      </div>
+      <div class="acoes-topo">
+        <button onclick="carregarAtivos()">Atualizar</button>
+        <button onclick="abrirTelaSetores()">Setores</button>
+        <button onclick="abrirTelaInativos()">Inativos</button>
+        <button class="primario" onclick="abrirCadastroManual()">+ Adicionar</button>
+      </div>
+    </header>
 
-  <div class="painel-grafico">
-    <h2>Visão por Setores</h2>
-    <div class="grafico-container">
-      <canvas id="graficoSetores"></canvas>
-    </div>
-  </div>
+    <div id="resumo" class="painel"></div>
 
-  <div class="busca-container">
-    <i data-lucide="search"></i>
-    <input type="text" id="busca" placeholder="Buscar colaborador ou setor..." oninput="aplicarFiltros()">
-  </div>
-  
-  <div id="lista" class="lista"><p class="carregando">Carregando informações...</p></div>
-</main>
+    <div class="painel-grafico">
+      <h2>Pendências por setor</h2>
+      <div class="grafico-container"><canvas id="graficoSetores"></canvas></div>
+    </div>
 
-<!-- Modais -->
-<div id="overlay-exame" class="overlay oculto">
-  <div class="modal">
-    <h3 id="titulo-exame"></h3>
-    <p class="sub" id="setor-exame"></p>
-    <div class="campo">
-      <label class="rotulo">Data do exame</label>
-      <input type="date" id="campo-data-exame">
+    <input type="text" id="busca" placeholder="Buscar por nome ou setor" oninput="aplicarFiltros()" style="margin-bottom: 6px;">
+    <div id="lista" class="lista"><p class="carregando">Carregando…</p></div>
+  </main>
+</div>
+
+<div id="tela-pessoa" class="oculto">
+  <main>
+    <header>
+      <div class="header-voltar">
+        <button class="icone-voltar" onclick="voltarPraPrincipal()">←</button>
+        <div>
+          <h2 class="titulo-tela" id="pessoa-nome-titulo"></h2>
+          <p class="subtitle" id="pessoa-setor-titulo"></p>
+        </div>
+      </div>
+      <button class="perigo" id="btn-excluir-colaborador" onclick="excluirColaboradorAtual()">Excluir colaborador</button>
+    </header>
+
+    <div class="cartao">
+      <h3 style="font-size:13px; margin:0 0 14px;">Dados do colaborador</h3>
+      <div class="campo">
+        <label class="rotulo">Nome</label>
+        <input type="text" id="pessoa-campo-nome">
+      </div>
+      <div class="campo" style="margin-bottom:0;">
+        <label class="rotulo">Setor</label>
+        <select id="pessoa-campo-setor"></select>
+      </div>
+      <button class="primario" style="margin-top:14px;" onclick="salvarDadosPessoa()">Salvar dados</button>
     </div>
-    <div class="campo">
-      <label class="rotulo">Validade (meses)</label>
-      <input type="number" id="campo-validade" min="1" max="36">
+
+    <div class="cartao">
+      <h3 style="font-size:13px; margin:0 0 14px;">Lançar novo exame</h3>
+      <div class="campo">
+        <label class="rotulo">Tipo</label>
+        <select id="exame-campo-tipo" onchange="preencherValidadeSugerida()">
+          <option value="Admissional">Admissional</option>
+          <option value="Periodico">Periódico</option>
+          <option value="Retorno ao Trabalho">Retorno ao Trabalho</option>
+          <option value="Mudanca de Funcao">Mudança de Função</option>
+          <option value="Demissional">Demissional</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label class="rotulo">Data do exame</label>
+        <input type="date" id="exame-campo-data">
+      </div>
+      <div class="campo" style="margin-bottom:0;">
+        <label class="rotulo">Validade (meses) — deixe em branco pra Admissional/Demissional</label>
+        <input type="number" id="exame-campo-validade" min="1" max="36">
+      </div>
+      <button class="primario" style="margin-top:14px;" id="btn-lancar-exame" onclick="lancarExame()">Lançar exame</button>
     </div>
-    <div class="rodape">
-      <button class="perigo" id="btn-excluir-colaborador" onclick="excluirColaboradorAtual()" style="margin-right:auto;">Excluir</button>
-      <button onclick="fecharExame()">Cancelar</button>
-      <button class="primario" id="btn-salvar-exame" onclick="salvarExameAtual()">Salvar alterações</button>
+
+    <div class="cartao">
+      <h3 style="font-size:13px; margin:0 0 14px;">Histórico</h3>
+      <div id="lista-historico"></div>
     </div>
-  </div>
+  </main>
+</div>
+
+<div id="tela-setores" class="oculto">
+  <main>
+    <header>
+      <div class="header-voltar">
+        <button class="icone-voltar" onclick="voltarPraPrincipal()">←</button>
+        <h2 class="titulo-tela">Setores</h2>
+      </div>
+    </header>
+    <div class="cartao">
+      <h3 style="font-size:13px; margin:0 0 14px;">Adicionar / atualizar setor</h3>
+      <p class="nota" style="margin-top:-10px;">O prazo é apenas uma sugestão pré-preenchida ao lançar um exame novo — mudar isso nunca recalcula exames já lançados.</p>
+      <div class="campo">
+        <label class="rotulo">Nome do setor</label>
+        <input type="text" id="setor-campo-nome">
+      </div>
+      <div class="campo" style="margin-bottom:0;">
+        <label class="rotulo">Prazo padrão (meses)</label>
+        <input type="number" id="setor-campo-prazo" min="1" max="36">
+      </div>
+      <button class="primario" style="margin-top:14px;" onclick="salvarSetorAtual()">Salvar setor</button>
+    </div>
+    <div class="cartao">
+      <h3 style="font-size:13px; margin:0 0 14px;">Setores cadastrados</h3>
+      <div id="lista-setores"></div>
+    </div>
+  </main>
+</div>
+
+<div id="tela-inativos" class="oculto">
+  <main>
+    <header>
+      <div class="header-voltar">
+        <button class="icone-voltar" onclick="voltarPraPrincipal()">←</button>
+        <h2 class="titulo-tela">Inativos</h2>
+      </div>
+    </header>
+    <p class="subtitle" style="margin-bottom:14px;">O histórico de exames continua acessível — clica na pessoa pra ver.</p>
+    <div id="lista-inativos" class="card-lista"></div>
+  </main>
 </div>
 
 <div id="overlay-manual" class="overlay oculto">
   <div class="modal">
-    <h3>Novo Colaborador</h3>
-    <p class="sub">Adicione um colaborador manualmente ao sistema.</p>
+    <h3>Adicionar colaborador</h3>
+    <p class="sub">Depois de adicionar, você lança os exames na tela de detalhe da pessoa.</p>
     <div class="campo">
-      <label class="rotulo">Nome completo</label>
-      <input type="text" id="manual-nome" placeholder="Ex: João da Silva">
+      <label class="rotulo">Nome</label>
+      <input type="text" id="manual-nome">
     </div>
-    <div class="campo">
+    <div class="campo" style="margin-bottom:0;">
       <label class="rotulo">Setor</label>
-      <input type="text" id="manual-setor" placeholder="Ex: Financeiro">
-    </div>
-    <div class="campo">
-      <label class="rotulo">Data do exame (Opcional)</label>
-      <input type="date" id="manual-data-exame">
-    </div>
-    <div class="campo">
-      <label class="rotulo">Validade em meses</label>
-      <input type="number" id="manual-validade" min="1" max="36" placeholder="Ex: 12">
+      <select id="manual-setor"></select>
     </div>
     <div class="rodape">
       <button onclick="fecharCadastroManual()">Cancelar</button>
-      <button class="primario" id="btn-cadastro-manual" onclick="salvarCadastroManual()">Criar registro</button>
-    </div>
-  </div>
-</div>
-
-<div id="overlay-sync" class="overlay oculto">
-  <div class="modal">
-    <h3>Importar Dados</h3>
-    <p class="sub">Cole os dados copiados da planilha (Código, Nome, Setor).</p>
-    <textarea id="campo-sync" rows="6" placeholder="965&#9;João Silva&#9;Jurídico"></textarea>
-    <div class="rodape">
-      <button onclick="fecharSincronizacao()">Cancelar</button>
-      <button class="primario" id="btn-processar-sync" onclick="processarLote()">Iniciar importação</button>
-    </div>
-  </div>
-</div>
-
-<div id="overlay-inativos" class="overlay oculto">
-  <div class="modal">
-    <h3>Colaboradores Inativos</h3>
-    <p class="sub">Histórico de pessoas removidas da base principal.</p>
-    <div id="lista-inativos" style="max-height:300px; overflow-y:auto; margin-bottom: 16px;"></div>
-    <div class="rodape">
-      <button onclick="fecharInativos()">Fechar</button>
+      <button class="primario" id="btn-cadastro-manual" onclick="salvarCadastroManual()">Adicionar</button>
     </div>
   </div>
 </div>
 
 <script>
-  // Ícones do Lucide
-  lucide.createIcons();
-
-  // Link do seu Web App
   const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyIG3_Ae2Xpu8eUhx40Z6U7wsz8d1YC30nACQxqPmjh92bZtKM3YNuzzb89Yh2u6SJBQ/exec';
 
+  let senhaAtual = localStorage.getItem('aso_senha') || '';
   let itens = [];
+  let setores = [];
   let chartInstancia = null;
+  let pessoaAtual = null;
 
   async function chamarAPI(action, extra) {
-    const corpo = Object.assign({ action: action }, extra || {});
+    const corpo = Object.assign({ action: action, senha: senhaAtual }, extra || {});
     try {
       const resposta = await fetch(APPS_SCRIPT_URL, {
         method: 'POST',
-        redirect: 'follow',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(corpo)
       });
@@ -270,8 +300,25 @@
       if (dados.erro) throw new Error(dados.erro);
       return dados;
     } catch (erro) {
-      mostrarToast(erro.message, 'erro');
+      mostrarToast('Algo deu errado (' + action + '): ' + erro.message, 'erro');
       throw erro;
+    }
+  }
+
+  async function entrarComSenha() {
+    const valor = document.getElementById('campo-senha').value;
+    if (!valor) return;
+    senhaAtual = valor;
+    try {
+      const resultado = await chamarAPI('verificarSenha', {});
+      if (!resultado.ok) { mostrarToast('Senha incorreta.', 'erro'); senhaAtual = ''; return; }
+      localStorage.setItem('aso_senha', valor);
+      document.getElementById('tela-senha').classList.add('oculto');
+      document.getElementById('tela-principal').classList.remove('oculto');
+      await carregarSetores();
+      await carregarAtivos();
+    } catch (erro) {
+      senhaAtual = '';
     }
   }
 
@@ -279,59 +326,87 @@
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
     toast.className = 'toast' + (tipo === 'erro' ? ' erro' : '');
-    const icone = tipo === 'erro' ? '<i data-lucide="alert-circle" style="color:var(--destructive)"></i>' : '<i data-lucide="check-circle" style="color:#166534"></i>';
-    toast.innerHTML = `${icone} <span>${mensagem}</span>`;
+    toast.textContent = mensagem;
     container.appendChild(toast);
-    lucide.createIcons({root: toast});
-    
-    setTimeout(() => {
+    setTimeout(function () {
       toast.style.opacity = '0';
       toast.style.transition = 'opacity 0.3s';
-      setTimeout(() => toast.remove(), 300);
-    }, 4000);
+      setTimeout(function () { toast.remove(); }, 300);
+    }, 3800);
+  }
+
+  function iniciais(nome) {
+    const partes = (nome || '?').trim().split(/\s+/);
+    const primeiras = partes.length > 1 ? partes[0][0] + partes[partes.length - 1][0] : partes[0].slice(0, 2);
+    return primeiras.toUpperCase();
+  }
+
+  function mostrarTela(idTela) {
+    ['tela-principal', 'tela-pessoa', 'tela-setores', 'tela-inativos'].forEach(function (id) {
+      document.getElementById(id).classList.toggle('oculto', id !== idTela);
+    });
+  }
+
+  function voltarPraPrincipal() {
+    mostrarTela('tela-principal');
+    carregarAtivos();
   }
 
   async function carregarAtivos() {
-    document.getElementById('lista').innerHTML = '<p class="carregando">Sincronizando dados...</p>';
+    document.getElementById('lista').innerHTML = '<p class="carregando">Carregando…</p>';
     const dados = await chamarAPI('obterAtivos', {});
     itens = dados.itens;
+    atualizarSubtitulo();
     renderizarResumo();
     renderizarGraficoSetores();
     aplicarFiltros();
   }
 
+  function atualizarSubtitulo() {
+    const contagem = contarPorStatus(itens);
+    const sub = document.getElementById('subtitulo');
+    if (contagem.VENCIDO > 0) sub.textContent = contagem.VENCIDO + ' colaborador(es) com exame vencido precisam de atenção hoje.';
+    else if (contagem['ATENÇÃO'] > 0) sub.textContent = contagem['ATENÇÃO'] + ' colaborador(es) vencem nos próximos 30 dias.';
+    else sub.textContent = 'Tudo em dia por aqui.';
+  }
+
   const GRUPOS_STATUS = [
-    { chave: 'VENCIDO', rotulo: 'Vencidos', icone: 'alert-triangle' },
-    { chave: 'ATENÇÃO', rotulo: 'Atenção 30d', icone: 'clock' },
-    { chave: 'EM DIA', rotulo: 'Regulares', icone: 'check-circle-2' },
-    { chave: 'PENDENTE', rotulo: 'Sem Exame', icone: 'help-circle' }
+    { chave: 'VENCIDO', rotulo: 'Vencidos', classe: 'vencido' },
+    { chave: 'ATENÇÃO', rotulo: 'Atenção · 30 dias', classe: 'atencao' },
+    { chave: 'EM DIA', rotulo: 'Em dia', classe: 'em-dia' },
+    { chave: 'AGUARDANDO_PERIODICO', rotulo: 'Aguardando periódico', classe: 'pendente' }
   ];
 
+  function contarPorStatus(lista) {
+    const contagem = { VENCIDO: 0, 'ATENÇÃO': 0, 'EM DIA': 0, AGUARDANDO_PERIODICO: 0 };
+    lista.forEach(function (item) {
+      const chave = item.status || 'AGUARDANDO_PERIODICO';
+      contagem[chave] = (contagem[chave] || 0) + 1;
+    });
+    return contagem;
+  }
+
   function renderizarResumo() {
-    const contagem = { VENCIDO: 0, 'ATENÇÃO': 0, 'EM DIA': 0, PENDENTE: 0 };
-    itens.forEach(item => { contagem[item.status || 'PENDENTE'] = (contagem[item.status || 'PENDENTE'] || 0) + 1; });
-    
+    const contagem = contarPorStatus(itens);
     const container = document.getElementById('resumo');
     container.innerHTML = '';
-    GRUPOS_STATUS.forEach(c => {
-      container.innerHTML += `
-        <div class="bloco" onclick="document.getElementById('secao-${c.chave}').scrollIntoView({ behavior: 'smooth' })">
-          <div class="bloco-header">
-            <span class="bloco-title">${c.rotulo}</span>
-            <i data-lucide="${c.icone}" class="bloco-icon"></i>
-          </div>
-          <div class="numero">${contagem[c.chave]}</div>
-        </div>
-      `;
+    GRUPOS_STATUS.forEach(function (c) {
+      const bloco = document.createElement('div');
+      bloco.className = 'bloco ' + c.classe;
+      bloco.innerHTML = '<div class="bloco-topo"><span class="bloco-rotulo">' + c.rotulo + '</span><span class="bloco-icone">' + contagem[c.chave] + '</span></div><div class="numero">' + contagem[c.chave] + '</div>';
+      bloco.onclick = function () {
+        const secao = document.getElementById('secao-' + c.classe);
+        if (secao) secao.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+      container.appendChild(bloco);
     });
-    lucide.createIcons({root: container});
   }
 
   function contarPendenciasPorSetor() {
     const contagem = {};
     itens.forEach(function (item) {
       if (item.status === 'EM DIA') return;
-      const setor = item.setor || 'Sem Setor';
+      const setor = item.setor || '(sem setor)';
       contagem[setor] = (contagem[setor] || 0) + 1;
     });
     return contagem;
@@ -339,39 +414,34 @@
 
   function renderizarGraficoSetores() {
     const contagem = contarPendenciasPorSetor();
-    const setores = Object.keys(contagem).sort((a, b) => contagem[b] - contagem[a]).slice(0, 6);
-    const valores = setores.map(s => contagem[s]);
-    
-    const ctx = document.getElementById('graficoSetores');
-    if (chartInstancia) chartInstancia.destroy();
+    const nomesSetores = Object.keys(contagem).sort(function (a, b) { return contagem[b] - contagem[a]; }).slice(0, 8);
+    const valores = nomesSetores.map(function (s) { return contagem[s]; });
+    const canvas = document.getElementById('graficoSetores');
 
-    if (setores.length === 0) {
-      ctx.style.display = 'none';
-      ctx.parentElement.innerHTML += '<p class="vazio" style="padding:10px;">Sem pendências ativas.</p>';
+    if (chartInstancia) { chartInstancia.destroy(); chartInstancia = null; }
+    const container = canvas.parentElement;
+    const vazioExistente = container.querySelector('.secao-vazia');
+    if (vazioExistente) vazioExistente.remove();
+
+    if (nomesSetores.length === 0) {
+      canvas.classList.add('oculto');
+      const p = document.createElement('p');
+      p.className = 'secao-vazia';
+      p.textContent = 'Nenhuma pendência por setor.';
+      container.appendChild(p);
       return;
     }
+    canvas.classList.remove('oculto');
 
-    ctx.style.display = 'block';
-    
-    chartInstancia = new Chart(ctx, {
+    chartInstancia = new Chart(canvas, {
       type: 'bar',
-      data: {
-        labels: setores,
-        datasets: [{
-          data: valores,
-          backgroundColor: '#18181b', // Cor preta padrão Shadcn
-          borderRadius: 4,
-          barThickness: 32
-        }]
-      },
+      data: { labels: nomesSetores, datasets: [{ data: valores, backgroundColor: '#16161A', borderRadius: 6, barThickness: 20 }] },
       options: {
-        indexAxis: 'y',
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: { backgroundColor: '#18181b', padding: 12, cornerRadius: 8, displayColors: false } },
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { backgroundColor: '#16161A', padding: 10, cornerRadius: 6, displayColors: false } },
         scales: {
-          x: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter' } } },
-          y: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', weight: '500' }, color: '#71717a' } }
+          x: { grid: { color: '#EDEDF0' }, ticks: { font: { family: 'Inter' }, precision: 0 } },
+          y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 12, weight: '500' }, color: '#16161A' } }
         }
       }
     });
@@ -380,119 +450,313 @@
   function aplicarFiltros() {
     let lista = itens;
     const termo = document.getElementById('busca').value.trim().toLowerCase();
-    if (termo) lista = lista.filter(item => item.nome.toLowerCase().includes(termo) || item.setor.toLowerCase().includes(termo));
+    if (termo) {
+      lista = lista.filter(function (item) {
+        return item.nome.toLowerCase().includes(termo) || item.setor.toLowerCase().includes(termo);
+      });
+    }
     renderizarSecoes(lista);
   }
 
-  function renderizarBadge(item) {
-    const status = item.status || 'PENDENTE';
-    let classe = 'pendente', texto = 'Sem Data';
-    if(status === 'VENCIDO') { classe = 'vencido'; texto = 'Vencido'; }
-    if(status === 'ATENÇÃO') { classe = 'atencao'; texto = 'Vence em ' + item.diasRestantes + 'd'; }
-    if(status === 'EM DIA') { classe = 'em-dia'; texto = 'Regular (' + item.diasRestantes + 'd)'; }
-    return `<span class="badge ${classe}">${texto}</span>`;
+  function classeStatus(status) {
+    if (status === 'VENCIDO') return 'vencido';
+    if (status === 'ATENÇÃO') return 'atencao';
+    if (status === 'EM DIA') return 'em-dia';
+    return 'pendente';
+  }
+
+  function textoDias(item) {
+    if (item.status === 'AGUARDANDO_PERIODICO') return 'sem periódico';
+    if (item.diasRestantes === null || item.diasRestantes === undefined) return '—';
+    if (item.diasRestantes < 0) return 'há ' + Math.abs(item.diasRestantes) + 'd';
+    if (item.diasRestantes === 0) return 'hoje';
+    return 'em ' + item.diasRestantes + 'd';
   }
 
   function renderizarSecoes(lista) {
     const container = document.getElementById('lista');
     container.innerHTML = '';
-    if (itens.length === 0) return container.innerHTML = '<p class="vazio">Nenhum dado encontrado.</p>';
+    if (itens.length === 0) { container.innerHTML = '<p class="vazio">Nada registrado ainda. Adicione um colaborador pra começar.</p>'; return; }
 
-    const porStatus = { VENCIDO: [], 'ATENÇÃO': [], 'EM DIA': [], PENDENTE: [] };
-    lista.forEach(item => porStatus[item.status || 'PENDENTE'].push(item));
-    Object.keys(porStatus).forEach(k => porStatus[k].sort((a, b) => (a.diasRestantes || Infinity) - (b.diasRestantes || Infinity)));
-
-    let vazio = true;
-
-    GRUPOS_STATUS.forEach(g => {
-      const pessoas = porStatus[g.chave];
-      if (pessoas.length === 0) return;
-      vazio = false;
-
-      const htmlLinhas = pessoas.map(item => `
-        <div class="linha" onclick='abrirExame(${JSON.stringify(item)})'>
-          <div class="linha-info">
-            <span class="nome">${item.nome}</span>
-            <span class="setor"><i data-lucide="briefcase"></i> ${item.setor}</span>
-          </div>
-          ${renderizarBadge(item)}
-        </div>
-      `).join('');
-
-      container.innerHTML += `
-        <div class="secao" id="secao-${g.chave}">
-          <div class="titulo-secao">${g.rotulo} <span class="contagem-secao">${pessoas.length}</span></div>
-          <div class="card-lista">${htmlLinhas}</div>
-        </div>
-      `;
+    const porStatus = { VENCIDO: [], 'ATENÇÃO': [], 'EM DIA': [], AGUARDANDO_PERIODICO: [] };
+    lista.forEach(function (item) { porStatus[item.status || 'AGUARDANDO_PERIODICO'].push(item); });
+    Object.keys(porStatus).forEach(function (chave) {
+      porStatus[chave].sort(function (a, b) {
+        const da = (a.diasRestantes === null || a.diasRestantes === undefined) ? Infinity : a.diasRestantes;
+        const db = (b.diasRestantes === null || b.diasRestantes === undefined) ? Infinity : b.diasRestantes;
+        return da - db;
+      });
     });
 
-    if (vazio) container.innerHTML = '<p class="vazio">Nenhum resultado encontrado.</p>';
-    lucide.createIcons({root: container});
+    const termoAtivo = document.getElementById('busca').value.trim();
+    let algumResultado = false;
+
+    GRUPOS_STATUS.forEach(function (g) {
+      const pessoas = porStatus[g.chave];
+      if (pessoas.length > 0) algumResultado = true;
+
+      const secao = document.createElement('div');
+      secao.className = 'secao';
+      secao.id = 'secao-' + g.classe;
+      secao.innerHTML = '<div class="titulo-secao"><span class="rotulo">' + g.rotulo + '</span><span class="contagem-secao">' + pessoas.length + '</span></div>';
+
+      if (pessoas.length === 0) {
+        secao.innerHTML += '<p class="secao-vazia">Ninguém aqui.</p>';
+      } else {
+        const cardLista = document.createElement('div');
+        cardLista.className = 'card-lista';
+        pessoas.forEach(function (item) {
+          const linha = document.createElement('div');
+          linha.className = 'linha ' + g.classe;
+          linha.onclick = function () { abrirPessoa(item); };
+          linha.innerHTML =
+            '<div class="avatar ' + g.classe + '">' + iniciais(item.nome) + '</div>' +
+            '<div class="linha-info"><div class="nome">' + item.nome + '</div><div class="setor">' + item.setor + '</div></div>' +
+            '<div class="prazo">' + textoDias(item) + '</div>';
+          cardLista.appendChild(linha);
+        });
+        secao.appendChild(cardLista);
+      }
+      container.appendChild(secao);
+    });
+
+    if (!algumResultado && termoAtivo) container.innerHTML = '<p class="vazio">Nenhum resultado com essa busca.</p>';
   }
 
-  let itemEmEdicao = null;
-  
-  window.abrirExame = function(item) {
-    itemEmEdicao = item;
-    document.getElementById('titulo-exame').textContent = item.nome;
-    document.getElementById('setor-exame').textContent = item.setor;
-    document.getElementById('campo-data-exame').value = item.dataExame ? new Date(item.dataExame).toISOString().slice(0, 10) : '';
-    document.getElementById('campo-validade').value = item.validadeMeses || '';
-    const btn = document.getElementById('btn-excluir-colaborador');
-    btn.textContent = 'Excluir'; btn.dataset.confirmando = '';
-    document.getElementById('overlay-exame').classList.remove('oculto');
+  async function carregarSetores() {
+    const dados = await chamarAPI('obterSetores', {});
+    setores = dados.itens;
   }
 
-  function fecharExame() { document.getElementById('overlay-exame').classList.add('oculto'); }
+  function preencherSelectDeSetores(idSelect, valorAtual) {
+    const select = document.getElementById(idSelect);
+    select.innerHTML = '';
+    if (setores.length === 0) {
+      const opt = document.createElement('option');
+      opt.value = ''; opt.textContent = 'Nenhum setor cadastrado — cadastre em "Setores"';
+      select.appendChild(opt);
+      return;
+    }
+    setores.forEach(function (s) {
+      const opt = document.createElement('option');
+      opt.value = s.nome; opt.textContent = s.nome;
+      if (s.nome === valorAtual) opt.selected = true;
+      select.appendChild(opt);
+    });
+  }
+
+  async function abrirPessoa(item) {
+    pessoaAtual = item;
+    document.getElementById('pessoa-nome-titulo').textContent = item.nome;
+    document.getElementById('pessoa-setor-titulo').textContent = item.setor;
+    document.getElementById('pessoa-campo-nome').value = item.nome;
+    preencherSelectDeSetores('pessoa-campo-setor', item.setor);
+    document.getElementById('exame-campo-tipo').value = 'Periodico';
+    document.getElementById('exame-campo-data').value = '';
+    preencherValidadeSugerida();
+    const botaoExcluir = document.getElementById('btn-excluir-colaborador');
+    botaoExcluir.textContent = 'Excluir colaborador';
+    botaoExcluir.dataset.confirmando = '';
+    mostrarTela('tela-pessoa');
+    await carregarHistoricoDaPessoa();
+  }
+
+  function preencherValidadeSugerida() {
+    const tipo = document.getElementById('exame-campo-tipo').value;
+    const campoValidade = document.getElementById('exame-campo-validade');
+    if (tipo === 'Admissional' || tipo === 'Demissional') { campoValidade.value = ''; campoValidade.disabled = true; return; }
+    campoValidade.disabled = false;
+    const setorInfo = setores.find(function (s) { return s.nome === pessoaAtual.setor; });
+    if (setorInfo && setorInfo.prazoPadraoMeses) campoValidade.value = setorInfo.prazoPadraoMeses;
+  }
+
+  async function salvarDadosPessoa() {
+    const nome = document.getElementById('pessoa-campo-nome').value.trim();
+    const setor = document.getElementById('pessoa-campo-setor').value;
+    if (!nome || !setor) { mostrarToast('Preencha nome e setor.', 'erro'); return; }
+    await chamarAPI('editarColaborador', { codigo: pessoaAtual.codigo, nome: nome, setor: setor });
+    pessoaAtual.nome = nome; pessoaAtual.setor = setor;
+    document.getElementById('pessoa-nome-titulo').textContent = nome;
+    document.getElementById('pessoa-setor-titulo').textContent = setor;
+    mostrarToast('Dados atualizados.');
+  }
 
   async function excluirColaboradorAtual() {
-    const btn = document.getElementById('btn-excluir-colaborador');
-    if (!btn.dataset.confirmando) { btn.dataset.confirmando = '1'; return btn.textContent = 'Confirmar exclusão?'; }
-    btn.disabled = true; btn.textContent = 'Removendo...';
-    try { await chamarAPI('excluirColaborador', { codigo: itemEmEdicao.codigo }); fecharExame(); mostrarToast('Removido com sucesso.'); await carregarAtivos(); } 
-    finally { btn.disabled = false; }
+    const botao = document.getElementById('btn-excluir-colaborador');
+    if (!botao.dataset.confirmando) { botao.dataset.confirmando = '1'; botao.textContent = 'Confirmar exclusão?'; return; }
+    botao.disabled = true; botao.textContent = 'Excluindo…';
+    try {
+      await chamarAPI('excluirColaborador', { codigo: pessoaAtual.codigo });
+      mostrarToast(pessoaAtual.nome + ' movido(a) para Inativos.');
+      voltarPraPrincipal();
+    } finally {
+      botao.disabled = false;
+    }
   }
 
-  async function salvarExameAtual() {
-    const data = document.getElementById('campo-data-exame').value;
-    const val = document.getElementById('campo-validade').value;
-    if (!data || !val) return mostrarToast('Preencha os campos.', 'erro');
-    const btn = document.getElementById('btn-salvar-exame');
-    btn.disabled = true; btn.textContent = 'Salvando...';
-    try { await chamarAPI('salvarExame', { codigo: itemEmEdicao.codigo, dataExame: data, validadeMeses: Number(val) }); fecharExame(); mostrarToast('Salvo com sucesso.'); await carregarAtivos(); } 
-    finally { btn.disabled = false; btn.textContent = 'Salvar alterações'; }
+  async function carregarHistoricoDaPessoa() {
+    const lista = document.getElementById('lista-historico');
+    lista.innerHTML = '<p class="carregando">Carregando…</p>';
+    const dados = await chamarAPI('obterHistoricoDoCodigo', { codigo: pessoaAtual.codigo });
+    lista.innerHTML = '';
+    if (dados.itens.length === 0) { lista.innerHTML = '<p class="secao-vazia">Nenhum exame lançado ainda.</p>'; return; }
+    dados.itens.forEach(function (item) {
+      const linha = document.createElement('div');
+      linha.className = 'linha-historico';
+      const dataTexto = item.data ? new Date(item.data).toLocaleDateString('pt-BR') : '(sem data)';
+      const validadeTexto = item.validadeMeses ? item.validadeMeses + ' meses' : '(sem validade)';
+      linha.innerHTML =
+        '<div><div class="tipo">' + item.tipo + '</div><div class="detalhe">' + dataTexto + ' — ' + validadeTexto + '</div></div>' +
+        '<div class="acoes"><span onclick="abrirEdicaoExame(' + item.linha + ',\'' + item.tipo + '\')">editar</span><span class="excluir" onclick="excluirExameAtual(' + item.linha + ')">excluir</span></div>';
+      lista.appendChild(linha);
+    });
   }
 
-  function abrirCadastroManual() { document.getElementById('manual-nome').value = ''; document.getElementById('manual-setor').value = ''; document.getElementById('manual-data-exame').value = ''; document.getElementById('manual-validade').value = ''; document.getElementById('overlay-manual').classList.remove('oculto'); }
+  async function lancarExame() {
+    const tipo = document.getElementById('exame-campo-tipo').value;
+    const data = document.getElementById('exame-campo-data').value;
+    const validade = document.getElementById('exame-campo-validade').value;
+    if (!data) { mostrarToast('Preencha a data do exame.', 'erro'); return; }
+    const botao = document.getElementById('btn-lancar-exame');
+    botao.disabled = true; botao.textContent = 'Lançando…';
+    try {
+      await chamarAPI('adicionarExame', { codigo: pessoaAtual.codigo, tipo: tipo, data: data, validadeMeses: validade ? Number(validade) : null });
+      mostrarToast('Exame lançado.');
+      document.getElementById('exame-campo-data').value = '';
+      await carregarHistoricoDaPessoa();
+    } finally {
+      botao.disabled = false; botao.textContent = 'Lançar exame';
+    }
+  }
+
+  function abrirEdicaoExame(numeroDaLinha, tipoAtual) {
+    const novoTipo = prompt('Tipo (Admissional, Periodico, Retorno ao Trabalho, Mudanca de Funcao, Demissional):', tipoAtual);
+    if (novoTipo === null) return;
+    const novaData = prompt('Data do exame (AAAA-MM-DD):', '');
+    if (novaData === null) return;
+    const novaValidade = prompt('Validade em meses (deixe vazio se não se aplica):', '');
+    if (novaValidade === null) return;
+    editarExameConfirmado(numeroDaLinha, novoTipo, novaData, novaValidade ? Number(novaValidade) : null);
+  }
+
+  async function editarExameConfirmado(numeroDaLinha, tipo, data, validadeMeses) {
+    await chamarAPI('editarExame', { linha: numeroDaLinha, tipo: tipo, data: data, validadeMeses: validadeMeses });
+    mostrarToast('Exame corrigido.');
+    await carregarHistoricoDaPessoa();
+  }
+
+  async function excluirExameAtual(numeroDaLinha) {
+    await chamarAPI('excluirExame', { linha: numeroDaLinha });
+    mostrarToast('Exame removido do histórico.');
+    await carregarHistoricoDaPessoa();
+  }
+
+  function abrirCadastroManual() {
+    document.getElementById('manual-nome').value = '';
+    preencherSelectDeSetores('manual-setor', null);
+    document.getElementById('overlay-manual').classList.remove('oculto');
+  }
+
   function fecharCadastroManual() { document.getElementById('overlay-manual').classList.add('oculto'); }
 
   async function salvarCadastroManual() {
-    const nome = document.getElementById('manual-nome').value.trim(), setor = document.getElementById('manual-setor').value.trim();
-    if (!nome || !setor) return mostrarToast('Campos obrigatórios.', 'erro');
-    const btn = document.getElementById('btn-cadastro-manual');
-    btn.disabled = true; btn.textContent = 'Processando...';
-    try { await chamarAPI('adicionarColaboradorManual', { nome, setor, dataExame: document.getElementById('manual-data-exame').value || null, validadeMeses: document.getElementById('manual-validade').value ? Number(document.getElementById('manual-validade').value) : null }); fecharCadastroManual(); mostrarToast('Adicionado.'); await carregarAtivos(); } 
-    finally { btn.disabled = false; btn.textContent = 'Criar registro'; }
+    const nome = document.getElementById('manual-nome').value.trim();
+    const setor = document.getElementById('manual-setor').value;
+    if (!nome || !setor) { mostrarToast('Preencha nome e setor.', 'erro'); return; }
+    const botao = document.getElementById('btn-cadastro-manual');
+    botao.disabled = true; botao.textContent = 'Adicionando…';
+    try {
+      await chamarAPI('adicionarColaborador', { nome: nome, setor: setor });
+      fecharCadastroManual();
+      mostrarToast(nome + ' adicionado(a).');
+      await carregarAtivos();
+    } finally {
+      botao.disabled = false; botao.textContent = 'Adicionar';
+    }
   }
 
-  async function abrirInativos() {
-    document.getElementById('overlay-inativos').classList.remove('oculto');
-    const lista = document.getElementById('lista-inativos'); lista.innerHTML = '<p class="carregando">Carregando...</p>';
+  async function abrirTelaSetores() {
+    mostrarTela('tela-setores');
+    document.getElementById('setor-campo-nome').value = '';
+    document.getElementById('setor-campo-prazo').value = '';
+    await carregarSetores();
+    renderizarListaSetores();
+  }
+
+  function renderizarListaSetores() {
+    const lista = document.getElementById('lista-setores');
+    lista.innerHTML = '';
+    if (setores.length === 0) { lista.innerHTML = '<p class="secao-vazia">Nenhum setor cadastrado ainda.</p>'; return; }
+    setores.forEach(function (s) {
+      const linha = document.createElement('div');
+      linha.className = 'linha-historico';
+      linha.innerHTML =
+        '<div><div class="tipo">' + s.nome + '</div><div class="detalhe">' + (s.prazoPadraoMeses || '(sem prazo padrão)') + ' meses</div></div>' +
+        '<div class="acoes"><span class="excluir" onclick="excluirSetorAtual(\'' + s.nome.replace(/'/g, "\\'") + '\')">excluir</span></div>';
+      lista.appendChild(linha);
+    });
+  }
+
+  async function salvarSetorAtual() {
+    const nome = document.getElementById('setor-campo-nome').value.trim();
+    const prazo = document.getElementById('setor-campo-prazo').value;
+    if (!nome) { mostrarToast('Digite o nome do setor.', 'erro'); return; }
+    await chamarAPI('salvarSetor', { nome: nome, prazoPadraoMeses: prazo ? Number(prazo) : '' });
+    mostrarToast('Setor salvo.');
+    document.getElementById('setor-campo-nome').value = '';
+    document.getElementById('setor-campo-prazo').value = '';
+    await carregarSetores();
+    renderizarListaSetores();
+  }
+
+  async function excluirSetorAtual(nome) {
+    await chamarAPI('excluirSetor', { nome: nome });
+    mostrarToast('Setor removido.');
+    await carregarSetores();
+    renderizarListaSetores();
+  }
+
+  async function abrirTelaInativos() {
+    mostrarTela('tela-inativos');
+    const lista = document.getElementById('lista-inativos');
+    lista.innerHTML = '<p class="carregando">Carregando…</p>';
     const dados = await chamarAPI('obterInativos', {});
-    if (!dados.itens.length) return lista.innerHTML = '<p class="vazio">Nada aqui.</p>';
-    lista.innerHTML = dados.itens.map(item => `
-      <div class="linha" style="cursor:default; padding: 12px; border:1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px;">
-        <div class="linha-info"><span class="nome">${item.nome}</span><span class="setor">Desligado</span></div>
-        <button onclick="restaurarInativo(${item.linha})">restaurar</button>
-      </div>`).join('');
-    lucide.createIcons({root: lista});
+    lista.innerHTML = '';
+    if (dados.itens.length === 0) { lista.innerHTML = '<p class="secao-vazia">Nenhum inativo.</p>'; return; }
+    dados.itens.forEach(function (item) {
+      const linha = document.createElement('div');
+      linha.className = 'linha';
+      const data = item.dataSaida ? new Date(item.dataSaida).toLocaleDateString('pt-BR') : '';
+      linha.innerHTML =
+        '<div class="avatar pendente">' + iniciais(item.nome) + '</div>' +
+        '<div class="linha-info"><div class="nome">' + item.nome + '</div><div class="setor">' + item.setor + ' — saiu em ' + data + '</div></div>' +
+        '<span style="color:var(--ink); cursor:pointer; font-size:12px; font-weight:600;" onclick="restaurarInativoAtual(' + item.linha + ', event)">restaurar</span>';
+      linha.onclick = function () { abrirPessoa(item); };
+      lista.appendChild(linha);
+    });
   }
-  function fecharInativos() { document.getElementById('overlay-inativos').classList.add('oculto'); }
 
-  async function restaurarInativo(linha) { await chamarAPI('restaurarDeInativos', { linha }); mostrarToast('Restaurado.'); await abrirInativos(); await carregarAtivos(); }
+  async function restaurarInativoAtual(linha, evento) {
+    evento.stopPropagation();
+    await chamarAPI('restaurarDeInativos', { linha: linha });
+    mostrarToast('Restaurado.');
+    await abrirTelaInativos();
+  }
 
-  carregarAtivos();
+  (async function iniciar() {
+    if (!senhaAtual) return;
+    try {
+      const resultado = await chamarAPI('verificarSenha', {});
+      if (resultado.ok) {
+        document.getElementById('tela-senha').classList.add('oculto');
+        document.getElementById('tela-principal').classList.remove('oculto');
+        await carregarSetores();
+        await carregarAtivos();
+      }
+    } catch (erro) {
+      // fica na tela de senha
+    }
+  })();
 </script>
 </body>
 </html>
