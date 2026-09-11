@@ -270,6 +270,7 @@ function fazerLogin() {
     $('login-erro').textContent = 'Erro: ' + e;
   });
 }
+  window.fazerLogin = fazerLogin;
 
 function sair() {
   sessionStorage.removeItem(SENHA_KEY);
