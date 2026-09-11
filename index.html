@@ -6,7 +6,7 @@
 <title>ASO — Registro de Validade</title>
 <style>
 :root{
-  --azul:#2563eb;--azul-esc:#1e40af;--cinza:#64748b;--borda:#e2e8f0;
+  --azul:#2563eb;--cinza:#64748b;--borda:#e2e8f0;
   --vermelho:#dc2626;--vermelho-bg:#fee2e2;
   --ambar:#b45309;--ambar-bg:#fef3c7;
   --verde:#15803d;--verde-bg:#dcfce7;--cinza-bg:#e2e8f0;
@@ -49,36 +49,42 @@ tbody tr.clicavel{cursor:pointer}
 .b-cin{background:var(--cinza-bg);color:#334155}
 .b-ver{background:var(--verde-bg);color:var(--verde)}
 .rodape{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--cinza);margin-top:10px}
+.alerta{background:var(--vermelho-bg);color:var(--vermelho);font-size:13px;font-weight:600;padding:10px 14px;z-index:999}
 @media(max-width:640px){.cards{grid-template-columns:repeat(2,1fr)}.col-oculta{display:none}}
 </style>
 </head>
 <body>
 
-<div id="tela-login" class="tela">
+<div id="erro-global" class="alerta oculto" style="position:fixed;top:0;left:0;right:0"></div>
+
+<!-- ==================== LOGIN ==================== -->
+<div id="tela-login">
   <div class="container" style="max-width:360px;margin-top:14vh">
     <div class="card" style="text-align:center">
       <h1 style="margin-bottom:4px">ASO</h1>
       <p style="color:var(--cinza);margin:0 0 14px">Digite a senha pra continuar</p>
-      <input id="senha" type="password" placeholder="Senha" onkeydown="if(event.key==='Enter')fazerLogin()">
-      <button id="btn-entrar" class="btn" style="width:100%;margin-top:12px" onclick="fazerLogin()">Entrar</button>
+      <input id="senha" type="password" placeholder="Senha" autocomplete="current-password">
+      <button id="btn-entrar" class="btn" style="width:100%;margin-top:12px">Entrar</button>
       <p id="login-erro" style="color:var(--vermelho);font-size:13px;margin:10px 0 0"></p>
     </div>
   </div>
 </div>
 
-<div id="tela-app" class="tela oculto">
+<!-- ==================== APLICAÇÃO ==================== -->
+<div id="tela-app" class="oculto">
   <div class="container">
 
+    <!-- LISTA -->
     <div id="view-lista">
       <div class="card">
         <div class="linha entre">
           <h1>Registro de ASO</h1>
           <div class="linha">
-            <button class="btn-sec btn-mini" onclick="carregarAtivos()">Atualizar</button>
-            <button class="btn-sec btn-mini" onclick="abrirSetores()">Setores</button>
-            <button class="btn-sec btn-mini" onclick="abrirInativos()">Inativos</button>
-            <button class="btn btn-mini" onclick="abrirAdicionar()">+ Adicionar</button>
-            <button class="btn-sec btn-mini" onclick="sair()">Sair</button>
+            <button id="btn-atualizar" class="btn-sec btn-mini">Atualizar</button>
+            <button id="btn-ir-setores" class="btn-sec btn-mini">Setores</button>
+            <button id="btn-ir-inativos" class="btn-sec btn-mini">Inativos</button>
+            <button id="btn-ir-adicionar" class="btn btn-mini">+ Adicionar</button>
+            <button id="btn-sair" class="btn-sec btn-mini">Sair</button>
           </div>
         </div>
       </div>
@@ -87,7 +93,7 @@ tbody tr.clicavel{cursor:pointer}
 
       <div class="card">
         <div class="linha entre" style="margin-bottom:10px">
-          <input id="busca" placeholder="Buscar por nome, código ou setor..." style="max-width:380px" oninput="aoDigitarBusca(this.value)">
+          <input id="busca" placeholder="Buscar por nome, código ou setor..." style="max-width:380px">
           <span id="total-geral" style="font-size:13px;color:var(--cinza)"></span>
         </div>
         <div id="lista-carregando" style="color:var(--cinza);font-size:14px;padding:10px 0">Carregando situação atual…</div>
@@ -105,88 +111,119 @@ tbody tr.clicavel{cursor:pointer}
         <div class="rodape">
           <span id="info-pagina"></span>
           <span class="linha">
-            <button id="btn-anterior" class="btn-sec btn-mini" onclick="mudarPagina(estado.pagina-1)">Anterior</button>
-            <button id="btn-proximo" class="btn-sec btn-mini" onclick="mudarPagina(estado.pagina+1)">Próxima</button>
+            <button id="btn-anterior" class="btn-sec btn-mini">Anterior</button>
+            <button id="btn-proximo" class="btn-sec btn-mini">Próxima</button>
           </span>
         </div>
       </div>
     </div>
 
+    <!-- DETALHE -->
     <div id="view-detalhe" class="oculto">
       <div class="card">
         <div class="linha entre">
-          <button class="btn-sec btn-mini" onclick="voltarLista()">← Voltar</button>
-          <button id="btn-excluir-colab" class="btn-perigo btn-mini" onclick="excluirColaboradorUI()">Excluir colaborador</button>
+          <button id="btn-voltar-detalhe" class="btn-sec btn-mini">← Voltar</button>
+          <button id="btn-excluir-colab" class="btn-perigo btn-mini">Excluir colaborador</button>
         </div>
       </div>
 
       <div class="card">
         <h2>Dados do colaborador</h2>
-        <label>Nome</label><input id="det-nome">
-        <label>Setor</label><select id="det-setor"></select>
-        <button id="btn-salvar-dados" class="btn" style="margin-top:12px" onclick="salvarDadosColaborador()">Salvar dados</button>
+        <label for="det-nome">Nome</label>
+        <input id="det-nome">
+        <label for="det-setor">Setor</label>
+        <select id="det-setor"></select>
+        <button id="btn-salvar-dados" class="btn" style="margin-top:12px">Salvar dados</button>
       </div>
 
       <div id="card-novo" class="card">
         <h2>Lançar novo exame</h2>
         <div class="linha" style="gap:12px;align-items:flex-end">
-          <div style="flex:1;min-width:150px"><label>Tipo</label><select id="ex-tipo" onchange="sugerirValidade()"></select></div>
-          <div style="flex:1;min-width:140px"><label>Data do exame</label><input id="ex-data" type="date"></div>
-          <div style="flex:1;min-width:120px"><label>Validade (meses)</label><input id="ex-validade" type="number" min="1" placeholder="ex.: 12"></div>
+          <div style="flex:1;min-width:150px">
+            <label for="ex-tipo">Tipo</label>
+            <select id="ex-tipo"></select>
+          </div>
+          <div style="flex:1;min-width:140px">
+            <label for="ex-data">Data do exame</label>
+            <input id="ex-data" type="date">
+          </div>
+          <div style="flex:1;min-width:120px">
+            <label for="ex-validade">Validade (meses)</label>
+            <input id="ex-validade" type="number" min="1" placeholder="ex.: 12">
+          </div>
         </div>
         <p style="font-size:12px;color:var(--cinza);margin:6px 0 0">Deixe a validade em branco pra Admissional/Demissional.</p>
         <div class="linha" style="margin-top:12px">
-          <button id="btn-exame" class="btn" onclick="salvarExame()">Lançar exame</button>
-          <button id="btn-exame-cancelar" class="btn-sec oculto" onclick="limparFormExame()">Cancelar edição</button>
+          <button id="btn-exame" class="btn">Lançar exame</button>
+          <button id="btn-exame-cancelar" class="btn-sec oculto">Cancelar edição</button>
         </div>
       </div>
 
       <div class="card">
         <h2>Histórico</h2>
         <table>
-          <thead><tr><th>Tipo</th><th>Data</th><th>Validade</th><th class="col-oculta">Vence</th><th></th></tr></thead>
+          <thead>
+            <tr><th>Tipo</th><th>Data</th><th>Validade</th><th class="col-oculta">Vence</th><th></th></tr>
+          </thead>
           <tbody id="corpo-historico"></tbody>
         </table>
       </div>
     </div>
 
+    <!-- SETORES -->
     <div id="view-setores" class="oculto">
-      <div class="card"><button class="btn-sec btn-mini" onclick="voltarLista()">← Voltar</button></div>
+      <div class="card"><button id="btn-voltar-setores" class="btn-sec btn-mini">← Voltar</button></div>
       <div class="card">
         <h2>Adicionar / atualizar setor</h2>
         <p style="font-size:12px;color:var(--cinza);margin:0 0 8px">O prazo é só uma sugestão pré-preenchida ao lançar um exame novo — mudar isso nunca recalcula exames já lançados.</p>
         <div class="linha" style="gap:12px;align-items:flex-end">
-          <div style="flex:2;min-width:180px"><label>Nome do setor</label><input id="set-nome"></div>
-          <div style="flex:1;min-width:120px"><label>Prazo padrão (meses)</label><input id="set-prazo" type="number" min="1"></div>
+          <div style="flex:2;min-width:180px">
+            <label for="set-nome">Nome do setor</label>
+            <input id="set-nome">
+          </div>
+          <div style="flex:1;min-width:120px">
+            <label for="set-prazo">Prazo padrão (meses)</label>
+            <input id="set-prazo" type="number" min="1">
+          </div>
         </div>
-        <button class="btn" style="margin-top:12px" onclick="salvarSetorUI()">Salvar setor</button>
+        <button id="btn-salvar-setor" class="btn" style="margin-top:12px">Salvar setor</button>
       </div>
       <div class="card">
         <h2>Setores cadastrados</h2>
-        <table><thead><tr><th>Setor</th><th>Prazo padrão</th><th></th></tr></thead><tbody id="corpo-setores"></tbody></table>
+        <table>
+          <thead><tr><th>Setor</th><th>Prazo padrão</th><th></th></tr></thead>
+          <tbody id="corpo-setores"></tbody>
+        </table>
       </div>
     </div>
 
+    <!-- ADICIONAR -->
     <div id="view-adicionar" class="oculto">
-      <div class="card"><button class="btn-sec btn-mini" onclick="voltarLista()">← Voltar</button></div>
+      <div class="card"><button id="btn-voltar-adicionar" class="btn-sec btn-mini">← Voltar</button></div>
       <div class="card">
         <h2>Adicionar colaborador</h2>
         <p style="font-size:12px;color:var(--cinza);margin:0 0 8px">Depois de adicionar, você lança os exames na tela de detalhe da pessoa.</p>
-        <label>Nome</label><input id="add-nome">
-        <label>Setor</label><select id="add-setor"></select>
+        <label for="add-nome">Nome</label>
+        <input id="add-nome">
+        <label for="add-setor">Setor</label>
+        <select id="add-setor"></select>
         <div class="linha" style="margin-top:12px">
-          <button class="btn" onclick="adicionarColaboradorUI()">Adicionar</button>
-          <button class="btn-sec" onclick="voltarLista()">Cancelar</button>
+          <button id="btn-adicionar" class="btn">Adicionar</button>
+          <button id="btn-cancelar-adicionar" class="btn-sec">Cancelar</button>
         </div>
       </div>
     </div>
 
+    <!-- INATIVOS -->
     <div id="view-inativos" class="oculto">
-      <div class="card"><button class="btn-sec btn-mini" onclick="voltarLista()">← Voltar</button></div>
+      <div class="card"><button id="btn-voltar-inativos" class="btn-sec btn-mini">← Voltar</button></div>
       <div class="card">
         <h2>Inativos</h2>
         <p style="font-size:12px;color:var(--cinza);margin:0 0 8px">O histórico de exames continua acessível — clica na pessoa pra ver.</p>
-        <table><thead><tr><th>Nome</th><th>Setor</th><th class="col-oculta">Saída</th><th></th></tr></thead><tbody id="corpo-inativos"></tbody></table>
+        <table>
+          <thead><tr><th>Nome</th><th>Setor</th><th class="col-oculta">Saída</th><th></th></tr></thead>
+          <tbody id="corpo-inativos"></tbody>
+        </table>
       </div>
     </div>
 
@@ -194,89 +231,202 @@ tbody tr.clicavel{cursor:pointer}
 </div>
 
 <script>
-// ============================================================
-// COLE AQUI O URL DO SEU WEB APP (termina em /exec)
-// Ex.: https://script.google.com/macros/s/ABCDEF123/exec
-// ============================================================
-var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyyIG3_Ae2Xpu8eUhx40Z6U7wsz8d1YC30nACQxqPmjh92bZtKM3YNuzzb89Yh2u6SJBQ/exec';
+/* ============================================================
+   ASO — Registro de Validade (frontend estático / GitHub Pages)
+   Conversa com o Web App do Apps Script via fetch (doPost).
 
-var SENHA_KEY = 'aso_senha';
+   CONFIGURAÇÃO OBRIGATÓRIA — troque a linha abaixo pelo URL da
+   sua implantação do Web App. Ele SEMPRE termina em /exec.
+   Ex.: https://script.google.com/macros/s/AKfy.../exec
+   ============================================================ */
+var WEB_APP_URL = 'COLE_AQUI_O_URL_DO_SEU_WEB_APP';
+
+var URL_PLACEHOLDER = 'COLE_AQUI_O_URL_DO_SEU_WEB_APP';
+var CHAVE_SENHA = 'aso_senha';
 var TIPOS = ['Periodico', 'Admissional', 'Retorno ao Trabalho', 'Mudanca de Funcao', 'Demissional'];
 var TIPOS_QUE_VENCEM = ['Periodico', 'Retorno ao Trabalho', 'Mudanca de Funcao'];
+
 var estado = {
-  pagina: 1, tamanho: 25, busca: '', status: 'TODOS', totalPaginas: 1,
-  codigoAtual: null, bloqueado: false, itensPorCodigo: {}, setores: [],
-  inativos: [], historico: [], editandoExameId: null
+  pagina: 1,
+  tamanho: 25,
+  busca: '',
+  status: 'TODOS',
+  totalPaginas: 1,
+  codigoAtual: null,
+  bloqueado: false,
+  itensPorCodigo: {},
+  setores: [],
+  inativos: [],
+  historico: [],
+  editandoExameId: null
 };
 
+/* ==================== UTILIDADES ==================== */
+
 function $(id) { return document.getElementById(id); }
-function senhaAtual() { return sessionStorage.getItem(SENHA_KEY) || ''; }
-function aviso(m) { alert(m); }
-function esc(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-function fmtData(ts) { if (!ts) return '—'; return new Date(ts).toLocaleDateString('pt-BR'); }
-function paraInputDate(ts) {
-  var d = new Date(ts);
-  var m = String(d.getMonth() + 1).padStart(2, '0');
-  var dia = String(d.getDate()).padStart(2, '0');
-  return d.getFullYear() + '-' + m + '-' + dia;
+
+function esc(v) {
+  if (v === null || v === undefined) return '';
+  return String(v)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
-// ---------- comunicação com o servidor (fetch para o Web App) ----------
+function senhaAtual() {
+  return sessionStorage.getItem(CHAVE_SENHA) || '';
+}
+
+function aviso(m) { window.alert(m); }
+
+var _timerErro = null;
+function mostrarErro(m) {
+  console.error('[ASO]', m);
+  var el = $('erro-global');
+  if (!el) { aviso(m); return; }
+  el.textContent = m;
+  el.classList.remove('oculto');
+  if (_timerErro) clearTimeout(_timerErro);
+  _timerErro = setTimeout(function () { el.classList.add('oculto'); }, 9000);
+}
+
+function fmtData(ts) {
+  if (ts === null || ts === undefined || ts === '') return '—';
+  var d = new Date(ts);
+  if (isNaN(d.getTime())) return '—';
+  return d.toLocaleDateString('pt-BR');
+}
+
+/* "2026-09-11" -> Date no fuso local (evita cair no dia anterior por causa do UTC) */
+function isoParaDataLocal(iso) {
+  if (!iso) return null;
+  var p = String(iso).split('-');
+  if (p.length !== 3) return new Date(iso);
+  return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+}
+
+function paraInputDate(ts) {
+  var d = new Date(ts);
+  var mes = '0' + (d.getMonth() + 1);
+  var dia = '0' + d.getDate();
+  return d.getFullYear() + '-' + mes.slice(-2) + '-' + dia.slice(-2);
+}
+
+function urlConfigurada() {
+  return !!WEB_APP_URL &&
+         WEB_APP_URL !== URL_PLACEHOLDER &&
+         WEB_APP_URL.indexOf('http') === 0;
+}
+
+/* ==================== COMUNICAÇÃO COM O SERVIDOR ==================== */
+
 function callServer(acao, params) {
   return new Promise(function (resolve, reject) {
+    if (!urlConfigurada()) {
+      reject('O endereço do Web App não foi configurado. Abra o index.html e troque COLE_AQUI_O_URL_DO_SEU_WEB_APP pelo link da sua implantação (termina em /exec).');
+      return;
+    }
+
     var p = params || {};
     if (p.senha === undefined) p.senha = senhaAtual();
     p.action = acao;
 
+    var controlador = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    var timer = controlador ? setTimeout(function () { controlador.abort(); }, 45000) : null;
+    function encerrar() { if (timer) clearTimeout(timer); }
+
     fetch(WEB_APP_URL, {
       method: 'POST',
-      // text/plain evita o "preflight" (OPTIONS) que o Apps Script não responde
-      // — sem isso, o navegador bloqueia a chamada e o login "não funciona".
+      /* text/plain evita o "preflight" (OPTIONS) que o Apps Script não responde.
+         Sem isso o navegador bloqueia a chamada e o login falha. */
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(p)
+      body: JSON.stringify(p),
+      signal: controlador ? controlador.signal : undefined
     })
-    .then(function (r) {
-      return r.text().then(function (t) {
-        try { return JSON.parse(t); }
-        catch (e) { throw new Error('Resposta inválida do servidor (HTTP ' + r.status + ')'); }
-      });
-    })
-    .then(function (res) {
-      if (res && res.erro) reject(res.erro);
-      else resolve(res);
+    .then(function (r) { return r.text(); })
+    .then(function (texto) {
+      encerrar();
+      var res;
+      try {
+        res = JSON.parse(texto);
+      } catch (e) {
+        throw new Error('O servidor respondeu em formato inesperado. Confirme que o Web App está publicado para "Qualquer pessoa com o link".');
+      }
+      if (res && res.erro) throw new Error(res.erro);
+      resolve(res);
     })
     .catch(function (err) {
+      encerrar();
+      if (err && err.name === 'AbortError') {
+        reject('Tempo esgotado ao falar com o servidor.');
+        return;
+      }
       reject(err && err.message ? err.message : String(err));
     });
   });
 }
 
-// ---------- login ----------
+/* ==================== TELAS ==================== */
+
+function mostrarView(nome) {
+  var views = ['lista', 'detalhe', 'setores', 'adicionar', 'inativos'];
+  for (var i = 0; i < views.length; i++) {
+    var el = $('view-' + views[i]);
+    if (el) el.classList.toggle('oculto', views[i] !== nome);
+  }
+  window.scrollTo(0, 0);
+}
+
+function irParaLista() {
+  mostrarView('lista');
+  carregarAtivos();
+}
+
+/* ==================== LOGIN ==================== */
+
 function fazerLogin() {
   var senha = $('senha').value;
   var btn = $('btn-entrar');
-  $('login-erro').textContent = '';
-  if (!senha) { $('login-erro').textContent = 'Digite a senha.'; return; }
-  btn.disabled = true; btn.textContent = 'Entrando...';
-  callServer('verificarSenha', { senha: senha }).then(function (res) {
-    btn.disabled = false; btn.textContent = 'Entrar';
-    if (res.ok) { sessionStorage.setItem(SENHA_KEY, senha); $('senha').value = ''; abrirApp(); }
-    else { $('login-erro').textContent = 'Senha incorreta.'; }
-  }).catch(function (e) {
-    btn.disabled = false; btn.textContent = 'Entrar';
-    $('login-erro').textContent = 'Erro: ' + e;
-  });
+  var msg = $('login-erro');
+  msg.textContent = '';
+
+  if (!senha) { msg.textContent = 'Digite a senha.'; return; }
+  if (!urlConfigurada()) {
+    msg.textContent = 'Falta configurar o endereço do Web App no index.html.';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Entrando...';
+
+  callServer('verificarSenha', { senha: senha })
+    .then(function (res) {
+      btn.disabled = false;
+      btn.textContent = 'Entrar';
+      if (res && res.ok) {
+        sessionStorage.setItem(CHAVE_SENHA, senha);
+        $('senha').value = '';
+        abrirApp();
+      } else {
+        msg.textContent = 'Senha incorreta.';
+      }
+    })
+    .catch(function (e) {
+      btn.disabled = false;
+      btn.textContent = 'Entrar';
+      msg.textContent = 'Erro: ' + e;
+    });
 }
-  window.fazerLogin = fazerLogin;
 
 function sair() {
-  sessionStorage.removeItem(SENHA_KEY);
+  sessionStorage.removeItem(CHAVE_SENHA);
   $('tela-app').classList.add('oculto');
   $('tela-login').classList.remove('oculto');
-  estado.pagina = 1; estado.busca = ''; estado.status = 'TODOS';
+  estado.pagina = 1;
+  estado.busca = '';
+  estado.status = 'TODOS';
   $('busca').value = '';
 }
 
@@ -289,45 +439,74 @@ function abrirApp() {
   carregarAtivos();
 }
 
+/* ==================== SELECTS ==================== */
+
 function preencherSelects() {
-  var opts = estado.setores.map(function (s) { return '<option value="' + esc(s.nome) + '">' + esc(s.nome) + '</option>'; }).join('');
-  $('add-setor').innerHTML = '<option value="">— sem setor —</option>' + opts;
-  var atual = $('det-setor').value;
-  $('det-setor').innerHTML = '<option value="">— sem setor —</option>' + opts;
-  $('det-setor').value = atual;
-  $('ex-tipo').innerHTML = TIPOS.map(function (t) { return '<option value="' + t + '">' + t + '</option>'; }).join('');
+  var opts = '';
+  for (var i = 0; i < estado.setores.length; i++) {
+    var s = estado.setores[i];
+    opts += '<option value="' + esc(s.nome) + '">' + esc(s.nome) + '</option>';
+  }
+
+  var vazio = '<option value="">— sem setor —</option>';
+
+  $('add-setor').innerHTML = vazio + opts;
+
+  var setorAtual = $('det-setor').value;
+  $('det-setor').innerHTML = vazio + opts;
+  $('det-setor').value = setorAtual;
+
+  var tipos = '';
+  for (var j = 0; j < TIPOS.length; j++) {
+    tipos += '<option value="' + TIPOS[j] + '">' + TIPOS[j] + '</option>';
+  }
+  $('ex-tipo').innerHTML = tipos;
 }
 
 function carregarSetores() {
-  return callServer('obterSetores').then(function (res) {
-    estado.setores = res.itens || [];
-    preencherSelects();
-  }).catch(function () {});
+  return callServer('obterSetores')
+    .then(function (res) {
+      estado.setores = (res && res.itens) ? res.itens : [];
+      preencherSelects();
+    })
+    .catch(function (e) {
+      mostrarErro('Erro ao carregar setores: ' + e);
+    });
 }
 
-// ---------- lista ----------
+/* ==================== LISTA ==================== */
+
 function carregarAtivos() {
   $('lista-carregando').classList.remove('oculto');
   $('tabela').classList.add('oculto');
+
   callServer('obterAtivos', {
-    pagina: estado.pagina, tamanho: estado.tamanho, busca: estado.busca, status: estado.status
-  }).then(function (res) {
+    pagina: estado.pagina,
+    tamanho: estado.tamanho,
+    busca: estado.busca,
+    status: estado.status
+  })
+  .then(function (res) {
     renderContagens(res.contagens, res.totalGeral);
-    renderTabela(res.itens);
+    renderTabela(res.itens || []);
     renderPaginacao(res.pagina, res.totalPaginas, res.total);
-  }).catch(function (e) {
-    if (String(e).indexOf('Sessão') !== -1) { sair(); return; }
-    aviso('Erro ao carregar: ' + e);
-  }).finally(function () {
+  })
+  .catch(function (e) {
+    if (String(e).indexOf('Sess') !== -1) { sair(); return; }
+    mostrarErro('Erro ao carregar a lista: ' + e);
+  })
+  .then(function () {
     $('lista-carregando').classList.add('oculto');
   });
 }
 
 var timerBusca = null;
 function aoDigitarBusca(v) {
-  clearTimeout(timerBusca);
+  if (timerBusca) clearTimeout(timerBusca);
   timerBusca = setTimeout(function () {
-    estado.busca = v; estado.pagina = 1; carregarAtivos();
+    estado.busca = v;
+    estado.pagina = 1;
+    carregarAtivos();
   }, 400);
 }
 
@@ -340,58 +519,75 @@ function filtrarStatus(k) {
 function renderContagens(c, totalGeral) {
   c = c || {};
   $('total-geral').textContent = (totalGeral || 0) + ' colaborador(es) ativo(s)';
+
   var defs = [
     { k: 'VENCIDO', t: 'Vencidos', cls: 'kpi-verm' },
     { k: 'ATENÇÃO', t: 'Vencendo (30d)', cls: 'kpi-amb' },
     { k: 'AGUARDANDO_PERIODICO', t: 'Sem periódico', cls: 'kpi-cin' },
     { k: 'EM DIA', t: 'Em dia', cls: 'kpi-ver' }
   ];
-  $('kpis').innerHTML = defs.map(function (d) {
+
+  var html = '';
+  for (var i = 0; i < defs.length; i++) {
+    var d = defs[i];
     var on = (estado.status === d.k) ? ' on' : '';
-    return '<div class="kpi ' + d.cls + on + '" onclick="filtrarStatus(\'' + d.k + '\')">'
-      + '<div class="n">' + (c[d.k] || 0) + '</div><div class="t">' + d.t + '</div></div>';
-  }).join('');
+    html += '<div class="kpi ' + d.cls + on + '" data-status="' + esc(d.k) + '">'
+          + '<div class="n">' + (c[d.k] || 0) + '</div>'
+          + '<div class="t">' + d.t + '</div>'
+          + '</div>';
+  }
+  $('kpis').innerHTML = html;
 }
 
 function badge(s) {
-  var map = {
+  var mapa = {
     'VENCIDO': ['b-verm', 'VENCIDO'],
     'ATENÇÃO': ['b-amb', 'ATENÇÃO'],
     'AGUARDANDO_PERIODICO': ['b-cin', 'SEM PERIÓDICO'],
     'EM DIA': ['b-ver', 'EM DIA']
   };
-  var m = map[s] || ['b-cin', s];
+  var m = mapa[s] || ['b-cin', s];
   return '<span class="badge ' + m[0] + '">' + m[1] + '</span>';
 }
 
 function renderTabela(itens) {
   estado.itensPorCodigo = {};
   var tb = $('corpo-tabela');
+
   if (!itens.length) {
     tb.innerHTML = '<tr><td colspan="6" style="color:var(--cinza)">Nenhum resultado.</td></tr>';
     $('tabela').classList.remove('oculto');
     return;
   }
-  tb.innerHTML = itens.map(function (it) {
+
+  var html = '';
+  for (var i = 0; i < itens.length; i++) {
+    var it = itens[i];
     estado.itensPorCodigo[it.codigo] = it;
-    var ult = it.ultimoExame ? (it.ultimoExame.tipo + ' — ' + fmtData(it.ultimoExame.data)) : '—';
-    return '<tr class="clicavel" onclick="abrirDetalhe(\'' + it.codigo + '\', false)">'
-      + '<td><strong>' + esc(it.nome || '(sem nome)') + '</strong></td>'
-      + '<td>' + esc(it.setor || '—') + '</td>'
-      + '<td>' + badge(it.status) + '</td>'
-      + '<td class="col-oculta">' + esc(ult) + '</td>'
-      + '<td class="col-oculta">' + fmtData(it.vencimento) + '</td>'
-      + '<td>' + (it.diasRestantes === null || it.diasRestantes === undefined ? '—' : it.diasRestantes) + '</td>'
-      + '</tr>';
-  }).join('');
+    var ultimo = it.ultimoExame
+      ? (it.ultimoExame.tipo + ' — ' + fmtData(it.ultimoExame.data))
+      : '—';
+    var dias = (it.diasRestantes === null || it.diasRestantes === undefined) ? '—' : it.diasRestantes;
+
+    html += '<tr class="clicavel" data-codigo="' + esc(it.codigo) + '">'
+          + '<td><strong>' + esc(it.nome || '(sem nome)') + '</strong></td>'
+          + '<td>' + esc(it.setor || '—') + '</td>'
+          + '<td>' + badge(it.status) + '</td>'
+          + '<td class="col-oculta">' + esc(ultimo) + '</td>'
+          + '<td class="col-oculta">' + fmtData(it.vencimento) + '</td>'
+          + '<td>' + dias + '</td>'
+          + '</tr>';
+  }
+  tb.innerHTML = html;
   $('tabela').classList.remove('oculto');
 }
 
 function renderPaginacao(pagina, totalPaginas, total) {
-  estado.pagina = pagina; estado.totalPaginas = totalPaginas;
-  $('info-pagina').textContent = 'Página ' + pagina + ' de ' + totalPaginas + ' — ' + total + ' registro(s)';
-  $('btn-anterior').disabled = pagina <= 1;
-  $('btn-proximo').disabled = pagina >= totalPaginas;
+  estado.pagina = pagina || 1;
+  estado.totalPaginas = totalPaginas || 1;
+  $('info-pagina').textContent = 'Página ' + estado.pagina + ' de ' + estado.totalPaginas + ' — ' + (total || 0) + ' registro(s)';
+  $('btn-anterior').disabled = estado.pagina <= 1;
+  $('btn-proximo').disabled = estado.pagina >= estado.totalPaginas;
 }
 
 function mudarPagina(n) {
@@ -400,11 +596,14 @@ function mudarPagina(n) {
   carregarAtivos();
 }
 
-// ---------- detalhe ----------
+/* ==================== DETALHE ==================== */
+
 function abrirDetalhe(codigo, bloqueado) {
   var it;
   if (bloqueado) {
-    it = (estado.inativos || []).filter(function (x) { return x.codigo === codigo; })[0];
+    for (var i = 0; i < estado.inativos.length; i++) {
+      if (estado.inativos[i].codigo === codigo) { it = estado.inativos[i]; break; }
+    }
   } else {
     it = estado.itensPorCodigo[codigo];
   }
@@ -431,19 +630,24 @@ function abrirDetalhe(codigo, bloqueado) {
 
 function garantirOpcaoSetor(nome) {
   if (!nome) return;
-  var existe = estado.setores.some(function (s) { return s.nome === nome; });
-  if (!existe) {
-    var opt = document.createElement('option');
-    opt.value = nome; opt.textContent = nome;
-    $('det-setor').appendChild(opt);
+  for (var i = 0; i < estado.setores.length; i++) {
+    if (estado.setores[i].nome === nome) return;
   }
+  var opt = document.createElement('option');
+  opt.value = nome;
+  opt.textContent = nome;
+  $('det-setor').appendChild(opt);
 }
 
 function carregarHistorico(codigo) {
-  callServer('obterHistoricoDoCodigo', { codigo: codigo }).then(function (res) {
-    estado.historico = res.itens || [];
-    renderHistorico(estado.historico);
-  }).catch(function (e) { aviso('Erro ao carregar histórico: ' + e); });
+  callServer('obterHistoricoDoCodigo', { codigo: codigo })
+    .then(function (res) {
+      estado.historico = (res && res.itens) ? res.itens : [];
+      renderHistorico(estado.historico);
+    })
+    .catch(function (e) {
+      mostrarErro('Erro ao carregar o histórico: ' + e);
+    });
 }
 
 function calcularVence(ex) {
@@ -456,52 +660,78 @@ function calcularVence(ex) {
 
 function renderHistorico(itens) {
   var tb = $('corpo-historico');
+
   if (!itens.length) {
     tb.innerHTML = '<tr><td colspan="5" style="color:var(--cinza)">Nenhum exame lançado.</td></tr>';
     return;
   }
-  tb.innerHTML = itens.map(function (ex) {
+
+  var html = '';
+  for (var i = 0; i < itens.length; i++) {
+    var ex = itens[i];
     var vence = calcularVence(ex);
     var acoes = estado.bloqueado ? '' :
-      ('<button class="btn-sec btn-mini" onclick="editarExameUI(\'' + ex.id + '\')">Editar</button> '
-     + '<button class="btn-perigo btn-mini" onclick="excluirExameUI(\'' + ex.id + '\')">Excluir</button>');
-    return '<tr>'
-      + '<td>' + esc(ex.tipo || '') + '</td>'
-      + '<td>' + fmtData(ex.data) + '</td>'
-      + '<td>' + esc(ex.validadeMeses || '—') + '</td>'
-      + '<td class="col-oculta">' + (vence ? fmtData(vence) : '—') + '</td>'
-      + '<td style="white-space:nowrap">' + acoes + '</td>'
-      + '</tr>';
-  }).join('');
+      ('<button class="btn-sec btn-mini" data-acao="editar" data-id="' + esc(ex.id) + '">Editar</button> '
+     + '<button class="btn-perigo btn-mini" data-acao="excluir" data-id="' + esc(ex.id) + '">Excluir</button>');
+
+    html += '<tr>'
+          + '<td>' + esc(ex.tipo || '') + '</td>'
+          + '<td>' + fmtData(ex.data) + '</td>'
+          + '<td>' + esc(ex.validadeMeses || '—') + '</td>'
+          + '<td class="col-oculta">' + (vence ? fmtData(vence) : '—') + '</td>'
+          + '<td style="white-space:nowrap">' + acoes + '</td>'
+          + '</tr>';
+  }
+  tb.innerHTML = html;
 }
 
 function sugerirValidade() {
   var setor = $('det-setor').value;
-  var s = estado.setores.filter(function (x) { return x.nome === setor; })[0];
-  if (s && s.prazoPadraoMeses && !$('ex-validade').value) $('ex-validade').value = s.prazoPadraoMeses;
+  for (var i = 0; i < estado.setores.length; i++) {
+    if (estado.setores[i].nome === setor) {
+      var prazo = estado.setores[i].prazoPadraoMeses;
+      if (prazo && !$('ex-validade').value) $('ex-validade').value = prazo;
+      return;
+    }
+  }
 }
 
 function salvarExame() {
   var tipo = $('ex-tipo').value;
   var data = $('ex-data').value;
   var validade = $('ex-validade').value;
+
   if (!data) { aviso('Informe a data do exame.'); return; }
 
   var params = { tipo: tipo, data: data, validadeMeses: validade || '' };
   var acao;
-  if (estado.editandoExameId) { acao = 'editarExame'; params.id = estado.editandoExameId; }
-  else { acao = 'adicionarExame'; params.codigo = estado.codigoAtual; }
 
-  callServer(acao, params).then(function () {
-    limparFormExame();
-    carregarHistorico(estado.codigoAtual);
-    carregarAtivos();
-  }).catch(function (e) { aviso('Erro: ' + e); });
+  if (estado.editandoExameId) {
+    acao = 'editarExame';
+    params.id = estado.editandoExameId;
+  } else {
+    acao = 'adicionarExame';
+    params.codigo = estado.codigoAtual;
+  }
+
+  callServer(acao, params)
+    .then(function () {
+      limparFormExame();
+      carregarHistorico(estado.codigoAtual);
+      carregarAtivos();
+    })
+    .catch(function (e) {
+      mostrarErro('Erro ao salvar o exame: ' + e);
+    });
 }
 
 function editarExameUI(id) {
-  var ex = (estado.historico || []).filter(function (x) { return x.id === id; })[0];
+  var ex = null;
+  for (var i = 0; i < estado.historico.length; i++) {
+    if (estado.historico[i].id === id) { ex = estado.historico[i]; break; }
+  }
   if (!ex) return;
+
   estado.editandoExameId = id;
   $('ex-tipo').value = ex.tipo;
   $('ex-data').value = ex.data ? paraInputDate(ex.data) : '';
@@ -521,60 +751,82 @@ function limparFormExame() {
 
 function excluirExameUI(id) {
   if (!confirm('Excluir este exame do histórico?')) return;
-  callServer('excluirExame', { id: id }).then(function () {
-    carregarHistorico(estado.codigoAtual);
-    carregarAtivos();
-  }).catch(function (e) { aviso('Erro: ' + e); });
+  callServer('excluirExame', { id: id })
+    .then(function () {
+      carregarHistorico(estado.codigoAtual);
+      carregarAtivos();
+    })
+    .catch(function (e) {
+      mostrarErro('Erro ao excluir o exame: ' + e);
+    });
 }
 
 function salvarDadosColaborador() {
   var nome = $('det-nome').value.trim();
   if (!nome) { aviso('Informe o nome.'); return; }
-  callServer('editarColaborador', { codigo: estado.codigoAtual, nome: nome, setor: $('det-setor').value })
-    .then(function () { alert('Dados salvos.'); })
-    .catch(function (e) { aviso('Erro: ' + e); });
+
+  callServer('editarColaborador', {
+    codigo: estado.codigoAtual,
+    nome: nome,
+    setor: $('det-setor').value
+  })
+  .then(function () { aviso('Dados salvos.'); })
+  .catch(function (e) { mostrarErro('Erro ao salvar: ' + e); });
 }
 
 function excluirColaboradorUI() {
   if (!estado.codigoAtual) return;
   var it = estado.itensPorCodigo[estado.codigoAtual];
   var nome = it ? it.nome : '';
+
   if (!confirm('Mover ' + (nome || 'este colaborador') + ' para Inativos?\n\nO histórico de exames é mantido.')) return;
-  callServer('excluirColaborador', { codigo: estado.codigoAtual }).then(function () {
-    voltarLista();
-  }).catch(function (e) { aviso('Erro: ' + e); });
+
+  callServer('excluirColaborador', { codigo: estado.codigoAtual })
+    .then(function () { irParaLista(); })
+    .catch(function (e) { mostrarErro('Erro ao excluir: ' + e); });
 }
 
-// ---------- adicionar ----------
-function abrirAdicionar() { mostrarView('adicionar'); }
+/* ==================== ADICIONAR ==================== */
 
 function adicionarColaboradorUI() {
   var nome = $('add-nome').value.trim();
   if (!nome) { aviso('Informe o nome.'); return; }
-  callServer('adicionarColaborador', { nome: nome, setor: $('add-setor').value }).then(function () {
-    $('add-nome').value = '';
-    voltarLista();
-  }).catch(function (e) { aviso('Erro: ' + e); });
+
+  callServer('adicionarColaborador', { nome: nome, setor: $('add-setor').value })
+    .then(function () {
+      $('add-nome').value = '';
+      irParaLista();
+    })
+    .catch(function (e) { mostrarErro('Erro ao adicionar: ' + e); });
 }
 
-// ---------- setores ----------
-function abrirSetores() { mostrarView('setores'); carregarSetores().then(renderSetores); }
+/* ==================== SETORES ==================== */
+
+function abrirSetores() {
+  mostrarView('setores');
+  carregarSetores().then(renderSetores);
+}
 
 function renderSetores() {
   var tb = $('corpo-setores');
+
   if (!estado.setores.length) {
     tb.innerHTML = '<tr><td colspan="3" style="color:var(--cinza)">Nenhum setor cadastrado.</td></tr>';
     return;
   }
-  tb.innerHTML = estado.setores.map(function (s, i) {
-    return '<tr>'
-      + '<td>' + esc(s.nome) + '</td>'
-      + '<td>' + esc(s.prazoPadraoMeses || '—') + ' meses</td>'
-      + '<td style="white-space:nowrap">'
-      + '<button class="btn-sec btn-mini" onclick="preencherSetorForm(' + i + ')">Editar</button> '
-      + '<button class="btn-perigo btn-mini" onclick="excluirSetorUI(' + i + ')">Excluir</button>'
-      + '</td></tr>';
-  }).join('');
+
+  var html = '';
+  for (var i = 0; i < estado.setores.length; i++) {
+    var s = estado.setores[i];
+    html += '<tr>'
+          + '<td>' + esc(s.nome) + '</td>'
+          + '<td>' + esc(s.prazoPadraoMeses || '—') + ' meses</td>'
+          + '<td style="white-space:nowrap">'
+          + '<button class="btn-sec btn-mini" data-acao="editar" data-index="' + i + '">Editar</button> '
+          + '<button class="btn-perigo btn-mini" data-acao="excluir" data-index="' + i + '">Excluir</button>'
+          + '</td></tr>';
+  }
+  tb.innerHTML = html;
 }
 
 function preencherSetorForm(i) {
@@ -587,14 +839,176 @@ function preencherSetorForm(i) {
 function salvarSetorUI() {
   var nome = $('set-nome').value.trim();
   var prazo = $('set-prazo').value;
+
   if (!nome) { aviso('Informe o nome do setor.'); return; }
-  callServer('salvarSetor', { nome: nome, prazoPadraoMeses: prazo }).then(function () {
-    $('set-nome').value = ''; $('set-prazo').value = '';
-    carregarSetores().then(renderSetores);
-  }).catch(function (e) { aviso('Erro: ' + e); });
+
+  callServer('salvarSetor', { nome: nome, prazoPadraoMeses: prazo })
+    .then(function () {
+      $('set-nome').value = '';
+      $('set-prazo').value = '';
+      carregarSetores().then(renderSetores);
+    })
+    .catch(function (e) { mostrarErro('Erro ao salvar setor: ' + e); });
 }
 
 function excluirSetorUI(i) {
   var s = estado.setores[i];
   if (!s) return;
-  if (!confirm('Excluir o setor "' + s.nome + '"?\n\nIsso
+  if (!confirm('Excluir o setor "' + s.nome + '"?\n\nIsso não altera colaboradores já cadastrados.')) return;
+
+  callServer('excluirSetor', { nome: s.nome })
+    .then(function () {
+      carregarSetores().then(renderSetores);
+    })
+    .catch(function (e) { mostrarErro('Erro ao excluir setor: ' + e); });
+}
+
+/* ==================== INATIVOS ==================== */
+
+function abrirInativos() {
+  mostrarView('inativos');
+  carregarInativos();
+}
+
+function carregarInativos() {
+  callServer('obterInativos')
+    .then(function (res) {
+      estado.inativos = (res && res.itens) ? res.itens : [];
+      var tb = $('corpo-inativos');
+
+      if (!estado.inativos.length) {
+        tb.innerHTML = '<tr><td colspan="4" style="color:var(--cinza)">Ninguém na lista de inativos.</td></tr>';
+        return;
+      }
+
+      var html = '';
+      for (var i = 0; i < estado.inativos.length; i++) {
+        var it = estado.inativos[i];
+        html += '<tr class="clicavel" data-codigo="' + esc(it.codigo) + '">'
+              + '<td><strong>' + esc(it.nome || '(sem nome)') + '</strong></td>'
+              + '<td>' + esc(it.setor || '—') + '</td>'
+              + '<td class="col-oculta">' + fmtData(it.dataSaida) + '</td>'
+              + '<td style="white-space:nowrap">'
+              + '<button class="btn btn-mini" data-acao="restaurar" data-index="' + i + '">Restaurar</button>'
+              + '</td></tr>';
+      }
+      tb.innerHTML = html;
+    })
+    .catch(function (e) {
+      mostrarErro('Erro ao carregar inativos: ' + e);
+    });
+}
+
+function restaurarUI(i) {
+  var it = estado.inativos[i];
+  if (!it) return;
+  if (!confirm('Restaurar ' + (it.nome || 'colaborador') + ' para os ativos?')) return;
+
+  callServer('restaurarDeInativos', { codigo: it.codigo })
+    .then(function () { carregarInativos(); })
+    .catch(function (e) { mostrarErro('Erro ao restaurar: ' + e); });
+}
+
+/* ==================== EVENTOS (sem onclick no HTML) ==================== */
+
+function ligarEventos() {
+
+  /* login */
+  $('btn-entrar').addEventListener('click', fazerLogin);
+  $('senha').addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter') fazerLogin();
+  });
+
+  /* barra da lista */
+  $('btn-atualizar').addEventListener('click', carregarAtivos);
+  $('btn-ir-setores').addEventListener('click', abrirSetores);
+  $('btn-ir-inativos').addEventListener('click', abrirInativos);
+  $('btn-ir-adicionar').addEventListener('click', function () { mostrarView('adicionar'); });
+  $('btn-sair').addEventListener('click', sair);
+
+  $('busca').addEventListener('input', function () { aoDigitarBusca(this.value); });
+
+  $('btn-anterior').addEventListener('click', function () { mudarPagina(estado.pagina - 1); });
+  $('btn-proximo').addEventListener('click', function () { mudarPagina(estado.pagina + 1); });
+
+  $('kpis').addEventListener('click', function (ev) {
+    var el = ev.target.closest ? ev.target.closest('.kpi[data-status]') : null;
+    if (el) filtrarStatus(el.getAttribute('data-status'));
+  });
+
+  $('corpo-tabela').addEventListener('click', function (ev) {
+    var tr = ev.target.closest ? ev.target.closest('tr[data-codigo]') : null;
+    if (tr) abrirDetalhe(tr.getAttribute('data-codigo'), false);
+  });
+
+  /* detalhe */
+  $('btn-voltar-detalhe').addEventListener('click', irParaLista);
+  $('btn-excluir-colab').addEventListener('click', excluirColaboradorUI);
+  $('btn-salvar-dados').addEventListener('click', salvarDadosColaborador);
+  $('ex-tipo').addEventListener('change', sugerirValidade);
+  $('det-setor').addEventListener('change', sugerirValidade);
+  $('btn-exame').addEventListener('click', salvarExame);
+  $('btn-exame-cancelar').addEventListener('click', limparFormExame);
+
+  $('corpo-historico').addEventListener('click', function (ev) {
+    var b = ev.target.closest ? ev.target.closest('button[data-acao]') : null;
+    if (!b) return;
+    var id = b.getAttribute('data-id');
+    if (b.getAttribute('data-acao') === 'editar') editarExameUI(id);
+    else excluirExameUI(id);
+  });
+
+  /* setores */
+  $('btn-voltar-setores').addEventListener('click', irParaLista);
+  $('btn-salvar-setor').addEventListener('click', salvarSetorUI);
+
+  $('corpo-setores').addEventListener('click', function (ev) {
+    var b = ev.target.closest ? ev.target.closest('button[data-acao]') : null;
+    if (!b) return;
+    var i = parseInt(b.getAttribute('data-index'), 10);
+    if (b.getAttribute('data-acao') === 'editar') preencherSetorForm(i);
+    else excluirSetorUI(i);
+  });
+
+  /* adicionar */
+  $('btn-voltar-adicionar').addEventListener('click', irParaLista);
+  $('btn-adicionar').addEventListener('click', adicionarColaboradorUI);
+  $('btn-cancelar-adicionar').addEventListener('click', irParaLista);
+
+  /* inativos */
+  $('btn-voltar-inativos').addEventListener('click', irParaLista);
+
+  $('corpo-inativos').addEventListener('click', function (ev) {
+    var b = ev.target.closest ? ev.target.closest('button[data-acao="restaurar"]') : null;
+    if (b) {
+      restaurarUI(parseInt(b.getAttribute('data-index'), 10));
+      return;
+    }
+    var tr = ev.target.closest ? ev.target.closest('tr[data-codigo]') : null;
+    if (tr) abrirDetalhe(tr.getAttribute('data-codigo'), true);
+  });
+}
+
+/* ==================== INICIALIZAÇÃO ==================== */
+
+window.addEventListener('error', function (ev) {
+  console.error('[ASO] Erro na página:', ev.message, '| linha', ev.lineno);
+});
+
+(function iniciar() {
+  ligarEventos();
+
+  if (!urlConfigurada()) {
+    $('login-erro').textContent = 'Atenção: o endereço do Web App não foi configurado neste arquivo.';
+    return;
+  }
+
+  if (senhaAtual()) {
+    callServer('verificarSenha', { senha: senhaAtual() })
+      .then(function (res) { if (res && res.ok) abrirApp(); })
+      .catch(function () { /* sessão expirada — segue para o login */ });
+  }
+})();
+</script>
+</body>
+</html>
