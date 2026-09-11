@@ -194,6 +194,12 @@ tbody tr.clicavel{cursor:pointer}
 </div>
 
 <script>
+// ============================================================
+// COLE AQUI O URL DO SEU WEB APP (termina em /exec)
+// Ex.: https://script.google.com/macros/s/ABCDEF123/exec
+// ============================================================
+var WEB_APP_URL = 'COLE_AQUI_O_URL_DO_SEU_WEB_APP';
+
 var SENHA_KEY = 'aso_senha';
 var TIPOS = ['Periodico', 'Admissional', 'Retorno ao Trabalho', 'Mudanca de Funcao', 'Demissional'];
 var TIPOS_QUE_VENCEM = ['Periodico', 'Retorno ao Trabalho', 'Mudanca de Funcao'];
@@ -218,19 +224,33 @@ function paraInputDate(ts) {
   return d.getFullYear() + '-' + m + '-' + dia;
 }
 
-// ---------- comunicação com o servidor ----------
+// ---------- comunicação com o servidor (fetch para o Web App) ----------
 function callServer(acao, params) {
   return new Promise(function (resolve, reject) {
     var p = params || {};
     if (p.senha === undefined) p.senha = senhaAtual();
-    google.script.run
-      .withSuccessHandler(function (res) {
-        if (res && res.erro) { reject(res.erro); } else { resolve(res); }
-      })
-      .withFailureHandler(function (err) {
-        reject(err && err.message ? err.message : String(err));
-      })
-      .rotear(acao, p);
+    p.action = acao;
+
+    fetch(WEB_APP_URL, {
+      method: 'POST',
+      // text/plain evita o "preflight" (OPTIONS) que o Apps Script não responde
+      // — sem isso, o navegador bloqueia a chamada e o login "não funciona".
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(p)
+    })
+    .then(function (r) {
+      return r.text().then(function (t) {
+        try { return JSON.parse(t); }
+        catch (e) { throw new Error('Resposta inválida do servidor (HTTP ' + r.status + ')'); }
+      });
+    })
+    .then(function (res) {
+      if (res && res.erro) reject(res.erro);
+      else resolve(res);
+    })
+    .catch(function (err) {
+      reject(err && err.message ? err.message : String(err));
+    });
   });
 }
 
@@ -576,66 +596,4 @@ function salvarSetorUI() {
 function excluirSetorUI(i) {
   var s = estado.setores[i];
   if (!s) return;
-  if (!confirm('Excluir o setor "' + s.nome + '"?\n\nIsso não altera colaboradores já cadastrados.')) return;
-  callServer('excluirSetor', { nome: s.nome }).then(function () {
-    carregarSetores().then(renderSetores);
-  }).catch(function (e) { aviso('Erro: ' + e); });
-}
-
-// ---------- inativos ----------
-function abrirInativos() { mostrarView('inativos'); carregarInativos(); }
-
-function carregarInativos() {
-  callServer('obterInativos').then(function (res) {
-    estado.inativos = res.itens || [];
-    var tb = $('corpo-inativos');
-    if (!estado.inativos.length) {
-      tb.innerHTML = '<tr><td colspan="4" style="color:var(--cinza)">Ninguém na lista de inativos.</td></tr>';
-      return;
-    }
-    tb.innerHTML = estado.inativos.map(function (it, i) {
-      return '<tr class="clicavel" onclick="abrirDetalhe(\'' + it.codigo + '\', true)">'
-        + '<td><strong>' + esc(it.nome || '(sem nome)') + '</strong></td>'
-        + '<td>' + esc(it.setor || '—') + '</td>'
-        + '<td class="col-oculta">' + fmtData(it.dataSaida) + '</td>'
-        + '<td style="white-space:nowrap" onclick="event.stopPropagation()">'
-        + '<button class="btn btn-mini" onclick="restaurarUI(' + i + ')">Restaurar</button>'
-        + '</td></tr>';
-    }).join('');
-  }).catch(function (e) { aviso('Erro: ' + e); });
-}
-
-function restaurarUI(i) {
-  var it = estado.inativos[i];
-  if (!it) return;
-  if (!confirm('Restaurar ' + (it.nome || 'colaborador') + ' para os ativos?')) return;
-  callServer('restaurarDeInativos', { codigo: it.codigo }).then(function () {
-    carregarInativos();
-  }).catch(function (e) { aviso('Erro: ' + e); });
-}
-
-// ---------- navegação ----------
-function mostrarView(nome) {
-  ['lista', 'detalhe', 'setores', 'adicionar', 'inativos'].forEach(function (v) {
-    $('view-' + v).classList.toggle('oculto', v !== nome);
-  });
-  window.scrollTo(0, 0);
-}
-
-function voltarLista() {
-  mostrarView('lista');
-  carregarAtivos();
-}
-
-// ---------- boot ----------
-(function () {
-  // Se já tem senha na sessão, entra direto (F5 não pede senha de novo).
-  if (senhaAtual()) {
-    callServer('verificarSenha', { senha: senhaAtual() }).then(function (res) {
-      if (res.ok) abrirApp();
-    }).catch(function () {});
-  }
-})();
-</script>
-</body>
-</html>
+  if (!confirm('Excluir o setor "' + s.nome + '"?\n\nIsso
