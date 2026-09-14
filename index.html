@@ -1,986 +1,1161 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ASO — Registro de Validade</title>
-<style>
-:root{
-  --azul:#2563eb;--cinza:#64748b;--borda:#e2e8f0;
-  --vermelho:#dc2626;--vermelho-bg:#fee2e2;
-  --ambar:#b45309;--ambar-bg:#fef3c7;
-  --verde:#15803d;--verde-bg:#dcfce7;--cinza-bg:#e2e8f0;
-}
-*{box-sizing:border-box}
-body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#f1f5f9;color:#0f172a}
-.oculto{display:none !important}
-.container{max-width:1100px;margin:0 auto;padding:16px}
-.card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(15,23,42,.08);margin-bottom:14px}
-h1{font-size:20px;margin:0}
-h2{font-size:16px;margin:0 0 12px}
-label{display:block;font-size:13px;font-weight:600;margin:10px 0 4px;color:#334155}
-input,select,button{font:inherit}
-input,select{width:100%;padding:9px 10px;border:1px solid var(--borda);border-radius:8px;background:#fff}
-button{cursor:pointer;border:none;border-radius:8px;padding:9px 14px;font-weight:600}
-.btn{background:var(--azul);color:#fff}
-.btn-sec{background:#e2e8f0;color:#0f172a}
-.btn-perigo{background:var(--vermelho);color:#fff}
-.btn-mini{padding:5px 10px;font-size:12px}
-button:disabled{opacity:.45;cursor:not-allowed}
-.linha{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.entre{justify-content:space-between}
-.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.kpi{border-radius:10px;padding:12px;cursor:pointer;border:2px solid transparent;text-align:center}
-.kpi .n{font-size:24px;font-weight:700;line-height:1}
-.kpi .t{font-size:12px;margin-top:4px;font-weight:600}
-.kpi.on{border-color:#0f172a}
-.kpi-verm{background:var(--vermelho-bg);color:var(--vermelho)}
-.kpi-amb{background:var(--ambar-bg);color:var(--ambar)}
-.kpi-cin{background:var(--cinza-bg);color:#334155}
-.kpi-ver{background:var(--verde-bg);color:var(--verde)}
-table{width:100%;border-collapse:collapse}
-th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--borda);font-size:14px}
-th{font-size:12px;text-transform:uppercase;letter-spacing:.03em;color:var(--cinza)}
-tbody tr:hover{background:#f8fafc}
-tbody tr.clicavel{cursor:pointer}
-.badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
-.b-verm{background:var(--vermelho-bg);color:var(--vermelho)}
-.b-amb{background:var(--ambar-bg);color:var(--ambar)}
-.b-cin{background:var(--cinza-bg);color:#334155}
-.b-ver{background:var(--verde-bg);color:var(--verde)}
-.rodape{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--cinza);margin-top:10px}
-.alerta{background:var(--vermelho-bg);color:var(--vermelho);font-size:13px;font-weight:600;padding:10px 14px;z-index:999}
-@media(max-width:640px){.cards{grid-template-columns:repeat(2,1fr)}.col-oculta{display:none}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de RH - ASO | NSF</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f2f5f9; color: #1e293b; font-size: 15px; line-height: 1.5;
+    }
+
+    /* ===== IDENTIDADE VISUAL NSF ===== */
+    .barra-marca {
+      height: 6px;
+      background: linear-gradient(90deg, #0057a8 0%, #009b4d 33%, #f78f1e 66%, #ffc20e 100%);
+      position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+    }
+
+    #telaLogin { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .card-login {
+      background: white; padding: 40px; border-radius: 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; max-width: 360px;
+      border-top: 4px solid #0057a8;
+    }
+    .card-login .marca { text-align: center; font-size: 30px; font-weight: 800; color: #0057a8; letter-spacing: 2px; margin-bottom: 4px; }
+    .card-login .subtitulo { text-align: center; font-size: 13px; color: #64748b; margin-bottom: 22px; }
+    input, select {
+      width: 100%; padding: 12px; margin-bottom: 12px;
+      border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; background: #fff;
+    }
+    input:focus, select:focus { outline: none; border-color: #0057a8; box-shadow: 0 0 0 3px rgba(0,87,168,0.15); }
+    button {
+      padding: 12px; border: none; border-radius: 8px; font-size: 14px;
+      font-weight: 600; cursor: pointer; background: #0057a8; color: white;
+      font-family: inherit; transition: background 0.15s;
+    }
+    button:hover { background: #00407f; }
+    .erro { color: #dc2626; font-size: 13px; margin-top: 8px; text-align: center; }
+    #telaPrincipal { display: none; padding: 24px 20px 20px; max-width: 1200px; margin: 0 auto; }
+    .topo {
+      display: flex; justify-content: space-between; align-items: center;
+      background: white; padding: 16px 24px; border-radius: 14px;
+      margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      border-left: 4px solid #009b4d;
+    }
+    .topo h1 { font-size: 20px; color: #0057a8; font-weight: 700; }
+    .topo h1 span { color: #f78f1e; }
+    .topo button { width: auto; padding: 8px 16px; background: #ef4444; }
+    .topo button:hover { background: #dc2626; }
+    .abas { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .abas button {
+      width: auto; padding: 10px 22px; background: #e2e8f0;
+      color: #475569; font-weight: 600; border-radius: 999px;
+    }
+    .abas button:hover { background: #cbd5e1; }
+    .abas button.ativa { background: #0057a8; color: white; }
+    .barra-acoes { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+    .barra-acoes button { width: auto; padding: 10px 18px; }
+    .barra-acoes .btn-verde { background: #009b4d; }
+    .barra-acoes .btn-verde:hover { background: #00753a; }
+    .barra-acoes .btn-cinza { background: #64748b; }
+    .barra-acoes .btn-cinza:hover { background: #475569; }
+    .barra-acoes input { width: 280px; margin-bottom: 0; }
+    .contador { font-size: 13px; color: #64748b; margin-bottom: 10px; }
+    .tabela-wrapper { background: white; border-radius: 14px; overflow-x: auto; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
+    th { background: #f8fafc; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px; }
+    tr:hover { background: #f8fafc; }
+    .etiqueta { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+    .etq-atrasado { background: #fee2e2; color: #dc2626; }
+    .etq-atencao { background: #fef3c7; color: #d97706; }
+    .etq-semperiodico { background: #e2e8f0; color: #64748b; }
+    .etq-emdia { background: #d1fae5; color: #00753a; }
+    .acao { padding: 6px 12px; font-size: 12px; border-radius: 6px; margin-right: 4px; font-weight: 600; }
+    .acao-editar { background: #0057a8; }
+    .acao-aso { background: #009b4d; }
+    .acao-excluir { background: #ef4444; }
+    .acao-reativar { background: #009b4d; }
+    .aviso { background: #fef3c7; border: 1px solid #fde68a; color: #92400e; padding: 10px 14px; border-radius: 10px; margin-bottom: 14px; font-size: 13px; display: none; }
+    .modal-fundo {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15,23,42,0.5); justify-content: center; align-items: center; z-index: 100;
+    }
+    .modal-fundo.aberto { display: flex; }
+    .modal {
+      background: white; padding: 28px; border-radius: 14px; width: 100%;
+      max-width: 420px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      border-top: 4px solid #0057a8;
+    }
+    .modal h2 { font-size: 18px; color: #0057a8; margin-bottom: 16px; }
+    .modal label { display: block; font-size: 13px; color: #64748b; margin-bottom: 4px; font-weight: 600; }
+    .modal .linha-botoes { display: flex; gap: 8px; margin-top: 8px; }
+    .modal .linha-botoes button { flex: 1; }
+    .modal .btn-cancelar { background: #94a3b8; }
+    .modal .btn-cancelar:hover { background: #64748b; }
+
+    /* ===== GRADE DE SETORES ===== */
+    .grade-setores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+    @media (max-width: 900px) { .grade-setores { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .grade-setores { grid-template-columns: 1fr; } }
+    .card-setor {
+      background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      cursor: pointer; border: 2px solid transparent; transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+      display: flex; flex-direction: column; gap: 12px; position: relative; overflow: hidden;
+    }
+    .card-setor::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, #0057a8 0%, #009b4d 50%, #f78f1e 100%);
+      opacity: 0.85;
+    }
+    .card-setor:hover { border-color: #0057a8; box-shadow: 0 8px 24px rgba(0,87,168,0.14); transform: translateY(-2px); }
+    .cabecalho-card { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .nome-setor { font-size: 16px; font-weight: 700; color: #0057a8; }
+    .total-setor { font-size: 13px; color: #475569; font-weight: 600; background: #f1f5f9; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+    .linha-contadores { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .mini-contador { display: flex; flex-direction: column; align-items: center; gap: 2px; background: #f8fafc; border-radius: 10px; padding: 10px 6px; }
+    .mini-contador .num { font-size: 26px; font-weight: 800; line-height: 1.1; }
+    .mini-contador .rot { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+    .cor-vermelho { color: #dc2626; }
+    .cor-amarelo { color: #d97706; }
+    .cor-cinza { color: #64748b; }
+    .cor-verde { color: #009b4d; }
+    .expandir-btn {
+      width: 100%; padding: 12px; background: white; color: #0057a8;
+      border: 2px solid #cfe3f5; border-radius: 12px; font-weight: 700;
+      font-size: 14px; margin-bottom: 16px; transition: background 0.15s;
+    }
+    .expandir-btn:hover { background: #eff6ff; }
+    .voltarbtn { width: auto; padding: 10px 18px; background: #64748b; margin-bottom: 12px; display: none; }
+    .voltarbtn:hover { background: #475569; }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed; top: 28px; left: 50%;
+      transform: translateX(-50%) translateY(-24px);
+      background: #1e293b; color: #fff; padding: 14px 24px; border-radius: 10px;
+      font-size: 14px; font-weight: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s;
+      z-index: 200; max-width: 90%; text-align: center;
+    }
+    .toast.mostrar { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ===== MODAL DE CONFIRMAÇÃO ===== */
+    .modal-confirm { max-width: 380px; }
+    .modal-confirm p { font-size: 15px; color: #334155; margin-bottom: 22px; line-height: 1.5; }
+
+    .dica-codigo { font-size: 12px; color: #64748b; background: #f1f5f9; padding: 8px 12px; border-radius: 8px; margin-bottom: 8px; }
+  </style>
 </head>
 <body>
 
-<div id="erro-global" class="alerta oculto" style="position:fixed;top:0;left:0;right:0"></div>
+  <div class="barra-marca"></div>
 
-<div id="tela-login">
-  <div class="container" style="max-width:360px;margin-top:14vh">
-    <div class="card" style="text-align:center">
-      <h1 style="margin-bottom:4px">ASO</h1>
-      <p style="color:var(--cinza);margin:0 0 14px">Digite a senha pra continuar</p>
-      <input id="senha" type="password" placeholder="Senha" autocomplete="current-password">
-      <button id="btn-entrar" class="btn" style="width:100%;margin-top:12px">Entrar</button>
-      <p id="login-erro" style="color:var(--vermelho);font-size:13px;margin:10px 0 0"></p>
+  <!-- TELA DE LOGIN -->
+  <div id="telaLogin">
+    <div class="card-login">
+      <div class="marca">NSF</div>
+      <div class="subtitulo">Sistema de RH - ASO</div>
+      <input type="email" id="campoEmail" placeholder="Seu e-mail" autocomplete="email">
+      <input type="password" id="campoSenha" placeholder="Sua senha" autocomplete="current-password">
+      <button onclick="entrar()">Entrar</button>
+      <div class="erro" id="mensagemErro"></div>
     </div>
   </div>
-</div>
 
-<div id="tela-app" class="oculto">
-  <div class="container">
-
-    <div id="view-lista">
-      <div class="card">
-        <div class="linha entre">
-          <h1>Registro de ASO</h1>
-          <div class="linha">
-            <button id="btn-atualizar" class="btn-sec btn-mini">Atualizar</button>
-            <button id="btn-ir-setores" class="btn-sec btn-mini">Setores</button>
-            <button id="btn-ir-inativos" class="btn-sec btn-mini">Inativos</button>
-            <button id="btn-ir-adicionar" class="btn btn-mini">+ Adicionar</button>
-            <button id="btn-sair" class="btn-sec btn-mini">Sair</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card"><div class="cards" id="kpis"></div></div>
-
-      <div class="card">
-        <div class="linha entre" style="margin-bottom:10px">
-          <input id="busca" placeholder="Buscar por nome, código ou setor..." style="max-width:380px">
-          <span id="total-geral" style="font-size:13px;color:var(--cinza)"></span>
-        </div>
-        <div id="lista-carregando" style="color:var(--cinza);font-size:14px;padding:10px 0">Carregando situação atual...</div>
-        <table id="tabela" class="oculto">
-          <thead>
-            <tr>
-              <th>Nome</th><th>Setor</th><th>Status</th>
-              <th class="col-oculta">Último exame</th>
-              <th class="col-oculta">Vence em</th>
-              <th>Dias</th>
-            </tr>
-          </thead>
-          <tbody id="corpo-tabela"></tbody>
-        </table>
-        <div class="rodape">
-          <span id="info-pagina"></span>
-          <span class="linha">
-            <button id="btn-anterior" class="btn-sec btn-mini">Anterior</button>
-            <button id="btn-proximo" class="btn-sec btn-mini">Próxima</button>
-          </span>
-        </div>
-      </div>
+  <!-- TELA PRINCIPAL -->
+  <div id="telaPrincipal">
+    <div class="topo">
+      <h1>Registro de ASO <span>| NSF</span></h1>
+      <button onclick="sair()">Sair</button>
     </div>
 
-    <div id="view-detalhe" class="oculto">
-      <div class="card">
-        <div class="linha entre">
-          <button id="btn-voltar-detalhe" class="btn-sec btn-mini">← Voltar</button>
-          <button id="btn-excluir-colab" class="btn-perigo btn-mini">Excluir colaborador</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Dados do colaborador</h2>
-        <label for="det-nome">Nome</label>
-        <input id="det-nome">
-        <label for="det-setor">Setor</label>
-        <select id="det-setor"></select>
-        <button id="btn-salvar-dados" class="btn" style="margin-top:12px">Salvar dados</button>
-      </div>
-
-      <div id="card-novo" class="card">
-        <h2>Lançar novo exame</h2>
-        <div class="linha" style="gap:12px;align-items:flex-end">
-          <div style="flex:1;min-width:150px">
-            <label for="ex-tipo">Tipo</label>
-            <select id="ex-tipo"></select>
-          </div>
-          <div style="flex:1;min-width:140px">
-            <label for="ex-data">Data do exame</label>
-            <input id="ex-data" type="date">
-          </div>
-          <div style="flex:1;min-width:120px">
-            <label for="ex-validade">Validade (meses)</label>
-            <input id="ex-validade" type="number" min="1" placeholder="ex.: 12">
-          </div>
-        </div>
-        <p style="font-size:12px;color:var(--cinza);margin:6px 0 0">Deixe a validade em branco pra Admissional/Demissional.</p>
-        <div class="linha" style="margin-top:12px">
-          <button id="btn-exame" class="btn">Lançar exame</button>
-          <button id="btn-exame-cancelar" class="btn-sec oculto">Cancelar edição</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Histórico</h2>
-        <table>
-          <thead>
-            <tr><th>Tipo</th><th>Data</th><th>Validade</th><th class="col-oculta">Vence</th><th></th></tr>
-          </thead>
-          <tbody id="corpo-historico"></tbody>
-        </table>
-      </div>
+    <div class="abas">
+      <button onclick="trocarAba('ativos')" id="aba-ativos">Ativos</button>
+      <button onclick="trocarAba('historico')" id="aba-historico">Histórico</button>
+      <button onclick="trocarAba('setores')" id="aba-setores">Setores</button>
+      <button onclick="trocarAba('inativos')" id="aba-inativos">Inativos</button>
     </div>
 
-    <div id="view-setores" class="oculto">
-      <div class="card"><button id="btn-voltar-setores" class="btn-sec btn-mini">← Voltar</button></div>
-      <div class="card">
-        <h2>Adicionar / atualizar setor</h2>
-        <p style="font-size:12px;color:var(--cinza);margin:0 0 8px">O prazo é só uma sugestão pré-preenchida ao lançar um exame novo. Mudar isso nunca recalcula exames já lançados.</p>
-        <div class="linha" style="gap:12px;align-items:flex-end">
-          <div style="flex:2;min-width:180px">
-            <label for="set-nome">Nome do setor</label>
-            <input id="set-nome">
-          </div>
-          <div style="flex:1;min-width:120px">
-            <label for="set-prazo">Prazo padrão (meses)</label>
-            <input id="set-prazo" type="number" min="1">
-          </div>
-        </div>
-        <button id="btn-salvar-setor" class="btn" style="margin-top:12px">Salvar setor</button>
-      </div>
-      <div class="card">
-        <h2>Setores cadastrados</h2>
-        <table>
-          <thead><tr><th>Setor</th><th>Prazo padrão</th><th></th></tr></thead>
-          <tbody id="corpo-setores"></tbody>
-        </table>
-      </div>
+    <div class="aviso" id="avisoDiagnostico">
+      Os campos de ASO não foram encontrados nos dados.
+      <button style="width:auto;padding:4px 12px;font-size:12px;margin-left:6px;" onclick="diagnostico()">Ver campos no console (F12)</button>
     </div>
 
-    <div id="view-adicionar" class="oculto">
-      <div class="card"><button id="btn-voltar-adicionar" class="btn-sec btn-mini">← Voltar</button></div>
-      <div class="card">
-        <h2>Adicionar colaborador</h2>
-        <p style="font-size:12px;color:var(--cinza);margin:0 0 8px">Depois de adicionar, você lança os exames na tela de detalhe da pessoa.</p>
-        <label for="add-nome">Nome</label>
-        <input id="add-nome">
-        <label for="add-setor">Setor</label>
-        <select id="add-setor"></select>
-        <div class="linha" style="margin-top:12px">
-          <button id="btn-adicionar" class="btn">Adicionar</button>
-          <button id="btn-cancelar-adicionar" class="btn-sec">Cancelar</button>
-        </div>
-      </div>
-    </div>
+    <div class="barra-acoes" id="barraAcoes"></div>
 
-    <div id="view-inativos" class="oculto">
-      <div class="card"><button id="btn-voltar-inativos" class="btn-sec btn-mini">← Voltar</button></div>
-      <div class="card">
-        <h2>Inativos</h2>
-        <p style="font-size:12px;color:var(--cinza);margin:0 0 8px">O histórico de exames continua acessível. Clique na pessoa pra ver.</p>
-        <table>
-          <thead><tr><th>Nome</th><th>Setor</th><th class="col-oculta">Saída</th><th></th></tr></thead>
-          <tbody id="corpo-inativos"></tbody>
-        </table>
-      </div>
-    </div>
+    <div class="grade-setores" id="gradeSetores"></div>
 
+    <button class="expandir-btn" id="btnExpandir" onclick="alternarExpandir()" style="display:none;"></button>
+
+    <button class="voltarbtn" id="btnVoltar" onclick="voltarGrade()">Voltar para todos os setores</button>
+
+    <div class="contador" id="contador"></div>
+
+    <div class="tabela-wrapper" id="tabelaWrapper" style="display:none;">
+      <table id="tabelaDados">
+        <thead id="cabecalhoTabela"></thead>
+        <tbody id="corpoTabela"></tbody>
+      </table>
+    </div>
   </div>
-</div>
 
-<script>
-/* ============================================================
-   ASO - frontend (GitHub Pages) + Web App do Apps Script
-   Troque a linha abaixo pelo URL da sua implantação (/exec).
-   ============================================================ */
-var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyyIG3_Ae2Xpu8eUhx40Z6U7wsz8d1YC30nACQxqPmjh92bZtKM3YNuzzb89Yh2u6SJBQ/exec';
+  <div class="toast" id="avisoToast"><span class="toast-texto"></span></div>
 
-var CHAVE_SENHA = 'aso_senha';
-var TIPOS = ['Periodico', 'Admissional', 'Retorno ao Trabalho', 'Mudanca de Funcao', 'Demissional'];
-var TIPOS_QUE_VENCEM = ['Periodico', 'Retorno ao Trabalho', 'Mudanca de Funcao'];
-var ACOES_MUTACAO = ['adicionarColaborador','editarColaborador','excluirColaborador','restaurarDeInativos','adicionarExame','editarExame','excluirExame','salvarSetor','excluirSetor','enviarResumoAgora'];
+  <div class="modal-fundo" id="modalConfirm">
+    <div class="modal modal-confirm">
+      <h2>Confirmar</h2>
+      <p id="confirmTexto"></p>
+      <div class="linha-botoes">
+        <button class="btn-cancelar" id="confirmNao">Cancelar</button>
+        <button id="confirmSim" style="background:#ef4444;">Confirmar</button>
+      </div>
+    </div>
+  </div>
 
-var estado = {
-  pagina: 1, tamanho: 25, busca: '', status: 'TODOS', totalPaginas: 1,
-  codigoAtual: null, bloqueado: false, itensPorCodigo: {}, setores: [],
-  inativos: [], historico: [], editandoExameId: null
-};
+  <!-- MODAL: FUNCIONÁRIO (sem campo de código) -->
+  <div class="modal-fundo" id="modalFuncionario">
+    <div class="modal">
+      <h2 id="tituloModalFuncionario">Novo Funcionário</h2>
+      <div class="dica-codigo" id="dicaCodigo">O código do funcionário será gerado automaticamente pelo sistema.</div>
+      <label>Nome completo</label>
+      <input type="text" id="funcNome" placeholder="Nome do funcionário">
+      <label>Setor</label>
+      <select id="funcSetor"></select>
+      <div class="linha-botoes">
+        <button class="btn-cancelar" onclick="fecharModal('modalFuncionario')">Cancelar</button>
+        <button onclick="salvarFuncionario()">Salvar</button>
+      </div>
+    </div>
+  </div>
 
-function $(id) { return document.getElementById(id); }
+  <!-- MODAL: LANÇAR / EDITAR ASO -->
+  <div class="modal-fundo" id="modalAso">
+    <div class="modal">
+      <h2 id="tituloModalAso">Lançar ASO</h2>
+      <label>Funcionário</label>
+      <select id="asoFuncionarioSelect" style="display:none;"></select>
+      <input type="text" id="asoFuncionarioNome" readonly style="background:#f1f5f9;">
+      <label>Tipo do ASO</label>
+      <select id="asoTipo">
+        <option value="Periódico">Periódico</option>
+        <option value="Admissional">Admissional</option>
+        <option value="Demissional">Demissional</option>
+        <option value="Mudança de função">Mudança de função</option>
+      </select>
+      <label>Data do exame</label>
+      <input type="date" id="asoData">
+      <label>Validade (meses)</label>
+      <input type="number" id="asoValidadeMeses" min="1" placeholder="Ex.: 12">
+      <label>Observação (opcional)</label>
+      <input type="text" id="asoObservacao" placeholder="Ex.: exame realizado na clínica X">
+      <div class="linha-botoes">
+        <button class="btn-cancelar" onclick="fecharModal('modalAso')">Cancelar</button>
+        <button onclick="salvarAso()">Salvar</button>
+      </div>
+    </div>
+  </div>
 
-function esc(v) {
-  if (v === null || v === undefined) return '';
-  return String(v)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
+  <!-- MODAL: SETOR -->
+  <div class="modal-fundo" id="modalSetor">
+    <div class="modal">
+      <h2 id="tituloModalSetor">Novo Setor</h2>
+      <label>Nome do setor</label>
+      <input type="text" id="setorNome" placeholder="Ex.: Produção">
+      <label>Validade do ASO (meses)</label>
+      <input type="number" id="setorValidadeMeses" min="1" placeholder="Ex.: 12">
+      <div class="linha-botoes">
+        <button class="btn-cancelar" onclick="fecharModal('modalSetor')">Cancelar</button>
+        <button onclick="salvarSetor()">Salvar</button>
+      </div>
+    </div>
+  </div>
 
-function senhaAtual() { return sessionStorage.getItem(CHAVE_SENHA) || ''; }
-function aviso(m) { window.alert(m); }
+  <script>
+    // ===== CONFIGURAÇÃO DO FIREBASE =====
+    const firebaseConfig = {
+      apiKey: "AIzaSyBjKhkCG34QQctr4R3xxQyqW_xvf2cVV2g",
+      authDomain: "aso-nsf.firebaseapp.com",
+      projectId: "aso-nsf",
+      storageBucket: "aso-nsf.firebasestorage.app",
+      messagingSenderId: "538373127555",
+      appId: "1:538373127555:web:0bbd585e28b5ecad258ab6"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-var _timerErro = null;
-function mostrarErro(m) {
-  console.error('[ASO]', m);
-  var el = $('erro-global');
-  if (!el) { aviso(m); return; }
-  el.textContent = m;
-  el.classList.remove('oculto');
-  if (_timerErro) clearTimeout(_timerErro);
-  _timerErro = setTimeout(function () { el.classList.add('oculto'); }, 9000);
-}
+    const MESES_PADRAO = 12;        // validade padrão quando nada é definido
+    const CARDS_PADRAO = 15;        // 5 fileiras x 3 cards
 
-function fmtData(ts) {
-  if (ts === null || ts === undefined || ts === '') return '—';
-  var d = new Date(ts);
-  if (isNaN(d.getTime())) return '—';
-  return d.toLocaleDateString('pt-BR');
-}
+    let abaAtual = 'ativos';
+    let setorSelecionado = null;
+    let expandido = false;
+    let funcionarioEditandoId = null;
+    let codigoEditando = null;      // guarda o código do funcionário em edição
+    let asoEditandoId = null;
+    let setorEditandoId = null;
+    let asoFuncionarioId = null;
+    let cacheAtivos = [];
+    let cacheHistorico = [];
+    let cacheSetores = [];
+    let indice = null;
+    let logouDiagnostico = false;
 
-function paraInputDate(ts) {
-  var d = new Date(ts);
-  var mes = '0' + (d.getMonth() + 1);
-  var dia = '0' + d.getDate();
-  return d.getFullYear() + '-' + mes.slice(-2) + '-' + dia.slice(-2);
-}
-
-function urlConfigurada() {
-  return !!WEB_APP_URL && WEB_APP_URL.indexOf('http') === 0;
-}
-
-/* ==================== COMUNICAÇÃO: fila + retry + idempotência ==================== */
-
-var filaRequisicoes = Promise.resolve();
-
-function novaReqId() {
-  return 'r-' + Date.now() + '-' + Math.floor(Math.random() * 1e6);
-}
-
-function esperar(ms) {
-  return new Promise(function (r) { setTimeout(r, ms); });
-}
-
-function enviar(acao, params) {
-  return new Promise(function (resolve, reject) {
-    if (!urlConfigurada()) {
-      reject(new Error('O endereço do Web App não foi configurado no index.html.'));
-      return;
+    // ===== AVISOS E CONFIRMAÇÃO =====
+    function avisar(mensagem) {
+      var el = document.getElementById('avisoToast');
+      el.querySelector('.toast-texto').textContent = mensagem;
+      el.classList.add('mostrar');
+      clearTimeout(el._timer);
+      el._timer = setTimeout(function() { el.classList.remove('mostrar'); }, 3500);
     }
-    var p = params || {};
-    if (p.senha === undefined) p.senha = senhaAtual();
-    p.action = acao;
 
-    var ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-    var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, 60000) : null;
+    function confirmar(mensagem) {
+      return new Promise(function(resolve) {
+        var m = document.getElementById('modalConfirm');
+        document.getElementById('confirmTexto').textContent = mensagem;
+        m.classList.add('aberto');
+        document.getElementById('confirmSim').onclick = function() { m.classList.remove('aberto'); resolve(true); };
+        document.getElementById('confirmNao').onclick = function() { m.classList.remove('aberto'); resolve(false); };
+      });
+    }
 
-    fetch(WEB_APP_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(p),
-      signal: ctrl ? ctrl.signal : undefined
-    })
-    .then(function (r) { return r.text(); })
-    .then(function (texto) {
-      if (timer) clearTimeout(timer);
-      var res;
-      try { res = JSON.parse(texto); }
-      catch (e) { throw new Error('Resposta inesperada do servidor.'); }
-      if (res && res.erro) {
-        var err = new Error(res.erro);
-        err.servidor = true;
-        throw err;
-      }
-      resolve(res);
-    })
-    .catch(function (err) {
-      if (timer) clearTimeout(timer);
-      reject(err);
-    });
-  });
-}
-
-function enviarComRetry(acao, params) {
-  var MAX = 3;
-  function tentar(n) {
-    return enviar(acao, params).catch(function (err) {
-      var msg = String(err && err.message ? err.message : err);
-      var falhaDeRede = /Failed to fetch|NetworkError|Load failed|Tempo esgotado|abort/i.test(msg);
-      if (n < MAX && falhaDeRede && !err.servidor) {
-        return esperar(500 * n).then(function () { return tentar(n + 1); });
-      }
-      throw new Error(msg);
-    });
-  }
-  return tentar(1);
-}
-
-function callServer(acao, params) {
-  var p = {};
-  for (var k in (params || {})) p[k] = params[k];
-  if (ACOES_MUTACAO.indexOf(acao) !== -1 && !p.reqId) p.reqId = novaReqId();
-
-  var exec = function () { return enviarComRetry(acao, p); };
-  var proxima = filaRequisicoes.then(exec, exec);
-  filaRequisicoes = proxima.then(function () {}, function () {});
-  return proxima;
-}
-
-/* ==================== TELAS ==================== */
-
-function mostrarView(nome) {
-  var views = ['lista', 'detalhe', 'setores', 'adicionar', 'inativos'];
-  for (var i = 0; i < views.length; i++) {
-    var el = $('view-' + views[i]);
-    if (el) el.classList.toggle('oculto', views[i] !== nome);
-  }
-  window.scrollTo(0, 0);
-}
-
-function irParaLista() {
-  mostrarView('lista');
-  carregarAtivos();
-}
-
-function mostrarCarregando(on) {
-  var el = $('lista-carregando');
-  if (el) el.classList.toggle('oculto', !on);
-}
-
-/* ==================== LOGIN ==================== */
-
-function fazerLogin() {
-  var senha = $('senha').value;
-  var btn = $('btn-entrar');
-  var msg = $('login-erro');
-  msg.textContent = '';
-
-  if (!senha) { msg.textContent = 'Digite a senha.'; return; }
-  if (!urlConfigurada()) {
-    msg.textContent = 'Falta configurar o endereço do Web App no index.html.';
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'Entrando...';
-
-  callServer('verificarSenha', { senha: senha })
-    .then(function (res) {
-      btn.disabled = false;
-      btn.textContent = 'Entrar';
-      if (res && res.ok) {
-        sessionStorage.setItem(CHAVE_SENHA, senha);
-        $('senha').value = '';
-        abrirApp();
+    // ===== LOGIN / LOGOUT =====
+    firebase.auth().onAuthStateChanged(function(usuario) {
+      if (usuario) {
+        document.getElementById('telaLogin').style.display = 'none';
+        document.getElementById('telaPrincipal').style.display = 'block';
+        trocarAba('ativos');
       } else {
-        msg.textContent = 'Senha incorreta.';
+        document.getElementById('telaLogin').style.display = 'flex';
+        document.getElementById('telaPrincipal').style.display = 'none';
       }
-    })
-    .catch(function (e) {
-      btn.disabled = false;
-      btn.textContent = 'Entrar';
-      msg.textContent = 'Erro: ' + e;
     });
-}
 
-function sair() {
-  sessionStorage.removeItem(CHAVE_SENHA);
-  $('tela-app').classList.add('oculto');
-  $('tela-login').classList.remove('oculto');
-  estado.pagina = 1; estado.busca = ''; estado.status = 'TODOS';
-  $('busca').value = '';
-}
-
-function abrirApp() {
-  $('tela-login').classList.add('oculto');
-  $('tela-app').classList.remove('oculto');
-  mostrarView('lista');
-  carregarTudo();
-}
-
-/* ==================== CARGA INICIAL (1 chamada) ==================== */
-
-function carregarTudo() {
-  mostrarCarregando(true);
-  callServer('obterTudo', {
-    pagina: 1, tamanho: estado.tamanho, busca: '', status: 'TODOS'
-  })
-  .then(function (res) {
-    estado.pagina = 1; estado.busca = ''; estado.status = 'TODOS';
-    $('busca').value = '';
-    estado.setores = res.setores || [];
-    preencherSelects();
-    aplicarAtivos(res.ativos, res.contagens, res.totalGeral);
-  })
-  .catch(function (e) {
-    if (String(e).indexOf('Sess') !== -1) { sair(); return; }
-    mostrarErro('Não foi possível carregar os dados: ' + e);
-  })
-  .then(function () { mostrarCarregando(false); });
-}
-
-function aplicarAtivos(pacote, contagens, totalGeral) {
-  renderContagens(contagens, totalGeral);
-  renderTabela(pacote.itens || []);
-  renderPaginacao(pacote.pagina, pacote.totalPaginas, pacote.total);
-}
-
-/* ==================== SELECTS ==================== */
-
-function preencherSelects() {
-  var opts = '';
-  for (var i = 0; i < estado.setores.length; i++) {
-    var s = estado.setores[i];
-    opts += '<option value="' + esc(s.nome) + '">' + esc(s.nome) + '</option>';
-  }
-  var vazio = '<option value="">— sem setor —</option>';
-  $('add-setor').innerHTML = vazio + opts;
-  var setorAtual = $('det-setor').value;
-  $('det-setor').innerHTML = vazio + opts;
-  $('det-setor').value = setorAtual;
-  var tipos = '';
-  for (var j = 0; j < TIPOS.length; j++) {
-    tipos += '<option value="' + TIPOS[j] + '">' + TIPOS[j] + '</option>';
-  }
-  $('ex-tipo').innerHTML = tipos;
-}
-
-function carregarSetores() {
-  return callServer('obterSetores')
-    .then(function (res) {
-      estado.setores = (res && res.itens) ? res.itens : [];
-      preencherSelects();
-    })
-    .catch(function (e) { mostrarErro('Erro ao carregar setores: ' + e); });
-}
-
-/* ==================== LISTA ==================== */
-
-function carregarAtivos() {
-  mostrarCarregando(true);
-  callServer('obterAtivos', {
-    pagina: estado.pagina, tamanho: estado.tamanho, busca: estado.busca, status: estado.status
-  })
-  .then(function (res) {
-    aplicarAtivos(res, res.contagens, res.totalGeral);
-  })
-  .catch(function (e) {
-    if (String(e).indexOf('Sess') !== -1) { sair(); return; }
-    mostrarErro('Erro ao carregar a lista: ' + e);
-  })
-  .then(function () { mostrarCarregando(false); });
-}
-
-var timerBusca = null;
-function aoDigitarBusca(v) {
-  if (timerBusca) clearTimeout(timerBusca);
-  timerBusca = setTimeout(function () {
-    estado.busca = v;
-    estado.pagina = 1;
-    carregarAtivos();
-  }, 400);
-}
-
-function filtrarStatus(k) {
-  estado.status = (estado.status === k) ? 'TODOS' : k;
-  estado.pagina = 1;
-  carregarAtivos();
-}
-
-function renderContagens(c, totalGeral) {
-  c = c || {};
-  $('total-geral').textContent = (totalGeral || 0) + ' colaborador(es) ativo(s)';
-  var defs = [
-    { k: 'VENCIDO', t: 'Vencidos', cls: 'kpi-verm' },
-    { k: 'ATENÇÃO', t: 'Vencendo (30d)', cls: 'kpi-amb' },
-    { k: 'AGUARDANDO_PERIODICO', t: 'Sem periódico', cls: 'kpi-cin' },
-    { k: 'EM DIA', t: 'Em dia', cls: 'kpi-ver' }
-  ];
-  var html = '';
-  for (var i = 0; i < defs.length; i++) {
-    var d = defs[i];
-    var on = (estado.status === d.k) ? ' on' : '';
-    html += '<div class="kpi ' + d.cls + on + '" data-status="' + esc(d.k) + '">'
-          + '<div class="n">' + (c[d.k] || 0) + '</div>'
-          + '<div class="t">' + d.t + '</div>'
-          + '</div>';
-  }
-  $('kpis').innerHTML = html;
-}
-
-function badge(s) {
-  var mapa = {
-    'VENCIDO': ['b-verm', 'VENCIDO'],
-    'ATENÇÃO': ['b-amb', 'ATENÇÃO'],
-    'AGUARDANDO_PERIODICO': ['b-cin', 'SEM PERIÓDICO'],
-    'EM DIA': ['b-ver', 'EM DIA']
-  };
-  var m = mapa[s] || ['b-cin', s];
-  return '<span class="badge ' + m[0] + '">' + m[1] + '</span>';
-}
-
-function renderTabela(itens) {
-  estado.itensPorCodigo = {};
-  var tb = $('corpo-tabela');
-  if (!itens.length) {
-    tb.innerHTML = '<tr><td colspan="6" style="color:var(--cinza)">Nenhum resultado.</td></tr>';
-    $('tabela').classList.remove('oculto');
-    return;
-  }
-  var html = '';
-  for (var i = 0; i < itens.length; i++) {
-    var it = itens[i];
-    estado.itensPorCodigo[it.codigo] = it;
-    var ultimo = it.ultimoExame ? (it.ultimoExame.tipo + ' - ' + fmtData(it.ultimoExame.data)) : '—';
-    var dias = (it.diasRestantes === null || it.diasRestantes === undefined) ? '—' : it.diasRestantes;
-    html += '<tr class="clicavel" data-codigo="' + esc(it.codigo) + '">'
-          + '<td><strong>' + esc(it.nome || '(sem nome)') + '</strong></td>'
-          + '<td>' + esc(it.setor || '—') + '</td>'
-          + '<td>' + badge(it.status) + '</td>'
-          + '<td class="col-oculta">' + esc(ultimo) + '</td>'
-          + '<td class="col-oculta">' + fmtData(it.vencimento) + '</td>'
-          + '<td>' + dias + '</td>'
-          + '</tr>';
-  }
-  tb.innerHTML = html;
-  $('tabela').classList.remove('oculto');
-}
-
-function renderPaginacao(pagina, totalPaginas, total) {
-  estado.pagina = pagina || 1;
-  estado.totalPaginas = totalPaginas || 1;
-  $('info-pagina').textContent = 'Página ' + estado.pagina + ' de ' + estado.totalPaginas + ' - ' + (total || 0) + ' registro(s)';
-  $('btn-anterior').disabled = estado.pagina <= 1;
-  $('btn-proximo').disabled = estado.pagina >= estado.totalPaginas;
-}
-
-function mudarPagina(n) {
-  if (n < 1 || n > estado.totalPaginas) return;
-  estado.pagina = n;
-  carregarAtivos();
-}
-
-/* ==================== DETALHE ==================== */
-
-function abrirDetalhe(codigo, bloqueado) {
-  var it;
-  if (bloqueado) {
-    for (var i = 0; i < estado.inativos.length; i++) {
-      if (estado.inativos[i].codigo === codigo) { it = estado.inativos[i]; break; }
+    function entrar() {
+      var email = document.getElementById('campoEmail').value;
+      var senha = document.getElementById('campoSenha').value;
+      document.getElementById('mensagemErro').textContent = '';
+      auth.signInWithEmailAndPassword(email, senha).catch(function(erro) {
+        document.getElementById('mensagemErro').textContent = traduzirErro(erro.code);
+      });
     }
-  } else {
-    it = estado.itensPorCodigo[codigo];
-  }
-  if (!it) return;
 
-  estado.codigoAtual = codigo;
-  estado.bloqueado = !!bloqueado;
-  estado.editandoExameId = null;
+    function sair() { auth.signOut(); }
 
-  $('det-nome').value = it.nome || '';
-  garantirOpcaoSetor(it.setor);
-  $('det-setor').value = it.setor || '';
-  $('det-nome').disabled = !!bloqueado;
-  $('det-setor').disabled = !!bloqueado;
-
-  $('btn-salvar-dados').classList.toggle('oculto', !!bloqueado);
-  $('card-novo').classList.toggle('oculto', !!bloqueado);
-  $('btn-excluir-colab').classList.toggle('oculto', !!bloqueado);
-
-  limparFormExame();
-  mostrarView('detalhe');
-  carregarHistorico(codigo);
-}
-
-function garantirOpcaoSetor(nome) {
-  if (!nome) return;
-  for (var i = 0; i < estado.setores.length; i++) {
-    if (estado.setores[i].nome === nome) return;
-  }
-  var opt = document.createElement('option');
-  opt.value = nome;
-  opt.textContent = nome;
-  $('det-setor').appendChild(opt);
-}
-
-function carregarHistorico(codigo) {
-  callServer('obterHistoricoDoCodigo', { codigo: codigo })
-    .then(function (res) {
-      estado.historico = (res && res.itens) ? res.itens : [];
-      renderHistorico(estado.historico);
-    })
-    .catch(function (e) { mostrarErro('Erro ao carregar o histórico: ' + e); });
-}
-
-function calcularVence(ex) {
-  if (!ex.data || !ex.validadeMeses) return null;
-  if (TIPOS_QUE_VENCEM.indexOf(ex.tipo) === -1) return null;
-  var d = new Date(ex.data);
-  d.setMonth(d.getMonth() + Number(ex.validadeMeses));
-  return d.getTime();
-}
-
-function renderHistorico(itens) {
-  var tb = $('corpo-historico');
-  if (!itens.length) {
-    tb.innerHTML = '<tr><td colspan="5" style="color:var(--cinza)">Nenhum exame lançado.</td></tr>';
-    return;
-  }
-  var html = '';
-  for (var i = 0; i < itens.length; i++) {
-    var ex = itens[i];
-    var vence = calcularVence(ex);
-    var acoes = estado.bloqueado ? '' :
-      ('<button class="btn-sec btn-mini" data-acao="editar" data-id="' + esc(ex.id) + '">Editar</button> '
-     + '<button class="btn-perigo btn-mini" data-acao="excluir" data-id="' + esc(ex.id) + '">Excluir</button>');
-    html += '<tr>'
-          + '<td>' + esc(ex.tipo || '') + '</td>'
-          + '<td>' + fmtData(ex.data) + '</td>'
-          + '<td>' + esc(ex.validadeMeses || '—') + '</td>'
-          + '<td class="col-oculta">' + (vence ? fmtData(vence) : '—') + '</td>'
-          + '<td style="white-space:nowrap">' + acoes + '</td>'
-          + '</tr>';
-  }
-  tb.innerHTML = html;
-}
-
-function sugerirValidade() {
-  var setor = $('det-setor').value;
-  for (var i = 0; i < estado.setores.length; i++) {
-    if (estado.setores[i].nome === setor) {
-      var prazo = estado.setores[i].prazoPadraoMeses;
-      if (prazo && !$('ex-validade').value) $('ex-validade').value = prazo;
-      return;
+    function traduzirErro(codigo) {
+      if (codigo === 'auth/wrong-password') return 'Senha incorreta.';
+      if (codigo === 'auth/user-not-found') return 'E-mail não cadastrado.';
+      if (codigo === 'auth/invalid-email') return 'E-mail inválido.';
+      if (codigo === 'auth/too-many-requests') return 'Muitas tentativas. Tente mais tarde.';
+      return 'Erro ao entrar. Verifique e-mail e senha.';
     }
-  }
-}
 
-function salvarExame() {
-  var tipo = $('ex-tipo').value;
-  var data = $('ex-data').value;
-  var validade = $('ex-validade').value;
-  if (!data) { aviso('Informe a data do exame.'); return; }
+    // ===== GERAÇÃO AUTOMÁTICA DE CÓDIGO =====
+    // Cria um código numérico único para o funcionário.
+    // Verifica se já existe na lista de ativos para evitar repetição.
+    function gerarCodigoUnico() {
+      var usados = {};
+      cacheAtivos.forEach(function(f) {
+        var c = lerCodigo(f);
+        if (c) usados[normalizar(c)] = true;
+      });
+      var tentativas = 0;
+      while (tentativas < 1000) {
+        var codigo = String(Math.floor(100000 + Math.random() * 900000)); // 6 dígitos
+        if (!usados[codigo]) return codigo;
+        tentativas++;
+      }
+      // Fallback bem improvável: usa o horário atual
+      return String(Date.now()).slice(-6);
+    }
 
-  var params = {
-    tipo: tipo, data: data, validadeMeses: validade || '',
-    pagina: estado.pagina, tamanho: estado.tamanho, busca: estado.busca, status: estado.status
-  };
-  var acao;
-  if (estado.editandoExameId) { acao = 'editarExame'; params.id = estado.editandoExameId; }
-  else { acao = 'adicionarExame'; params.codigo = estado.codigoAtual; }
+    // ===== DETECÇÃO DE CAMPOS =====
+    function normalizar(texto) {
+      return String(texto)
+        .toLowerCase()
+        .replace(/[áàâãä]/g, 'a').replace(/[éèêë]/g, 'e')
+        .replace(/[íìîï]/g, 'i').replace(/[óòôõö]/g, 'o')
+        .replace(/[úùûü]/g, 'u').replace(/ç/g, 'c')
+        .replace(/[^a-z0-9]/g, '');
+    }
 
-  callServer(acao, params)
-    .then(function (res) {
-      limparFormExame();
-      if (res && res.historico) { estado.historico = res.historico; renderHistorico(res.historico); }
-      if (res && res.ativos) aplicarAtivos(res.ativos, res.contagens, res.totalGeral);
-    })
-    .catch(function (e) { mostrarErro('Erro ao salvar o exame: ' + e); });
-}
+    function chaveCampo(registro, palavras) {
+      var chaves = Object.keys(registro);
+      for (var i = 0; i < chaves.length; i++) {
+        var cn = normalizar(chaves[i]);
+        if (cn === '__id') continue;
+        for (var j = 0; j < palavras.length; j++) {
+          if (cn.indexOf(normalizar(palavras[j])) !== -1) return chaves[i];
+        }
+      }
+      return null;
+    }
 
-function editarExameUI(id) {
-  var ex = null;
-  for (var i = 0; i < estado.historico.length; i++) {
-    if (estado.historico[i].id === id) { ex = estado.historico[i]; break; }
-  }
-  if (!ex) return;
-  estado.editandoExameId = id;
-  $('ex-tipo').value = ex.tipo;
-  $('ex-data').value = ex.data ? paraInputDate(ex.data) : '';
-  $('ex-validade').value = ex.validadeMeses || '';
-  $('btn-exame').textContent = 'Salvar alterações';
-  $('btn-exame-cancelar').classList.remove('oculto');
-}
+    function lerCampo(registro, palavras) {
+      var chave = chaveCampo(registro, palavras);
+      return chave ? registro[chave] : null;
+    }
 
-function limparFormExame() {
-  estado.editandoExameId = null;
-  $('ex-data').value = '';
-  $('ex-validade').value = '';
-  $('ex-tipo').selectedIndex = 0;
-  $('btn-exame').textContent = 'Lançar exame';
-  $('btn-exame-cancelar').classList.add('oculto');
-}
+    function paraData(valor) {
+      if (!valor) return null;
+      if (valor instanceof Date) return valor;
+      if (typeof valor.toDate === 'function') return valor.toDate();
+      if (typeof valor === 'string' && valor !== '') {
+        var d = new Date(valor);
+        if (!isNaN(d.getTime())) return d;
+      }
+      return null;
+    }
 
-function excluirExameUI(id) {
-  if (!confirm('Excluir este exame do histórico?')) return;
-  callServer('excluirExame', {
-    id: id,
-    pagina: estado.pagina, tamanho: estado.tamanho, busca: estado.busca, status: estado.status
-  })
-  .then(function (res) {
-    if (res && res.historico) { estado.historico = res.historico; renderHistorico(res.historico); }
-    if (res && res.ativos) aplicarAtivos(res.ativos, res.contagens, res.totalGeral);
-  })
-  .catch(function (e) { mostrarErro('Erro ao excluir o exame: ' + e); });
-}
+    function lerNome(reg)   { var v = lerCampo(reg, ['nome', 'funcionario', 'colaborador', 'empregado', 'servidor']); return v ? String(v) : ''; }
+    function lerSetor(reg)  { var v = lerCampo(reg, ['setor', 'departamento', 'area']); return v ? String(v) : ''; }
+    function lerCodigo(reg) { var v = lerCampo(reg, ['codigo', 'matricula', 'matr', 'chapa', 'registro', 'cracha', 'cod']); return v ? String(v) : ''; }
+    function lerTipo(reg)   { var v = lerCampo(reg, ['tipo', 'tipaso', 'tipodeaso', 'tipoaso']); return v ? String(v) : ''; }
+    function lerDataExame(reg) { return paraData(lerCampo(reg, ['ultimoexame', 'ultimaexame', 'dataexame', 'dataaso', 'exame', 'aso', 'data'])); }
+    function lerVenceEm(reg)   { return paraData(lerCampo(reg, ['venceem', 'vencimento', 'proximoexame', 'validade', 'vence', 'venc', 'datavencimento'])); }
+    function lerStatusReg(reg) { var v = lerCampo(reg, ['status', 'situacao', 'estado']); return v ? String(v) : ''; }
+    function lerObservacao(reg){ var v = lerCampo(reg, ['observacao', 'obs', 'nota']); return v ? String(v) : ''; }
 
-function salvarDadosColaborador() {
-  var nome = $('det-nome').value.trim();
-  if (!nome) { aviso('Informe o nome.'); return; }
-  callServer('editarColaborador', {
-    codigo: estado.codigoAtual, nome: nome, setor: $('det-setor').value,
-    pagina: estado.pagina, tamanho: estado.tamanho, busca: estado.busca, status: estado.status
-  })
-  .then(function (res) {
-    aviso('Dados salvos.');
-    if (res && res.ativos) aplicarAtivos(res.ativos, res.contagens, res.totalGeral);
-  })
-  .catch(function (e) { mostrarErro('Erro ao salvar: ' + e); });
-}
+    // Validade em meses de um setor
+    function mesesDoSetor(nomeSetor) {
+      for (var i = 0; i < cacheSetores.length; i++) {
+        var s = cacheSetores[i];
+        if ((lerCampo(s, ['nome', 'setor']) || '') === nomeSetor && s.validadeMeses) {
+          return Number(s.validadeMeses);
+        }
+      }
+      return null;
+    }
 
-function excluirColaboradorUI() {
-  if (!estado.codigoAtual) return;
-  var it = estado.itensPorCodigo[estado.codigoAtual];
-  var nome = it ? it.nome : '';
-  if (!confirm('Mover ' + (nome || 'este colaborador') + ' para Inativos?\n\nO histórico de exames é mantido.')) return;
-  callServer('excluirColaborador', {
-    codigo: estado.codigoAtual,
-    pagina: estado.pagina, tamanho: estado.tamanho, busca: estado.busca, status: estado.status
-  })
-  .then(function () { irParaLista(); })
-  .catch(function (e) { mostrarErro('Erro ao excluir: ' + e); });
-}
+    // Validade em meses de um ASO
+    function mesesValidadeDoAso(aso, funcionario) {
+      if (aso && aso.validadeMeses) return Number(aso.validadeMeses);
+      if (funcionario) {
+        var m = mesesDoSetor(lerSetor(funcionario));
+        if (m) return m;
+      }
+      return MESES_PADRAO;
+    }
 
-/* ==================== ADICIONAR ==================== */
+    // ===== ÍNDICE DE ATIVOS =====
+    function indiceAtivos() {
+      if (indice) return indice;
+      var porCodigo = {};
+      var porNome = {};
+      cacheAtivos.forEach(function(f) {
+        var nome = lerNome(f);
+        var cod = normalizar(lerCodigo(f));
+        if (cod) porCodigo[cod] = nome;
+        if (nome) porNome[normalizar(nome)] = nome;
+      });
+      indice = { codigo: porCodigo, nome: porNome };
+      return indice;
+    }
 
-function adicionarColaboradorUI() {
-  var nome = $('add-nome').value.trim();
-  if (!nome) { aviso('Informe o nome.'); return; }
-  callServer('adicionarColaborador', {
-    nome: nome, setor: $('add-setor').value,
-    pagina: 1, tamanho: estado.tamanho, busca: '', status: 'TODOS'
-  })
-  .then(function (res) {
-    $('add-nome').value = '';
-    if (res && res.ativos) aplicarAtivos(res.ativos, res.contagens, res.totalGeral);
-    irParaLista();
-  })
-  .catch(function (e) { mostrarErro('Erro ao adicionar: ' + e); });
-}
+    // ===== NOME DO FUNCIONÁRIO NUM LANÇAMENTO =====
+    function nomeDoAso(r) {
+      var idx = indiceAtivos();
 
-/* ==================== SETORES ==================== */
+      var fid = r.funcionarioId || r.funcionario_id || r.idFuncionario || r.id_funcionario ||
+                r.colaboradorId || r.colaborador_id || null;
+      if (fid) {
+        for (var i = 0; i < cacheAtivos.length; i++) {
+          if (cacheAtivos[i].__id === fid) {
+            var nId = lerNome(cacheAtivos[i]);
+            if (nId) return nId;
+          }
+        }
+      }
 
-function abrirSetores() {
-  mostrarView('setores');
-  carregarSetores().then(renderSetores);
-}
+      var nome = lerNome(r);
+      if (nome && !idx.codigo[normalizar(nome)]) return nome;
 
-function renderSetores() {
-  var tb = $('corpo-setores');
-  if (!estado.setores.length) {
-    tb.innerHTML = '<tr><td colspan="3" style="color:var(--cinza)">Nenhum setor cadastrado.</td></tr>';
-    return;
-  }
-  var html = '';
-  for (var i = 0; i < estado.setores.length; i++) {
-    var s = estado.setores[i];
-    html += '<tr>'
-          + '<td>' + esc(s.nome) + '</td>'
-          + '<td>' + esc(s.prazoPadraoMeses || '—') + ' meses</td>'
-          + '<td style="white-space:nowrap">'
-          + '<button class="btn-sec btn-mini" data-acao="editar" data-index="' + i + '">Editar</button> '
-          + '<button class="btn-perigo btn-mini" data-acao="excluir" data-index="' + i + '">Excluir</button>'
-          + '</td></tr>';
-  }
-  tb.innerHTML = html;
-}
+      var chaves = Object.keys(r);
+      for (var k = 0; k < chaves.length; k++) {
+        if (chaves[k] === '__id') continue;
+        var v = r[chaves[k]];
+        if (v === null || v === undefined || typeof v === 'object') continue;
+        var vs = normalizar(v);
+        if (vs && idx.codigo[vs]) return idx.codigo[vs];
+      }
 
-function preencherSetorForm(i) {
-  var s = estado.setores[i];
-  if (!s) return;
-  $('set-nome').value = s.nome;
-  $('set-prazo').value = s.prazoPadraoMeses || '';
-}
+      for (var k2 = 0; k2 < chaves.length; k2++) {
+        if (chaves[k2] === '__id') continue;
+        var v2 = r[chaves[k2]];
+        if (v2 === null || v2 === undefined || typeof v2 === 'object') continue;
+        var vs2 = normalizar(v2);
+        if (vs2 && idx.nome[vs2]) return idx.nome[vs2];
+      }
 
-function salvarSetorUI() {
-  var nome = $('set-nome').value.trim();
-  var prazo = $('set-prazo').value;
-  if (!nome) { aviso('Informe o nome do setor.'); return; }
-  callServer('salvarSetor', { nome: nome, prazoPadraoMeses: prazo })
-    .then(function (res) {
-      $('set-nome').value = '';
-      $('set-prazo').value = '';
-      if (res && res.setores) { estado.setores = res.setores; preencherSelects(); renderSetores(); }
-    })
-    .catch(function (e) { mostrarErro('Erro ao salvar setor: ' + e); });
-}
+      if (!logouDiagnostico) {
+        logouDiagnostico = true;
+        console.warn('Nao foi possivel achar o nome do funcionario neste lancamento. Campos disponiveis:', Object.keys(r), r);
+      }
 
-function excluirSetorUI(i) {
-  var s = estado.setores[i];
-  if (!s) return;
-  if (!confirm('Excluir o setor "' + s.nome + '"?\n\nIsso não altera colaboradores já cadastrados.')) return;
-  callServer('excluirSetor', { nome: s.nome })
-    .then(function (res) {
-      if (res && res.setores) { estado.setores = res.setores; preencherSelects(); renderSetores(); }
-    })
-    .catch(function (e) { mostrarErro('Erro ao excluir setor: ' + e); });
-}
+      return nome || '';
+    }
 
-/* ==================== INATIVOS ==================== */
+    // ===== JUNÇÃO: funcionário + ASO mais recente =====
+    function acharAsoDoFuncionario(funcionario) {
+      var codigo = normalizar(lerCodigo(funcionario));
+      var nome = normalizar(lerNome(funcionario));
+      var achados = [];
 
-function abrirInativos() {
-  mostrarView('inativos');
-  carregarInativos();
-}
+      cacheHistorico.forEach(function(aso) {
+        var codAso = normalizar(lerCodigo(aso));
+        var nomeAso = normalizar(nomeDoAso(aso));
+        if (codigo && codAso && codigo === codAso) { achados.push(aso); return; }
+        if (nome && nomeAso && nome === nomeAso) { achados.push(aso); return; }
+      });
 
-function carregarInativos() {
-  callServer('obterInativos')
-    .then(function (res) {
-      estado.inativos = (res && res.itens) ? res.itens : [];
-      var tb = $('corpo-inativos');
-      if (!estado.inativos.length) {
-        tb.innerHTML = '<tr><td colspan="4" style="color:var(--cinza)">Ninguém na lista de inativos.</td></tr>';
+      if (achados.length === 0) return null;
+
+      achados.sort(function(a, b) {
+        var da = lerDataExame(a); var db2 = lerDataExame(b);
+        if (!da && !db2) return 0;
+        if (!da) return 1;
+        if (!db2) return -1;
+        return db2.getTime() - da.getTime();
+      });
+      return achados[0];
+    }
+
+    // ===== STATUS =====
+    function statusDoFuncionario(funcionario) {
+      var aso = acharAsoDoFuncionario(funcionario);
+      if (!aso) return 'Sem periódico';
+      var tipo = normalizar(lerTipo(aso));
+      if (tipo.indexOf('demiss') !== -1) return 'Sem periódico';
+      var dataExame = lerDataExame(aso);
+      if (!dataExame) return 'Sem periódico';
+      var vence = lerVenceEm(aso);
+      if (!vence) {
+        vence = new Date(dataExame);
+        vence.setMonth(vence.getMonth() + mesesValidadeDoAso(aso, funcionario));
+      }
+      var hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+      var diff = Math.ceil((vence.getTime() - hoje.getTime()) / 86400000);
+      if (diff < 0) return 'Atrasado';
+      if (diff <= 30) return 'Atenção';
+      return 'Em dia';
+    }
+
+    function dadosAsoDoFuncionario(funcionario) {
+      var aso = acharAsoDoFuncionario(funcionario);
+      var dataExame = aso ? lerDataExame(aso) : null;
+      var vence = aso ? lerVenceEm(aso) : null;
+      if (aso && dataExame && !vence) {
+        vence = new Date(dataExame);
+        vence.setMonth(vence.getMonth() + mesesValidadeDoAso(aso, funcionario));
+      }
+      var dias = '';
+      if (vence) {
+        var hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+        var diff = Math.ceil((vence.getTime() - hoje.getTime()) / 86400000);
+        dias = diff < 0 ? ('Vencido há ' + Math.abs(diff) + 'd') : (diff === 0 ? 'Vence hoje' : diff + ' dias');
+      }
+      return { aso: aso, dataExame: dataExame, vence: vence, dias: dias };
+    }
+
+    // ===== NAVEGAÇÃO =====
+    function trocarAba(nome) {
+      abaAtual = nome;
+      setorSelecionado = null;
+      expandido = false;
+      var botoes = document.querySelectorAll('.abas button');
+      botoes.forEach(function(b) { b.classList.remove('ativa'); });
+      document.getElementById('aba-' + nome).classList.add('ativa');
+      document.getElementById('avisoDiagnostico').style.display = 'none';
+      montarBarraAcoes();
+      carregarTudo();
+    }
+
+    function montarBarraAcoes() {
+      var barra = document.getElementById('barraAcoes');
+      var html = '';
+      if (abaAtual === 'ativos') {
+        html += '<button class="btn-verde" onclick="abrirModalFuncionario()">Adicionar</button>';
+        html += '<button class="btn-cinza" onclick="carregarTudo()">Atualizar</button>';
+        html += '<input type="text" id="campoBusca" placeholder="Buscar funcionário..." onkeyup="buscarAtivos()">';
+      } else if (abaAtual === 'historico') {
+        html += '<button class="btn-verde" onclick="abrirModalAsoLancamento()">Lançar ASO</button>';
+        html += '<input type="text" id="campoBusca" placeholder="Buscar no histórico..." onkeyup="carregarTudo()">';
+      } else if (abaAtual === 'setores') {
+        html += '<button class="btn-verde" onclick="abrirModalSetor()">Novo Setor</button>';
+      } else if (abaAtual === 'inativos') {
+        html += '<input type="text" id="campoBusca" placeholder="Buscar em inativos..." onkeyup="carregarTudo()">';
+      }
+      barra.innerHTML = html;
+    }
+
+    // ===== CARREGAMENTO =====
+    function carregarTudo() {
+      Promise.all([
+        db.collection('ativos').get(),
+        db.collection('historico').get(),
+        db.collection('setores').get()
+      ]).then(function(resultados) {
+        cacheAtivos = resultados[0].docs.map(function(d) { var x = d.data(); x.__id = d.id; return x; });
+        cacheHistorico = resultados[1].docs.map(function(d) { var x = d.data(); x.__id = d.id; return x; });
+        cacheSetores = resultados[2].docs.map(function(d) { var x = d.data(); x.__id = d.id; return x; });
+
+        indice = null;
+
+        if (abaAtual === 'ativos') montarGradeSetores(cacheAtivos);
+        else if (abaAtual === 'historico') montarTabelaHistorico(cacheHistorico);
+        else if (abaAtual === 'setores') montarTabelaSetores(cacheSetores);
+        else if (abaAtual === 'inativos') db.collection('inativos').get().then(function(res) {
+          var inativos = res.docs.map(function(d) { var x = d.data(); x.__id = d.id; return x; });
+          montarTabelaInativos(inativos);
+        });
+
+        verificarDiagnostico();
+      }).catch(function(erro) {
+        console.error('Erro ao carregar:', erro);
+        document.getElementById('corpoTabela').innerHTML =
+          '<tr><td>Erro ao carregar dados. Verifique se você está logado com o e-mail autorizado.</td></tr>';
+      });
+    }
+
+    function verificarDiagnostico() {
+      var achouAso = cacheAtivos.some(function(f) { return acharAsoDoFuncionario(f) !== null; });
+      if (!achouAso && cacheHistorico.length > 0 && cacheAtivos.length > 0) {
+        document.getElementById('avisoDiagnostico').style.display = 'block';
+      }
+    }
+
+    function diagnostico() {
+      if (cacheAtivos.length > 0) { console.log('=== CAMPOS DE ATIVOS ==='); console.log(Object.keys(cacheAtivos[0])); console.log(cacheAtivos[0]); }
+      if (cacheHistorico.length > 0) { console.log('=== CAMPOS DE HISTÓRICO ==='); console.log(Object.keys(cacheHistorico[0])); console.log(cacheHistorico[0]); }
+      avisar('Abra o console (F12) e veja os CAMPOS DE ATIVOS e CAMPOS DE HISTÓRICO.');
+    }
+
+    // ===== GRADE DE SETORES =====
+    function montarGradeSetores(registros) {
+      document.getElementById('tabelaWrapper').style.display = 'none';
+      document.getElementById('btnVoltar').style.display = 'none';
+      document.getElementById('gradeSetores').style.display = 'grid';
+
+      var campo = document.getElementById('campoBusca');
+      var termo = campo && campo.value ? normalizar(campo.value) : '';
+      var lista = registros;
+      if (termo) {
+        lista = registros.filter(function(f) {
+          return normalizar(lerNome(f)).indexOf(termo) !== -1 ||
+                 normalizar(lerSetor(f)).indexOf(termo) !== -1 ||
+                 normalizar(lerCodigo(f)).indexOf(termo) !== -1;
+        });
+      }
+
+      var porSetor = {};
+      lista.forEach(function(f) {
+        var setor = lerSetor(f) || 'Sem setor';
+        if (!porSetor[setor]) porSetor[setor] = [];
+        porSetor[setor].push(f);
+      });
+
+      var nomesSetores = Object.keys(porSetor).sort();
+      var cards = [];
+
+      nomesSetores.forEach(function(setor) {
+        var funcs = porSetor[setor];
+        var cont = { 'Atrasado': 0, 'Atenção': 0, 'Sem periódico': 0, 'Em dia': 0 };
+        funcs.forEach(function(f) { cont[statusDoFuncionario(f)]++; });
+
+        var c = '';
+        c += '<div class="card-setor" onclick="abrirSetor(\'' + escaparAspas(setor) + '\')">';
+        c += '<div class="cabecalho-card"><div class="nome-setor">' + formatarValor(setor) + '</div>';
+        c += '<div class="total-setor">' + funcs.length + '</div></div>';
+        c += '<div class="linha-contadores">';
+        c += '<div class="mini-contador"><div class="num cor-vermelho">' + cont['Atrasado'] + '</div><div class="rot">Atrasado</div></div>';
+        c += '<div class="mini-contador"><div class="num cor-amarelo">' + cont['Atenção'] + '</div><div class="rot">30 dias</div></div>';
+        c += '<div class="mini-contador"><div class="num cor-cinza">' + cont['Sem periódico'] + '</div><div class="rot">Sem per.</div></div>';
+        c += '<div class="mini-contador"><div class="num cor-verde">' + cont['Em dia'] + '</div><div class="rot">Em dia</div></div>';
+        c += '</div></div>';
+        cards.push(c);
+      });
+
+      var btnExpandir = document.getElementById('btnExpandir');
+      var visiveis = cards;
+      if (cards.length > CARDS_PADRAO) {
+        btnExpandir.style.display = 'block';
+        if (expandido) {
+          btnExpandir.textContent = 'Ver menos setores';
+        } else {
+          visiveis = cards.slice(0, CARDS_PADRAO);
+          btnExpandir.textContent = 'Ver mais setores (' + (cards.length - CARDS_PADRAO) + ')';
+        }
+      } else {
+        btnExpandir.style.display = 'none';
+      }
+
+      var html = visiveis.join('');
+      if (cards.length === 0) {
+        html = '<div style="background:white;border-radius:14px;padding:20px;text-align:center;color:#64748b;">Nenhum funcionário encontrado.</div>';
+      }
+
+      document.getElementById('gradeSetores').innerHTML = html;
+      document.getElementById('contador').textContent = lista.length + ' registro(s)';
+    }
+
+    function escaparAspas(texto) {
+      return String(texto).replace(/'/g, "\'").replace(/"/g, '&quot;');
+    }
+
+    function alternarExpandir() {
+      expandido = !expandido;
+      montarGradeSetores(cacheAtivos);
+    }
+
+    function abrirSetor(setor) {
+      setorSelecionado = setor;
+      var campo = document.getElementById('campoBusca');
+      if (campo) campo.value = '';
+      montarTabelaSetor(cacheAtivos);
+    }
+
+    function voltarGrade() {
+      setorSelecionado = null;
+      montarGradeSetores(cacheAtivos);
+    }
+
+    function buscarAtivos() {
+      if (setorSelecionado) montarTabelaSetor(cacheAtivos);
+      else montarGradeSetores(cacheAtivos);
+    }
+
+    // ===== TABELA DE UM SETOR =====
+    function montarTabelaSetor(registros) {
+      document.getElementById('gradeSetores').style.display = 'none';
+      document.getElementById('btnExpandir').style.display = 'none';
+      document.getElementById('btnVoltar').style.display = 'inline-block';
+      document.getElementById('tabelaWrapper').style.display = 'block';
+
+      var lista = registros.filter(function(f) { return (lerSetor(f) || 'Sem setor') === setorSelecionado; });
+
+      var campo = document.getElementById('campoBusca');
+      if (campo && campo.value) {
+        var termo = normalizar(campo.value);
+        lista = lista.filter(function(f) {
+          return normalizar(lerNome(f)).indexOf(termo) !== -1 || normalizar(lerCodigo(f)).indexOf(termo) !== -1;
+        });
+      }
+
+      document.getElementById('cabecalhoTabela').innerHTML =
+        '<tr><th>Código</th><th>Nome</th><th>Setor</th><th>Status</th><th>Último exame</th><th>Vence em</th><th>Dias</th><th>Ações</th></tr>';
+
+      if (lista.length === 0) {
+        document.getElementById('corpoTabela').innerHTML = '<tr><td colspan="8">Nenhum registro encontrado neste setor.</td></tr>';
+        document.getElementById('contador').textContent = '0 registro(s)';
+        return;
+      }
+
+      var html = '';
+      lista.forEach(function(f) {
+        var status = statusDoFuncionario(f);
+        var info = dadosAsoDoFuncionario(f);
+        var classe = { 'Atrasado': 'etq-atrasado', 'Atenção': 'etq-atencao', 'Sem periódico': 'etq-semperiodico', 'Em dia': 'etq-emdia' }[status];
+        html += '<tr>';
+        html += '<td>' + formatarValor(lerCodigo(f)) + '</td>';
+        html += '<td>' + formatarValor(lerNome(f)) + '</td>';
+        html += '<td>' + formatarValor(lerSetor(f)) + '</td>';
+        html += '<td><span class="etiqueta ' + classe + '">' + status.toUpperCase() + '</span></td>';
+        html += '<td>' + (info.dataExame ? info.dataExame.toLocaleDateString('pt-BR') : '') + '</td>';
+        html += '<td>' + (info.vence ? info.vence.toLocaleDateString('pt-BR') : '') + '</td>';
+        html += '<td>' + info.dias + '</td>';
+        html += '<td>';
+        html += '<button class="acao acao-editar" onclick="abrirModalFuncionario(\'' + f.__id + '\')">Editar</button> ';
+        html += '<button class="acao acao-aso" onclick="abrirModalAsoFuncionario(\'' + f.__id + '\')">ASO</button> ';
+        html += '<button class="acao acao-excluir" onclick="excluirFuncionario(\'' + f.__id + '\')">Excluir</button>';
+        html += '</td></tr>';
+      });
+      document.getElementById('corpoTabela').innerHTML = html;
+      document.getElementById('contador').textContent = lista.length + ' registro(s)';
+    }
+
+    // ===== HISTÓRICO =====
+    function montarTabelaHistorico(registros) {
+      document.getElementById('tabelaWrapper').style.display = 'block';
+      document.getElementById('gradeSetores').style.display = 'none';
+      document.getElementById('btnExpandir').style.display = 'none';
+      document.getElementById('btnVoltar').style.display = 'none';
+
+      var campo = document.getElementById('campoBusca');
+      if (campo && campo.value) {
+        var termo = normalizar(campo.value);
+        registros = registros.filter(function(r) {
+          return normalizar(nomeDoAso(r)).indexOf(termo) !== -1 || normalizar(lerTipo(r)).indexOf(termo) !== -1;
+        });
+      }
+
+      document.getElementById('cabecalhoTabela').innerHTML =
+        '<tr><th>Funcionário</th><th>Tipo</th><th>Data do exame</th><th>Validade</th><th>Observação</th><th>Ações</th></tr>';
+
+      if (registros.length === 0) {
+        document.getElementById('corpoTabela').innerHTML = '<tr><td colspan="6">Nenhum ASO lançado ainda.</td></tr>';
+        document.getElementById('contador').textContent = '0 registro(s)';
+        return;
+      }
+
+      registros.sort(function(a, b) {
+        var da = lerDataExame(a); var db2 = lerDataExame(b);
+        if (!da) return 1; if (!db2) return -1;
+        return db2.getTime() - da.getTime();
+      });
+
+      var html = '';
+      registros.forEach(function(r) {
+        var data = lerDataExame(r);
+        html += '<tr>';
+        html += '<td>' + formatarValor(nomeDoAso(r)) + '</td>';
+        html += '<td>' + formatarValor(lerTipo(r)) + '</td>';
+        html += '<td>' + (data ? data.toLocaleDateString('pt-BR') : '') + '</td>';
+        html += '<td>' + (r.validadeMeses ? r.validadeMeses + ' meses' : '—') + '</td>';
+        html += '<td>' + formatarValor(lerObservacao(r)) + '</td>';
+        html += '<td>';
+        html += '<button class="acao acao-editar" onclick="abrirModalAsoEdicao(\'' + r.__id + '\')">Editar</button> ';
+        html += '<button class="acao acao-excluir" onclick="excluirAso(\'' + r.__id + '\')">Excluir</button>';
+        html += '</td></tr>';
+      });
+      document.getElementById('corpoTabela').innerHTML = html;
+      document.getElementById('contador').textContent = registros.length + ' registro(s)';
+    }
+
+    // ===== SETORES =====
+    function montarTabelaSetores(registros) {
+      document.getElementById('tabelaWrapper').style.display = 'block';
+      document.getElementById('gradeSetores').style.display = 'none';
+      document.getElementById('btnExpandir').style.display = 'none';
+      document.getElementById('btnVoltar').style.display = 'none';
+
+      document.getElementById('cabecalhoTabela').innerHTML = '<tr><th>Setor</th><th>Validade do ASO</th><th>Ações</th></tr>';
+      if (registros.length === 0) {
+        document.getElementById('corpoTabela').innerHTML = '<tr><td colspan="3">Nenhum setor cadastrado.</td></tr>';
+        document.getElementById('contador').textContent = '0 registro(s)';
         return;
       }
       var html = '';
-      for (var i = 0; i < estado.inativos.length; i++) {
-        var it = estado.inativos[i];
-        html += '<tr class="clicavel" data-codigo="' + esc(it.codigo) + '">'
-              + '<td><strong>' + esc(it.nome || '(sem nome)') + '</strong></td>'
-              + '<td>' + esc(it.setor || '—') + '</td>'
-              + '<td class="col-oculta">' + fmtData(it.dataSaida) + '</td>'
-              + '<td style="white-space:nowrap">'
-              + '<button class="btn btn-mini" data-acao="restaurar" data-index="' + i + '">Restaurar</button>'
-              + '</td></tr>';
-      }
-      tb.innerHTML = html;
-    })
-    .catch(function (e) { mostrarErro('Erro ao carregar inativos: ' + e); });
-}
-
-function restaurarUI(i) {
-  var it = estado.inativos[i];
-  if (!it) return;
-  if (!confirm('Restaurar ' + (it.nome || 'colaborador') + ' para os ativos?')) return;
-  callServer('restaurarDeInativos', { codigo: it.codigo })
-    .then(function () { carregarInativos(); })
-    .catch(function (e) { mostrarErro('Erro ao restaurar: ' + e); });
-}
-
-/* ==================== EVENTOS ==================== */
-
-function ligarEventos() {
-  $('btn-entrar').addEventListener('click', fazerLogin);
-  $('senha').addEventListener('keydown', function (ev) {
-    if (ev.key === 'Enter') fazerLogin();
-  });
-
-  $('btn-atualizar').addEventListener('click', carregarAtivos);
-  $('btn-ir-setores').addEventListener('click', abrirSetores);
-  $('btn-ir-inativos').addEventListener('click', abrirInativos);
-  $('btn-ir-adicionar').addEventListener('click', function () { mostrarView('adicionar'); });
-  $('btn-sair').addEventListener('click', sair);
-
-  $('busca').addEventListener('input', function () { aoDigitarBusca(this.value); });
-
-  $('btn-anterior').addEventListener('click', function () { mudarPagina(estado.pagina - 1); });
-  $('btn-proximo').addEventListener('click', function () { mudarPagina(estado.pagina + 1); });
-
-  $('kpis').addEventListener('click', function (ev) {
-    var el = ev.target.closest ? ev.target.closest('.kpi[data-status]') : null;
-    if (el) filtrarStatus(el.getAttribute('data-status'));
-  });
-
-  $('corpo-tabela').addEventListener('click', function (ev) {
-    var tr = ev.target.closest ? ev.target.closest('tr[data-codigo]') : null;
-    if (tr) abrirDetalhe(tr.getAttribute('data-codigo'), false);
-  });
-
-  $('btn-voltar-detalhe').addEventListener('click', irParaLista);
-  $('btn-excluir-colab').addEventListener('click', excluirColaboradorUI);
-  $('btn-salvar-dados').addEventListener('click', salvarDadosColaborador);
-  $('ex-tipo').addEventListener('change', sugerirValidade);
-  $('det-setor').addEventListener('change', sugerirValidade);
-  $('btn-exame').addEventListener('click', salvarExame);
-  $('btn-exame-cancelar').addEventListener('click', limparFormExame);
-
-  $('corpo-historico').addEventListener('click', function (ev) {
-    var b = ev.target.closest ? ev.target.closest('button[data-acao]') : null;
-    if (!b) return;
-    var id = b.getAttribute('data-id');
-    if (b.getAttribute('data-acao') === 'editar') editarExameUI(id);
-    else excluirExameUI(id);
-  });
-
-  $('btn-voltar-setores').addEventListener('click', irParaLista);
-  $('btn-salvar-setor').addEventListener('click', salvarSetorUI);
-
-  $('corpo-setores').addEventListener('click', function (ev) {
-    var b = ev.target.closest ? ev.target.closest('button[data-acao]') : null;
-    if (!b) return;
-    var i = parseInt(b.getAttribute('data-index'), 10);
-    if (b.getAttribute('data-acao') === 'editar') preencherSetorForm(i);
-    else excluirSetorUI(i);
-  });
-
-  $('btn-voltar-adicionar').addEventListener('click', irParaLista);
-  $('btn-adicionar').addEventListener('click', adicionarColaboradorUI);
-  $('btn-cancelar-adicionar').addEventListener('click', irParaLista);
-
-  $('btn-voltar-inativos').addEventListener('click', irParaLista);
-
-  $('corpo-inativos').addEventListener('click', function (ev) {
-    var b = ev.target.closest ? ev.target.closest('button[data-acao="restaurar"]') : null;
-    if (b) {
-      restaurarUI(parseInt(b.getAttribute('data-index'), 10));
-      return;
+      registros.forEach(function(r) {
+        var nome = lerCampo(r, ['nome', 'setor']) || '';
+        var validade = r.validadeMeses ? r.validadeMeses + ' meses' : '—';
+        html += '<tr><td>' + formatarValor(nome) + '</td><td>' + validade + '</td><td>';
+        html += '<button class="acao acao-editar" onclick="abrirModalSetor(\'' + r.__id + '\')">Editar</button> ';
+        html += '<button class="acao acao-excluir" onclick="excluirSetor(\'' + r.__id + '\')">Excluir</button>';
+        html += '</td></tr>';
+      });
+      document.getElementById('corpoTabela').innerHTML = html;
+      document.getElementById('contador').textContent = registros.length + ' registro(s)';
     }
-    var tr = ev.target.closest ? ev.target.closest('tr[data-codigo]') : null;
-    if (tr) abrirDetalhe(tr.getAttribute('data-codigo'), true);
-  });
-}
 
-/* ==================== INICIALIZAÇÃO ==================== */
+    // ===== INATIVOS =====
+    function montarTabelaInativos(registros) {
+      document.getElementById('tabelaWrapper').style.display = 'block';
+      document.getElementById('gradeSetores').style.display = 'none';
+      document.getElementById('btnExpandir').style.display = 'none';
+      document.getElementById('btnVoltar').style.display = 'none';
 
-window.addEventListener('error', function (ev) {
-  console.error('[ASO] Erro na página:', ev.message, '| linha', ev.lineno);
-});
+      var campo = document.getElementById('campoBusca');
+      if (campo && campo.value) {
+        var termo = normalizar(campo.value);
+        registros = registros.filter(function(r) { return normalizar(lerNome(r)).indexOf(termo) !== -1; });
+      }
+      document.getElementById('cabecalhoTabela').innerHTML = '<tr><th>Código</th><th>Nome</th><th>Setor</th><th>Data de exclusão</th><th>Ações</th></tr>';
+      if (registros.length === 0) {
+        document.getElementById('corpoTabela').innerHTML = '<tr><td colspan="5">Nenhum funcionário inativo.</td></tr>';
+        document.getElementById('contador').textContent = '0 registro(s)';
+        return;
+      }
+      var html = '';
+      registros.forEach(function(r) {
+        var dataEx = paraData(lerCampo(r, ['dataexclusao', 'excluidoem', 'data']));
+        html += '<tr>';
+        html += '<td>' + formatarValor(lerCodigo(r)) + '</td>';
+        html += '<td>' + formatarValor(lerNome(r)) + '</td>';
+        html += '<td>' + formatarValor(lerSetor(r)) + '</td>';
+        html += '<td>' + (dataEx ? dataEx.toLocaleDateString('pt-BR') : '') + '</td>';
+        html += '<td><button class="acao acao-reativar" onclick="reativarFuncionario(\'' + r.__id + '\')">Reativar</button></td>';
+        html += '</tr>';
+      });
+      document.getElementById('corpoTabela').innerHTML = html;
+      document.getElementById('contador').textContent = registros.length + ' registro(s)';
+    }
 
-(function iniciar() {
-  ligarEventos();
-  if (!urlConfigurada()) {
-    $('login-erro').textContent = 'Atenção: o endereço do Web App não foi configurado neste arquivo.';
-    return;
-  }
-  if (senhaAtual()) {
-    callServer('verificarSenha', { senha: senhaAtual() })
-      .then(function (res) { if (res && res.ok) abrirApp(); })
-      .catch(function () {});
-  }
-})();
-</script>
+    function formatarValor(valor) {
+      if (valor === null || valor === undefined) return '';
+      if (typeof valor === 'object') return JSON.stringify(valor);
+      return String(valor);
+    }
+
+    // ===== MODAIS =====
+    function abrirModal(id) { document.getElementById(id).classList.add('aberto'); }
+    function fecharModal(id) { document.getElementById(id).classList.remove('aberto'); }
+
+    // ----- Funcionário -----
+    function abrirModalFuncionario(id) {
+      funcionarioEditandoId = id || null;
+      codigoEditando = null;
+      document.getElementById('funcNome').value = '';
+      document.getElementById('tituloModalFuncionario').textContent = id ? 'Editar Funcionário' : 'Novo Funcionário';
+      document.getElementById('dicaCodigo').textContent = id
+        ? 'O código do funcionário é gerado pelo sistema e não pode ser alterado.'
+        : 'O código do funcionário será gerado automaticamente pelo sistema.';
+
+      var select = document.getElementById('funcSetor');
+      var html = '<option value="">Selecione o setor...</option>';
+      cacheSetores.forEach(function(s) {
+        var nome = lerCampo(s, ['nome', 'setor']) || '';
+        html += '<option value="' + nome + '">' + nome + '</option>';
+      });
+      select.innerHTML = html;
+
+      if (id) {
+        db.collection('ativos').doc(id).get().then(function(doc) {
+          if (doc.exists) {
+            var r = doc.data();
+            document.getElementById('funcNome').value = lerNome(r);
+            codigoEditando = lerCodigo(r);   // preserva o código atual
+            setTimeout(function() { document.getElementById('funcSetor').value = lerSetor(r); }, 200);
+          }
+        });
+      }
+      abrirModal('modalFuncionario');
+    }
+
+    function salvarFuncionario() {
+      var nome = document.getElementById('funcNome').value.trim();
+      var setor = document.getElementById('funcSetor').value;
+      if (!nome) { avisar('Informe o nome do funcionário.'); return; }
+
+      if (funcionarioEditandoId) {
+        // Edição: mantém o código existente
+        var dadosEdicao = {
+          nome: nome,
+          setor: setor,
+          codigo: codigoEditando || gerarCodigoUnico(),
+          atualizadoEm: new Date()
+        };
+        db.collection('ativos').doc(funcionarioEditandoId).update(dadosEdicao)
+          .then(function() { fecharModal('modalFuncionario'); carregarTudo(); })
+          .catch(function(e) { avisar('Erro ao salvar: ' + e.message); });
+      } else {
+        // Cadastro novo: o sistema gera o código aleatório
+        var codigoNovo = gerarCodigoUnico();
+        db.collection('ativos').add({
+          nome: nome,
+          setor: setor,
+          codigo: codigoNovo,
+          criadoEm: new Date()
+        }).then(function() {
+          fecharModal('modalFuncionario');
+          carregarTudo();
+          avisar('Funcionário cadastrado. Código gerado: ' + codigoNovo);
+        }).catch(function(e) { avisar('Erro ao salvar: ' + e.message); });
+      }
+    }
+
+    async function excluirFuncionario(id) {
+      var ok = await confirmar('Excluir este funcionário? Ele será movido para a lista de Inativos.');
+      if (!ok) return;
+      db.collection('ativos').doc(id).get().then(function(doc) {
+        if (!doc.exists) return;
+        var dados = doc.data();
+        delete dados.__id;
+        dados.dataExclusao = new Date();
+        dados.motivo = 'Excluído do sistema';
+        db.collection('inativos').add(dados).then(function() {
+          return db.collection('ativos').doc(id).delete();
+        }).then(function() { carregarTudo(); })
+        .catch(function(e) { avisar('Erro ao excluir: ' + e.message); });
+      });
+    }
+
+    async function reativarFuncionario(id) {
+      var ok = await confirmar('Reativar este funcionário? Ele voltará para a lista de Ativos.');
+      if (!ok) return;
+      db.collection('inativos').doc(id).get().then(function(doc) {
+        if (!doc.exists) return;
+        var dados = doc.data();
+        delete dados.__id;
+        delete dados.dataExclusao;
+        delete dados.motivo;
+        db.collection('ativos').add(dados).then(function() {
+          return db.collection('inativos').doc(id).delete();
+        }).then(function() { carregarTudo(); })
+        .catch(function(e) { avisar('Erro ao reativar: ' + e.message); });
+      });
+    }
+
+    // ----- ASO -----
+    function abrirModalAsoFuncionario(funcionarioId) {
+      asoEditandoId = null;
+      asoFuncionarioId = funcionarioId;
+      document.getElementById('tituloModalAso').textContent = 'Lançar ASO';
+      document.getElementById('asoFuncionarioSelect').style.display = 'none';
+      document.getElementById('asoFuncionarioNome').style.display = 'block';
+      document.getElementById('asoFuncionarioNome').value = '';
+      document.getElementById('asoData').value = '';
+      document.getElementById('asoObservacao').value = '';
+      document.getElementById('asoTipo').value = 'Periódico';
+      document.getElementById('asoValidadeMeses').value = '';
+
+      db.collection('ativos').doc(funcionarioId).get().then(function(doc) {
+        if (doc.exists) {
+          var f = doc.data();
+          document.getElementById('asoFuncionarioNome').value = lerNome(f);
+          var m = mesesDoSetor(lerSetor(f));
+          document.getElementById('asoValidadeMeses').value = m ? m : MESES_PADRAO;
+        }
+      });
+      abrirModal('modalAso');
+    }
+
+    function abrirModalAsoLancamento() {
+      asoEditandoId = null;
+      asoFuncionarioId = null;
+      document.getElementById('tituloModalAso').textContent = 'Lançar ASO';
+      document.getElementById('asoFuncionarioNome').style.display = 'none';
+      document.getElementById('asoFuncionarioSelect').style.display = 'block';
+      document.getElementById('asoData').value = '';
+      document.getElementById('asoObservacao').value = '';
+      document.getElementById('asoTipo').value = 'Periódico';
+      document.getElementById('asoValidadeMeses').value = MESES_PADRAO;
+
+      var select = document.getElementById('asoFuncionarioSelect');
+      var html = '<option value="">Selecione o funcionário...</option>';
+      cacheAtivos.forEach(function(f) { html += '<option value="' + f.__id + '">' + lerNome(f) + '</option>'; });
+      select.innerHTML = html;
+
+      select.onchange = function() {
+        var id = select.value;
+        for (var i = 0; i < cacheAtivos.length; i++) {
+          if (cacheAtivos[i].__id === id) {
+            var m = mesesDoSetor(lerSetor(cacheAtivos[i]));
+            document.getElementById('asoValidadeMeses').value = m ? m : MESES_PADRAO;
+            break;
+          }
+        }
+      };
+
+      abrirModal('modalAso');
+    }
+
+    function abrirModalAsoEdicao(asoId) {
+      asoEditandoId = asoId;
+      document.getElementById('tituloModalAso').textContent = 'Editar ASO';
+      document.getElementById('asoFuncionarioSelect').style.display = 'none';
+      document.getElementById('asoFuncionarioNome').style.display = 'block';
+
+      db.collection('historico').doc(asoId).get().then(function(doc) {
+        if (!doc.exists) return;
+        var r = doc.data();
+        asoFuncionarioId = r.funcionarioId || r.funcionario_id || null;
+        document.getElementById('asoFuncionarioNome').value = nomeDoAso(r);
+        document.getElementById('asoTipo').value = r.tipo || 'Periódico';
+        document.getElementById('asoValidadeMeses').value = r.validadeMeses || MESES_PADRAO;
+        var data = lerDataExame(r);
+        if (data) {
+          document.getElementById('asoData').value =
+            data.getFullYear() + '-' + ('0' + (data.getMonth() + 1)).slice(-2) + '-' + ('0' + data.getDate()).slice(-2);
+        }
+        document.getElementById('asoObservacao').value = lerObservacao(r);
+      });
+      abrirModal('modalAso');
+    }
+
+    function salvarAso() {
+      var tipo = document.getElementById('asoTipo').value;
+      var dataStr = document.getElementById('asoData').value;
+      var observacao = document.getElementById('asoObservacao').value.trim();
+      var validadeMeses = parseInt(document.getElementById('asoValidadeMeses').value, 10);
+
+      if (!dataStr) { avisar('Informe a data do exame.'); return; }
+      if (!validadeMeses || validadeMeses < 1) { avisar('Informe a validade em meses (ex.: 12).'); return; }
+      var data = new Date(dataStr + 'T12:00:00');
+
+      if (asoEditandoId) {
+        db.collection('historico').doc(asoEditandoId).update({
+          tipo: tipo, data: data, observacao: observacao, validadeMeses: validadeMeses, atualizadoEm: new Date()
+        }).then(function() { fecharModal('modalAso'); carregarTudo(); })
+        .catch(function(e) { avisar('Erro ao salvar ASO: ' + e.message); });
+        return;
+      }
+
+      if (!asoFuncionarioId) {
+        asoFuncionarioId = document.getElementById('asoFuncionarioSelect').value;
+        if (!asoFuncionarioId) { avisar('Selecione o funcionário.'); return; }
+      }
+
+      db.collection('ativos').doc(asoFuncionarioId).get().then(function(doc) {
+        if (!doc.exists) { avisar('Funcionário não encontrado.'); return; }
+        var funcionario = doc.data();
+        return db.collection('historico').add({
+          funcionarioId: asoFuncionarioId,
+          funcionarioNome: lerNome(funcionario),
+          funcionarioCodigo: lerCodigo(funcionario),
+          tipo: tipo, data: data, observacao: observacao, validadeMeses: validadeMeses, criadoEm: new Date()
+        });
+      }).then(function() { fecharModal('modalAso'); carregarTudo(); })
+      .catch(function(e) { avisar('Erro ao lançar ASO: ' + e.message); });
+    }
+
+    async function excluirAso(asoId) {
+      var ok = await confirmar('Excluir este ASO do histórico?');
+      if (!ok) return;
+      db.collection('historico').doc(asoId).delete()
+        .then(function() { carregarTudo(); })
+        .catch(function(e) { avisar('Erro ao excluir ASO: ' + e.message); });
+    }
+
+    // ----- Setores -----
+    function abrirModalSetor(id) {
+      setorEditandoId = id || null;
+      document.getElementById('setorNome').value = '';
+      document.getElementById('setorValidadeMeses').value = '';
+      document.getElementById('tituloModalSetor').textContent = id ? 'Editar Setor' : 'Novo Setor';
+      if (id) {
+        db.collection('setores').doc(id).get().then(function(doc) {
+          if (doc.exists) {
+            var r = doc.data();
+            document.getElementById('setorNome').value = lerCampo(r, ['nome', 'setor']) || '';
+            document.getElementById('setorValidadeMeses').value = r.validadeMeses || '';
+          }
+        });
+      }
+      abrirModal('modalSetor');
+    }
+
+    function salvarSetor() {
+      var nome = document.getElementById('setorNome').value.trim();
+      var validadeMeses = parseInt(document.getElementById('setorValidadeMeses').value, 10);
+      if (!nome) { avisar('Informe o nome do setor.'); return; }
+      if (!validadeMeses || validadeMeses < 1) { avisar('Informe a validade do ASO em meses (ex.: 12).'); return; }
+
+      if (setorEditandoId) {
+        db.collection('setores').doc(setorEditandoId).update({ nome: nome, validadeMeses: validadeMeses, atualizadoEm: new Date() })
+          .then(function() { fecharModal('modalSetor'); carregarTudo(); })
+          .catch(function(e) { avisar('Erro ao salvar: ' + e.message); });
+      } else {
+        db.collection('setores').add({ nome: nome, validadeMeses: validadeMeses, criadoEm: new Date() })
+          .then(function() { fecharModal('modalSetor'); carregarTudo(); })
+          .catch(function(e) { avisar('Erro ao salvar: ' + e.message); });
+      }
+    }
+
+    async function excluirSetor(id) {
+      var ok = await confirmar('Excluir este setor?');
+      if (!ok) return;
+      db.collection('setores').doc(id).delete()
+        .then(function() { carregarTudo(); })
+        .catch(function(e) { avisar('Erro ao excluir: ' + e.message); });
+    }
+  </script>
 </body>
 </html>
