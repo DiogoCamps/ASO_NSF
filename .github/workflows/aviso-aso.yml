@@ -2,8 +2,8 @@ name: Aviso ASO - Vencidos e Atenção
 
 on:
   schedule:
-    # 10h UTC = 7h em São Paulo, de segunda a sexta
-    - cron: '0 10 * * 1-5'
+    # 10h UTC = 7h em São Paulo, toda segunda
+    - cron: '0 10 * * 1'
   workflow_dispatch:   # permite rodar manualmente pelo botão
 
 jobs:
