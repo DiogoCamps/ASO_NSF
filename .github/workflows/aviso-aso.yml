@@ -1,0 +1,26 @@
+name: Aviso ASO - Vencidos e Atenção
+
+on:
+  schedule:
+    # 10h UTC = 7h em São Paulo, de segunda a sexta
+    - cron: '0 10 * * 1-5'
+  workflow_dispatch:   # permite rodar manualmente pelo botão
+
+jobs:
+  aviso-aso:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+        working-directory: firebase-aviso-aso
+      - run: node index.js
+        working-directory: firebase-aviso-aso
+        env:
+          FIREBASE_PROJECT_ID: aso-nsf
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
