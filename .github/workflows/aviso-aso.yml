@@ -18,9 +18,11 @@ jobs:
         working-directory: firebase-aviso-aso
       - run: node index.js
         working-directory: firebase-aviso-aso
-        env:
-          FIREBASE_PROJECT_ID: aso-nsf
+        env:      
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
-          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
