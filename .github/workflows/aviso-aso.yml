@@ -21,6 +21,7 @@ jobs:
         env:      
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          EMAIL_FROM: ${{secrets.EMAIL_FROM}}
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
