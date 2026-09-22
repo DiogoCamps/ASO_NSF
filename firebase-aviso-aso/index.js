@@ -172,7 +172,7 @@ async function main() {
 });
 
   await transporter.sendMail({
-    from: process.env.EMAIL_USER,
+    from: process.env.EMAIL_FROM,
     to: destinatarios.join(', '),
     subject: '[ASO] ' + vencidos + ' vencido(s) e ' + atencao + ' em atenção',
     html: montarHtml(pendentes)
